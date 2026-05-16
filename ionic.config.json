@@ -1,0 +1,7 @@
+{
+  "name": "educontrol",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

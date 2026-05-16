@@ -1,0 +1,15 @@
+services:
+  app:
+    build:
+      context: .
+    container_name: educontrol-ionic
+    user: "${UID:-1000}:${GID:-1000}"
+    ports:
+      - "8100:8100"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      NG_CLI_ANALYTICS: "false"
+      CHOKIDAR_USEPOLLING: "true"
+    command: npm run start -- --host 0.0.0.0 --port 8100 --poll 2000
