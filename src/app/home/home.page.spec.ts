@@ -12,8 +12,8 @@ describe('HomePage', () => {
   beforeEach(async () => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', ['signOut'], {
       profile$: of({
-        uid: 'MDOkiUUciFa0ixvRFKlTax10yQ72',
-        email: 'dev.joanvasquez@gmail.com',
+        uid: 'firebase-auth-uid',
+        email: 'admin@example.com',
         fullName: 'Usuario IT',
         role: 'admin',
         status: 'active',

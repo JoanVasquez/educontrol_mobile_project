@@ -9,6 +9,8 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       NG_CLI_ANALYTICS: "false"
       CHOKIDAR_USEPOLLING: "true"

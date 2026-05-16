@@ -34,23 +34,23 @@ describe('LoginPage', () => {
 
   it('should navigate home after a successful login', () => {
     authService.signIn.and.returnValue(of({
-      uid: 'MDOkiUUciFa0ixvRFKlTax10yQ72',
-      email: 'dev.joanvasquez@gmail.com',
+      uid: 'firebase-auth-uid',
+      email: 'admin@example.com',
       fullName: 'Usuario IT',
       role: 'admin',
       status: 'active',
     }));
-    component.loginForm.setValue({ email: 'dev.joanvasquez@gmail.com', password: 'valid-password' });
+    component.loginForm.setValue({ email: 'admin@example.com', password: 'valid-password' });
 
     component.submit();
 
-    expect(authService.signIn).toHaveBeenCalledOnceWith('dev.joanvasquez@gmail.com', 'valid-password');
+    expect(authService.signIn).toHaveBeenCalledOnceWith('admin@example.com', 'valid-password');
     expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/home', { replaceUrl: true });
   });
 
   it('should display authentication errors', () => {
     authService.signIn.and.returnValue(throwError(() => new Error('Credenciales inválidas.')));
-    component.loginForm.setValue({ email: 'dev.joanvasquez@gmail.com', password: 'valid-password' });
+    component.loginForm.setValue({ email: 'admin@example.com', password: 'valid-password' });
 
     component.submit();
 

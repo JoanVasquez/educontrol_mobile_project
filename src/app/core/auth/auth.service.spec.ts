@@ -14,8 +14,8 @@ describe('AuthService', () => {
   let sessionStorage: jasmine.SpyObj<SessionStorageService>;
 
   const session: AuthSession = {
-    uid: 'MDOkiUUciFa0ixvRFKlTax10yQ72',
-    email: 'dev.joanvasquez@gmail.com',
+    uid: 'firebase-auth-uid',
+    email: 'admin@example.com',
     idToken: 'id-token',
     refreshToken: 'refresh-token',
     expiresAt: Date.now() + 3600_000,

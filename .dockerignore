@@ -4,6 +4,10 @@ dist
 .angular
 .git
 .vscode
+.env
+.env.*
+!.env.example
+src/environments/environment.generated.ts
 npm-debug.log
 Dockerfile
 docker-compose.yml
