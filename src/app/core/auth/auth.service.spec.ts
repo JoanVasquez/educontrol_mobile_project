@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 import { UserProfileRepository } from '../users/user-profile.repository';
 import { UserProfile } from '../users/user-profile.model';
 import { AuthSession } from './auth-session.model';
@@ -69,6 +69,54 @@ describe('AuthService', () => {
         expect(error.message).toBe('Credenciales inválidas. Verifica tu correo y contraseña.');
         done();
       },
+    });
+  });
+
+  it('should not clear a fresh login when a stale restore request fails later', (done) => {
+    TestBed.resetTestingModule();
+
+    const expiredSession: AuthSession = {
+      ...session,
+      idToken: 'expired-id-token',
+      refreshToken: 'expired-refresh-token',
+      expiresAt: Date.now() - 60_000,
+    };
+    let currentSession: AuthSession | null = expiredSession;
+    const refreshSession$ = new Subject<AuthSession>();
+
+    authApi = jasmine.createSpyObj<FirebaseAuthApiService>('FirebaseAuthApiService', ['signInWithEmailAndPassword', 'refreshSession']);
+    profileRepository = jasmine.createSpyObj<UserProfileRepository>('UserProfileRepository', ['findByUid']);
+    sessionStorage = jasmine.createSpyObj<SessionStorageService>('SessionStorageService', ['getSession', 'setSession', 'clearSession']);
+    sessionStorage.getSession.and.callFake(() => currentSession);
+    sessionStorage.setSession.and.callFake((nextSession) => {
+      currentSession = nextSession;
+    });
+    sessionStorage.clearSession.and.callFake(() => {
+      currentSession = null;
+    });
+
+    authApi.refreshSession.and.returnValue(refreshSession$);
+    authApi.signInWithEmailAndPassword.and.returnValue(of(session));
+    profileRepository.findByUid.and.returnValue(of(adminProfile));
+
+    TestBed.configureTestingModule({
+      providers: [
+        AuthService,
+        { provide: FirebaseAuthApiService, useValue: authApi },
+        { provide: UserProfileRepository, useValue: profileRepository },
+        { provide: SessionStorageService, useValue: sessionStorage },
+      ],
+    });
+
+    const racingService = TestBed.inject(AuthService);
+
+    racingService.signIn(session.email, 'valid-password').subscribe(() => {
+      refreshSession$.error(new Error('stale restore failed'));
+
+      expect(sessionStorage.clearSession).not.toHaveBeenCalled();
+      expect(currentSession).toEqual(session);
+      expect(racingService.hasAnyRole(['admin'])).toBeTrue();
+      done();
     });
   });
 });

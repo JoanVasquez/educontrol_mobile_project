@@ -55,13 +55,13 @@ export class AuthService {
     }
 
     const session$ = this.isExpired(storedSession)
-      ? this.authApi.refreshSession(storedSession).pipe(tap((session) => this.sessionStorage.setSession(session)))
+      ? this.authApi.refreshSession(storedSession)
       : of(storedSession);
 
     return session$.pipe(
       switchMap((session) => this.loadUserProfile(session)),
       catchError(() => {
-        this.clearSession();
+        this.clearSessionIfCurrent(storedSession);
         return of(null);
       }),
       finalize(() => this.initializedSubject.next(true)),
@@ -86,6 +86,18 @@ export class AuthService {
     this.sessionStorage.clearSession();
     this.sessionSubject.next(null);
     this.profileSubject.next(null);
+  }
+
+  private clearSessionIfCurrent(session: AuthSession): void {
+    const currentSession = this.sessionStorage.getSession();
+
+    if (currentSession && this.isSameSession(currentSession, session)) {
+      this.clearSession();
+    }
+  }
+
+  private isSameSession(currentSession: AuthSession, expectedSession: AuthSession): boolean {
+    return currentSession.uid === expectedSession.uid && currentSession.refreshToken === expectedSession.refreshToken;
   }
 
   private isExpired(session: AuthSession): boolean {
