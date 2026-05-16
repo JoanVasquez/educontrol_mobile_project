@@ -2,5 +2,8 @@
  * Prevents Angular change detection from
  * running with certain Web Component callbacks
  */
-// eslint-disable-next-line no-underscore-dangle
-(window as any).__Zone_disable_customElements = true;
+type ZoneFlagsWindow = Window & {
+  __Zone_disable_customElements?: boolean;
+};
+
+(window as ZoneFlagsWindow).__Zone_disable_customElements = true;

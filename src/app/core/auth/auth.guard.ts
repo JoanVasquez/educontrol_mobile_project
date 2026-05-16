@@ -1,5 +1,6 @@
 import { inject } from '@angular/core';
-import { CanActivateFn, Router, UrlTree } from '@angular/router';
+import type { CanActivateFn, UrlTree } from '@angular/router';
+import { Router } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { AuthService } from './auth.service';
 

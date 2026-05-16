@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthSession } from './auth-session.model';
+import type { AuthSession } from './auth-session.model';
 
 interface FirebaseSignInResponse {
   localId: string;
