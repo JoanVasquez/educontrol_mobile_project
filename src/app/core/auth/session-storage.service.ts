@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AuthSession } from './auth-session.model';
+import type { AuthSession } from './auth-session.model';
 
 const SESSION_KEY = 'educontrol.auth.session';
 

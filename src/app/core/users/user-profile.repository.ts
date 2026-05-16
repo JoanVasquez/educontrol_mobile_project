@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { UserProfile, UserRole, UserStatus } from './user-profile.model';
+import type { UserProfile, UserRole, UserStatus } from './user-profile.model';
 
 interface FirestoreValue {
   stringValue?: string;

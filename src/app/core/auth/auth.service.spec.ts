@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Subject, of, throwError } from 'rxjs';
 import { UserProfileRepository } from '../users/user-profile.repository';
-import { UserProfile } from '../users/user-profile.model';
-import { AuthSession } from './auth-session.model';
+import type { UserProfile } from '../users/user-profile.model';
+import type { AuthSession } from './auth-session.model';
 import { AuthService } from './auth.service';
 import { FirebaseAuthApiService } from './firebase-auth-api.service';
 import { SessionStorageService } from './session-storage.service';

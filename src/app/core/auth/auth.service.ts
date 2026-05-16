@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, finalize, map, of, switchMap, tap, throwError } from 'rxjs';
+import type { Observable} from 'rxjs';
+import { BehaviorSubject, catchError, finalize, map, of, switchMap, tap, throwError } from 'rxjs';
 import { UserProfileRepository } from '../users/user-profile.repository';
-import { UserProfile, UserRole } from '../users/user-profile.model';
-import { AuthSession } from './auth-session.model';
+import type { UserProfile, UserRole } from '../users/user-profile.model';
+import type { AuthSession } from './auth-session.model';
 import { mapFirebaseAuthError } from './auth-error.mapper';
 import { FirebaseAuthApiService } from './firebase-auth-api.service';
 import { SessionStorageService } from './session-storage.service';
