@@ -1,0 +1,30 @@
+.login-content {
+  --background: linear-gradient(135deg, #0f4c81 0%, #0b2545 100%);
+}
+
+.login-shell {
+  align-items: center;
+  display: flex;
+  min-height: 100%;
+  padding: 24px;
+}
+
+ion-card {
+  margin: 0 auto;
+  max-width: 440px;
+  width: 100%;
+}
+
+ion-note {
+  display: block;
+  margin: 8px 16px 12px;
+}
+
+.auth-error {
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+.login-button {
+  margin-top: 24px;
+}
