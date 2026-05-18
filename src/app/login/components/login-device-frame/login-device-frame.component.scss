@@ -1,0 +1,67 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.login-app-shell {
+  background: #fff;
+  block-size: 100%;
+  inline-size: 100%;
+  min-block-size: 100svh;
+  overflow: hidden;
+  position: relative;
+}
+
+.login-app-shell__status {
+  background: #3158ad;
+  block-size: calc(clamp(54px, 10.5svh, 82px) + env(safe-area-inset-top, 0px));
+}
+
+.login-app-shell__screen {
+  min-block-size: calc(100% - clamp(54px, 10.5svh, 82px) - env(safe-area-inset-top, 0px));
+  position: relative;
+  z-index: 1;
+}
+
+.login-app-shell__flag {
+  block-size: min(calc(100vw * 93 / 375), 32svh);
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 0;
+}
+
+.login-app-shell__flag svg {
+  bottom: 0;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.login-app-shell__flag-blue {
+  fill: #3158ad;
+  z-index: 10;
+}
+
+.login-app-shell__flag-red {
+  fill: #b10808;
+  transform: scaleY(0.871);
+  transform-origin: bottom;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .login-app-shell__status {
+    block-size: calc(clamp(44px, 14svh, 58px) + env(safe-area-inset-top, 0px));
+  }
+
+  .login-app-shell__screen {
+    min-block-size: calc(100% - clamp(44px, 14svh, 58px) - env(safe-area-inset-top, 0px));
+  }
+
+  .login-app-shell__flag {
+    block-size: min(calc(100vw * 93 / 375), 24svh);
+  }
+}

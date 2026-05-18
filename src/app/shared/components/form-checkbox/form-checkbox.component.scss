@@ -1,0 +1,41 @@
+:host {
+  display: inline-flex;
+}
+
+.form-checkbox {
+  align-items: center;
+  color: #111827;
+  display: inline-flex;
+  font-size: clamp(10px, 2.55vw, 12px);
+  gap: 4px;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.form-checkbox__native {
+  appearance: none;
+  background: #fff;
+  border: 1px solid #9ca3af;
+  border-radius: 0;
+  height: 10px;
+  margin: 0;
+  position: relative;
+  width: 10px;
+}
+
+.form-checkbox__native:checked::after {
+  border: solid #3158ad;
+  border-width: 0 2px 2px 0;
+  content: "";
+  height: 7px;
+  left: 3px;
+  position: absolute;
+  top: 0;
+  transform: rotate(45deg);
+  width: 4px;
+}
+
+.form-checkbox__native:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}

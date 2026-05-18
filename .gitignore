@@ -23,6 +23,15 @@ log.txt
 /platforms
 /plugins
 
+# Android / Capacitor native build artifacts
+/android/local.properties
+/android/.gradle/
+/android/build/
+/android/app/build/
+*.apk
+*.ap_
+*.aab
+
 # Compiled output
 /dist
 /tmp
