@@ -1,0 +1,69 @@
+:host {
+  display: block;
+  inline-size: 100%;
+}
+
+.form-input {
+  display: grid;
+  gap: 6px;
+  inline-size: 100%;
+}
+
+.form-input__label {
+  color: #202124;
+  font-size: clamp(10px, 2.55vw, 12px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.form-input__control {
+  align-items: center;
+  background: #fbfcff;
+  border: 1px solid #9ca3af;
+  border-radius: clamp(6px, 1.8vw, 8px);
+  display: flex;
+  gap: clamp(9px, 2.6vw, 13px);
+  inline-size: 100%;
+  min-block-size: clamp(31px, 8vw, 42px);
+  padding: 0 clamp(11px, 3vw, 15px);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.form-input:focus-within .form-input__control {
+  border-color: #3158ad;
+  box-shadow: 0 0 0 3px rgba(49, 88, 173, 0.14);
+}
+
+.form-input--invalid .form-input__control {
+  border-color: #c2410c;
+}
+
+.form-input__icon {
+  color: #3158ad;
+  flex: 0 0 auto;
+  font-size: clamp(18px, 5vw, 23px);
+}
+
+.form-input__native {
+  background: transparent;
+  border: 0;
+  color: #172033;
+  flex: 1 1 auto;
+  font: inherit;
+  font-size: clamp(11px, 2.8vw, 13px);
+  line-height: 1.25;
+  min-width: 0;
+  outline: 0;
+}
+
+.form-input__native::placeholder {
+  color: #9aa0aa;
+  opacity: 1;
+}
+
+.form-input__native:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}

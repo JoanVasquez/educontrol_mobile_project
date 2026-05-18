@@ -1,30 +1,101 @@
-.login-content {
-  --background: linear-gradient(135deg, #0f4c81 0%, #0b2545 100%);
-}
-
 .login-shell {
   align-items: center;
   display: flex;
+  justify-content: center;
   min-height: 100%;
-  padding: 24px;
+  padding: 0;
 }
 
-ion-card {
+.login-panel {
+  color: #111827;
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
-  max-width: 440px;
+  max-width: clamp(280px, 74vw, 375px);
+  min-height: 100%;
+  padding: clamp(70px, 13svh, 120px) clamp(28px, 8.5vw, 48px) clamp(120px, 21svh, 190px);
+  position: relative;
   width: 100%;
+  z-index: 1;
 }
 
-ion-note {
+.login-panel app-brand-lockup {
+  margin-bottom: clamp(58px, 10.8svh, 96px);
+}
+
+.login-panel__caption {
+  color: #202124;
+  font-size: clamp(10px, 2.6vw, 13px);
+  margin: 0 0 clamp(18px, 3.2svh, 25px);
+  text-align: center;
+}
+
+.login-panel form {
+  inline-size: 100%;
+}
+
+.login-panel__password {
+  margin-top: clamp(8px, 2.2vw, 11px);
+}
+
+.login-panel__auth-error {
   display: block;
-  margin: 8px 16px 12px;
+  font-size: 11px;
+  margin: 6px 2px 0;
 }
 
-.auth-error {
-  font-weight: 600;
-  margin-top: 16px;
+.login-panel__options {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  margin: clamp(9px, 2.3vw, 13px) 0 clamp(16px, 4vw, 21px);
 }
 
-.login-button {
-  margin-top: 24px;
+.forgot-link {
+  align-items: center;
+  display: inline-flex;
+  font-size: clamp(10px, 2.55vw, 12px);
+  line-height: 1;
+}
+
+.forgot-link {
+  color: #3158ad;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.login-panel__button {
+  --background: #3158ad;
+  --border-radius: 5px;
+  --box-shadow: none;
+  --opacity: 1;
+  font-size: clamp(11px, 2.8vw, 13px);
+  font-weight: 800;
+  margin: 0;
+  min-height: clamp(30px, 7.6vw, 38px);
+  text-transform: none;
+}
+
+.login-panel__button.button-disabled {
+  --background: #3158ad;
+  --color: #fff;
+  opacity: 1;
+}
+
+@media (max-width: 340px) {
+  .login-panel {
+    padding-inline: 24px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .login-panel {
+    padding-block: clamp(26px, 8svh, 44px) clamp(74px, 20svh, 112px);
+  }
+
+  .login-panel app-brand-lockup {
+    margin-bottom: clamp(22px, 8svh, 44px);
+  }
 }

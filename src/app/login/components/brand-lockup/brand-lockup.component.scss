@@ -1,0 +1,52 @@
+:host {
+  display: block;
+  inline-size: 100%;
+}
+
+.brand-lockup {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  inline-size: 100%;
+  line-height: 1;
+}
+
+.brand-lockup__crest {
+  height: clamp(25px, 6.5vw, 38px);
+  margin-bottom: 2px;
+  object-fit: contain;
+  width: clamp(25px, 6.5vw, 38px);
+}
+
+.brand-lockup__title {
+  font-size: clamp(18px, 4.8vw, 24px);
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.brand-lockup__title--red {
+  color: #d60000;
+}
+
+.brand-lockup__title--blue,
+.brand-lockup__country {
+  color: #3158ad;
+}
+
+.brand-lockup__country {
+  align-items: center;
+  display: flex;
+  font-size: clamp(17px, 4.4vw, 21px);
+  font-weight: 800;
+  gap: clamp(7px, 2vw, 10px);
+  margin-top: clamp(6px, 1.7vw, 8px);
+}
+
+.brand-lockup__country span {
+  background: #d60000;
+  display: block;
+  height: 1px;
+  width: clamp(18px, 5vw, 23px);
+}

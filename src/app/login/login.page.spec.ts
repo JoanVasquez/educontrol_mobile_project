@@ -13,6 +13,7 @@ describe('LoginPage', () => {
 
   beforeEach(async () => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', ['signIn']);
+    localStorage.clear();
 
     await TestBed.configureTestingModule({
       imports: [LoginPage],
@@ -41,7 +42,7 @@ describe('LoginPage', () => {
       role: 'admin',
       status: 'active',
     }));
-    component.loginForm.setValue({ email: 'admin@example.com', password: 'valid-password' });
+    component.loginForm.setValue({ email: 'admin@example.com', password: 'valid-password', rememberUser: false });
 
     component.submit();
 
@@ -51,7 +52,7 @@ describe('LoginPage', () => {
 
   it('should display authentication errors', () => {
     authService.signIn.and.returnValue(throwError(() => new Error('Credenciales inválidas.')));
-    component.loginForm.setValue({ email: 'admin@example.com', password: 'valid-password' });
+    component.loginForm.setValue({ email: 'admin@example.com', password: 'valid-password', rememberUser: false });
 
     component.submit();
 

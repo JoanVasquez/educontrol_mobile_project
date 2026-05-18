@@ -1,0 +1,22 @@
+<label class="form-input" [class.form-input--invalid]="invalid()">
+  @if (label()) {
+    <span class="form-input__label">{{ label() }}</span>
+  }
+
+  <span class="form-input__control">
+    @if (iconName()) {
+      <ion-icon class="form-input__icon" [name]="iconName()" aria-hidden="true"></ion-icon>
+    }
+
+    <input
+      class="form-input__native"
+      [type]="type()"
+      [value]="value"
+      [placeholder]="placeholder()"
+      [autocomplete]="autocomplete()"
+      [disabled]="isDisabled"
+      (input)="updateValue($event)"
+      (blur)="markTouched()"
+    />
+  </span>
+</label>
