@@ -1,0 +1,237 @@
+:host {
+  background: #ffffff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.student-shell {
+  background: #ffffff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  inline-size: 100%;
+  min-block-size: 100dvh;
+}
+
+.student-content {
+  --background: #ffffff;
+}
+
+.student-form {
+  display: grid;
+  gap: 18px;
+  inline-size: min(100%, 430px);
+  margin-inline: auto;
+  padding: 12px 20px 24px;
+  padding-block-end: calc(24px + env(safe-area-inset-bottom));
+}
+
+.student-form__identity-grid {
+  align-items: start;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 102px minmax(0, 1fr);
+}
+
+.student-form__name-fields,
+.student-form__two-columns {
+  display: grid;
+  gap: 10px;
+}
+
+.student-form__two-columns {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 16px;
+}
+
+.field {
+  color: #111827;
+  display: grid;
+  gap: 6px;
+  min-inline-size: 0;
+  position: relative;
+
+  span {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  b {
+    color: #df2020;
+    font-weight: 800;
+  }
+
+  .field__control {
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #cfd4dc;
+    border-radius: 8px;
+    display: flex;
+    gap: 8px;
+    inline-size: 100%;
+    min-block-size: 33px;
+    min-inline-size: 0;
+    padding-inline: 11px 6px;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+
+    > ion-icon {
+      color: #3158ad;
+      flex: 0 0 auto;
+      font-size: 18px;
+      pointer-events: none;
+    }
+  }
+
+  .field__control:focus-within {
+    border-color: #3158ad;
+    box-shadow: 0 0 0 3px rgba(49, 88, 173, 0.12);
+  }
+
+  .field__control--invalid {
+    border-color: #df2020;
+  }
+
+  .field__control--textarea {
+    align-items: flex-start;
+    padding-block-start: 8px;
+
+    > ion-icon {
+      margin-block-start: 2px;
+    }
+  }
+
+  ion-input,
+  ion-select,
+  ion-textarea {
+    --highlight-color-focused: transparent;
+    --highlight-color-invalid: transparent;
+    --highlight-color-valid: transparent;
+    --padding-bottom: 0;
+    --padding-end: 8px;
+    --padding-start: 0;
+    --padding-top: 0;
+    background: #ffffff;
+    border: 0;
+    color: #172033;
+    flex: 1 1 auto;
+    font-size: 12px;
+    inline-size: 100%;
+    line-height: 1.25;
+    min-block-size: 31px;
+    min-inline-size: 0;
+  }
+
+  ion-textarea {
+    --padding-bottom: 8px;
+    --padding-top: 0;
+    min-block-size: 68px;
+  }
+
+  .field__date-button {
+    background: transparent;
+    border: 0;
+    color: #172033;
+    flex: 1 1 auto;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.25;
+    min-block-size: 31px;
+    min-inline-size: 0;
+    padding: 0 8px 0 0;
+    text-align: start;
+  }
+
+  .field__date-button--placeholder {
+    color: #7b8190;
+  }
+
+  ion-input.input-fill-outline,
+  ion-select.select-fill-outline,
+  ion-textarea.textarea-fill-outline {
+    --border-width: 0;
+  }
+
+}
+
+ion-modal {
+  --height: auto;
+  --max-width: 420px;
+  --width: min(92vw, 420px);
+}
+
+ion-datetime {
+  inline-size: 100%;
+}
+
+.student-form__actions {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  inline-size: 100%;
+  padding-block-start: 6px;
+}
+
+ion-button {
+  --border-radius: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  min-block-size: 42px;
+  text-transform: none;
+}
+
+.student-form__cancel {
+  --background: #e5e5e5;
+  --border-color: #df2020;
+  --border-width: 1px;
+  --color: #ffffff;
+}
+
+.student-form__submit {
+  --background: #3158ad;
+  --color: #ffffff;
+}
+
+@media (max-width: 380px) {
+  .student-form {
+    padding-inline: 14px;
+  }
+
+  .student-form__identity-grid {
+    gap: 14px;
+    grid-template-columns: 92px minmax(0, 1fr);
+  }
+
+  .student-form__two-columns {
+    column-gap: 10px;
+  }
+
+  .student-form__actions {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .student-form__identity-grid,
+  .student-form__two-columns,
+  .student-form__actions {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 720px) {
+  .student-form {
+    inline-size: min(100%, 720px);
+  }
+
+  .student-form__identity-grid {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+
+  .student-form__actions {
+    justify-self: end;
+    inline-size: min(100%, 430px);
+  }
+}

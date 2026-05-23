@@ -1,0 +1,154 @@
+<div class="student-shell">
+  <app-page-header title="Registrar estudiante" backUrl="/home" />
+
+  <ion-content class="student-content" [fullscreen]="false">
+    <form class="student-form" [formGroup]="form" (ngSubmit)="registerStudent()">
+      <app-student-form-section title="Informacion del estudiante">
+        <div class="student-form__identity-grid">
+          <app-student-photo-picker [previewUrl]="photoPreviewUrl" (photoSelected)="onPhotoSelected($event)" />
+
+          <div class="student-form__name-fields">
+            <label class="field">
+              <span>Nombres<b>*</b></span>
+              <span class="field__control" [class.field__control--invalid]="isInvalid('firstName')">
+                <ion-icon name="person-outline" aria-hidden="true" />
+                <ion-input formControlName="firstName" placeholder="Ingrese el/los nombres" />
+              </span>
+            </label>
+
+            <label class="field">
+              <span>Apellidos<b>*</b></span>
+              <span class="field__control" [class.field__control--invalid]="isInvalid('lastName')">
+                <ion-icon name="person-outline" aria-hidden="true" />
+                <ion-input formControlName="lastName" placeholder="Ingrese los apellidos" />
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="student-form__two-columns">
+          <label class="field">
+            <span>Fecha de nacimiento<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('birthDate')">
+              <ion-icon name="calendar-outline" aria-hidden="true" />
+              <button class="field__date-button" [class.field__date-button--placeholder]="!form.controls.birthDate.value" type="button" (click)="openBirthDatePicker()">
+                {{ birthDateLabel() }}
+              </button>
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Nacionalidad<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('nationality')">
+              <ion-icon name="earth-outline" aria-hidden="true" />
+              <ion-select formControlName="nationality" placeholder="Seleccione" interface="popover">
+                @for (nationality of nationalities; track nationality) {
+                  <ion-select-option [value]="nationality">{{ nationality }}</ion-select-option>
+                }
+              </ion-select>
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Genero<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('gender')">
+              <ion-icon name="male-female-outline" aria-hidden="true" />
+              <ion-select formControlName="gender" placeholder="Seleccione" interface="popover">
+                @for (gender of genders; track gender) {
+                  <ion-select-option [value]="gender">{{ gender }}</ion-select-option>
+                }
+              </ion-select>
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Curso<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('course')">
+              <ion-icon name="school-outline" aria-hidden="true" />
+              <ion-select formControlName="course" placeholder="Seleccione curso" interface="popover">
+                @for (course of courses; track course) {
+                  <ion-select-option [value]="course">{{ course }}</ion-select-option>
+                }
+              </ion-select>
+            </span>
+          </label>
+        </div>
+      </app-student-form-section>
+
+      <app-student-form-section title="Informacion Padres/tutor">
+        <div class="student-form__two-columns">
+          <label class="field">
+            <span>Nombre Madre<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('motherName')">
+              <ion-icon name="people-outline" aria-hidden="true" />
+              <ion-input formControlName="motherName" placeholder="Ingrese nombre completo de la madre" />
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Cedula<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('motherId')">
+              <ion-icon name="card-outline" aria-hidden="true" />
+              <ion-input formControlName="motherId" inputmode="numeric" placeholder="Ingrese numero" />
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Nombre Padre<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('fatherName')">
+              <ion-icon name="people-outline" aria-hidden="true" />
+              <ion-input formControlName="fatherName" placeholder="Ingrese nombre completo del padre" />
+            </span>
+          </label>
+
+          <label class="field">
+            <span>Cedula<b>*</b></span>
+            <span class="field__control" [class.field__control--invalid]="isInvalid('fatherId')">
+              <ion-icon name="card-outline" aria-hidden="true" />
+              <ion-input formControlName="fatherId" inputmode="numeric" placeholder="Ingrese numero" />
+            </span>
+          </label>
+        </div>
+      </app-student-form-section>
+
+      <app-student-form-section title="Informacion de contacto">
+        <label class="field">
+          <span>Direccion<b>*</b></span>
+          <span class="field__control field__control--textarea" [class.field__control--invalid]="isInvalid('address')">
+            <!-- <ion-icon name="home-outline" aria-hidden="true" /> -->
+            <ion-textarea formControlName="address" placeholder="Ingrese direccion" rows="3" />
+          </span>
+        </label>
+
+        <label class="field">
+          <span>Telefono de contacto<b>*</b></span>
+          <span class="field__control" [class.field__control--invalid]="isInvalid('contactPhone')">
+            <ion-icon name="call-outline" aria-hidden="true" />
+            <ion-input formControlName="contactPhone" inputmode="tel" placeholder="Ingrese telefono de contacto" />
+          </span>
+        </label>
+      </app-student-form-section>
+
+      <div class="student-form__actions">
+        <ion-button class="student-form__cancel" type="button" fill="outline" (click)="cancel()">Cancelar</ion-button>
+        <ion-button class="student-form__submit" type="submit">Registrar estudiante</ion-button>
+      </div>
+    </form>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/registrar-estudiante" />
+</div>
+
+<ion-modal [isOpen]="birthDatePickerOpen()" (didDismiss)="closeBirthDatePicker()">
+  <ng-template>
+    <ion-datetime
+      presentation="date"
+      [value]="form.controls.birthDate.value"
+      [showDefaultButtons]="true"
+      doneText="Aceptar"
+      cancelText="Cancelar"
+      (ionCancel)="closeBirthDatePicker()"
+      (ionChange)="updateBirthDate($event)"
+    />
+  </ng-template>
+</ion-modal>

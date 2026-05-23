@@ -1,3 +1,9 @@
+.home-shell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100%;
+}
+
 ion-card {
   margin: 24px;
 }

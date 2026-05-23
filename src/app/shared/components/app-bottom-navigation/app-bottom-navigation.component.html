@@ -1,0 +1,35 @@
+<nav class="bottom-nav" aria-label="Navegacion principal">
+  @if (profile$ | async; as profile) {
+    @if (moreOpen() && moreItemsForRole(profile.role).length) {
+      <div class="bottom-nav__menu">
+        @for (item of moreItemsForRole(profile.role); track item.label) {
+          <a class="bottom-nav__menu-item" [routerLink]="item.path" (click)="closeMore()">
+            <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        }
+      </div>
+    }
+  }
+
+  <div class="bottom-nav__bar">
+    @for (item of primaryItems; track item.label) {
+      <a class="bottom-nav__item" [class.bottom-nav__item--active]="isActive(item.path)" [routerLink]="item.path" (click)="closeMore()">
+        <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+        <span>{{ item.label }}</span>
+      </a>
+    }
+
+    <button
+      class="bottom-nav__item bottom-nav__item--button"
+      [class.bottom-nav__item--active]="moreOpen() || activePath() === '/registrar-estudiante'"
+      type="button"
+      (click)="toggleMore()"
+      aria-label="Mas opciones"
+      [attr.aria-expanded]="moreOpen()"
+    >
+      <ion-icon name="ellipsis-horizontal" aria-hidden="true"></ion-icon>
+      <span>Mas</span>
+    </button>
+  </div>
+</nav>
