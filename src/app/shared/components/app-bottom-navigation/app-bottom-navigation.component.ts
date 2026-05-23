@@ -24,9 +24,9 @@ interface NavigationItem {
 
 const PRIMARY_ITEMS: NavigationItem[] = [
   { icon: 'home-outline', label: 'Inicio', path: '/home' },
-  { icon: 'calendar-outline', label: 'Asistencia', path: '/home' },
-  { icon: 'build-outline', label: 'Averias', path: '/home' },
-  { icon: 'people-outline', label: 'Docentes', path: '/home' },
+  { icon: 'calendar-outline', label: 'Asistencia', path: '/asistencia' },
+  { icon: 'build-outline', label: 'Averias', path: '/averias' },
+  { icon: 'people-outline', label: 'Docentes', path: '/docentes' },
 ];
 
 const MORE_ITEMS: NavigationItem[] = [

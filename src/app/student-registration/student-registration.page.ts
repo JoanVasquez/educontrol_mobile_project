@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonButton, IonContent, IonDatetime, IonIcon, IonInput, IonModal, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular/standalone';
@@ -43,6 +43,7 @@ import { StudentPhotoPickerComponent } from './components/student-photo-picker/s
 export class StudentRegistrationPage {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   photoPreviewUrl: string | null = null;
   selectedPhoto: File | null = null;
@@ -79,11 +80,21 @@ export class StudentRegistrationPage {
       personOutline,
       schoolOutline,
     });
+
+    this.destroyRef.onDestroy(() => this.revokePhotoPreviewUrl());
   }
 
   onPhotoSelected(file: File): void {
+    this.revokePhotoPreviewUrl();
     this.selectedPhoto = file;
     this.photoPreviewUrl = URL.createObjectURL(file);
+  }
+
+  private revokePhotoPreviewUrl(): void {
+    if (this.photoPreviewUrl) {
+      URL.revokeObjectURL(this.photoPreviewUrl);
+      this.photoPreviewUrl = null;
+    }
   }
 
   openBirthDatePicker(): void {

@@ -1,0 +1,37 @@
+:host {
+  display: block;
+  min-block-size: 100%;
+}
+
+.feature-shell {
+  background: #ffffff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.feature-content {
+  --background: #ffffff;
+}
+
+.feature-content__inner {
+  display: grid;
+  gap: 8px;
+  inline-size: min(100%, 720px);
+  margin-inline: auto;
+  padding: 24px;
+}
+
+h1 {
+  color: #0f172a;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+}
+
+p {
+  color: #667085;
+  font-size: 15px;
+  margin: 0;
+}

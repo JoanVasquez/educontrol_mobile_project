@@ -12,6 +12,24 @@ export const routes: Routes = [
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
   },
   {
+    path: 'asistencia',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./feature-placeholder/feature-placeholder.page').then((m) => m.FeaturePlaceholderPage),
+    data: { title: 'Asistencia', activePath: '/asistencia' },
+  },
+  {
+    path: 'averias',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./feature-placeholder/feature-placeholder.page').then((m) => m.FeaturePlaceholderPage),
+    data: { title: 'Averias', activePath: '/averias' },
+  },
+  {
+    path: 'docentes',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./feature-placeholder/feature-placeholder.page').then((m) => m.FeaturePlaceholderPage),
+    data: { title: 'Docentes', activePath: '/docentes' },
+  },
+  {
     path: 'registrar-estudiante',
     canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
     loadComponent: () => import('./student-registration/student-registration.page').then((m) => m.StudentRegistrationPage),
