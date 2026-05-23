@@ -1,0 +1,13 @@
+<label class="photo-picker">
+  <input type="file" accept="image/*" capture="environment" (change)="selectPhoto($event)" />
+
+  @if (previewUrl()) {
+    <img [src]="previewUrl()" alt="Foto del estudiante seleccionada" />
+  } @else {
+    <span class="photo-picker__placeholder">
+      <ion-icon name="camera-outline" aria-hidden="true"></ion-icon>
+      <span>Foto del estudiante</span>
+      <strong>Subir foto</strong>
+    </span>
+  }
+</label>

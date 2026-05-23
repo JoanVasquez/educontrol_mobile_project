@@ -14,6 +14,7 @@ import {
   IonToolbar,
 } from '@ionic/angular/standalone';
 import { AuthService } from '../core/auth/auth.service';
+import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 
 @Component({
   selector: 'app-home',
@@ -31,6 +32,7 @@ import { AuthService } from '../core/auth/auth.service';
     IonHeader,
     IonTitle,
     IonToolbar,
+    AppBottomNavigationComponent,
   ],
 })
 export class HomePage {
