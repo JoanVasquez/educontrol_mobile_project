@@ -38,30 +38,6 @@ export class AuthService {
     this.clearSession();
   }
 
-  getValidSession(): Observable<AuthSession | null> {
-    const storedSession = this.sessionStorage.getSession();
-
-    if (!storedSession) {
-      return of(null);
-    }
-
-    if (!this.isExpired(storedSession)) {
-      this.sessionSubject.next(storedSession);
-      return of(storedSession);
-    }
-
-    return this.authApi.refreshSession(storedSession).pipe(
-      tap((session) => {
-        this.sessionStorage.setSession(session);
-        this.sessionSubject.next(session);
-      }),
-      catchError(() => {
-        this.clearSessionIfCurrent(storedSession);
-        return of(null);
-      }),
-    );
-  }
-
   waitUntilReady(): Observable<boolean> {
     return this.initialized$.pipe(map((initialized) => initialized));
   }
