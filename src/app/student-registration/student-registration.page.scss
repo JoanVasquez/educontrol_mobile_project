@@ -43,6 +43,27 @@
   column-gap: 16px;
 }
 
+.student-form__status-message,
+.student-form__pending-message {
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  padding: 10px 12px;
+}
+
+.student-form__status-message {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
+.student-form__pending-message {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #9a3412;
+}
+
 .field {
   color: #111827;
   display: grid;

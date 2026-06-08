@@ -3,6 +3,20 @@
 
   <ion-content class="student-content" [fullscreen]="false">
     <form class="student-form" [formGroup]="form" (ngSubmit)="registerStudent()">
+      <app-network-status />
+
+      @if (saveMessage()) {
+        <div class="student-form__status-message" aria-live="polite">{{ saveMessage() }}</div>
+      }
+
+      <!-- @if ((pendingCount$ | async) ?? 0; as pendingCount) {
+        @if (pendingCount > 0) {
+          <div class="student-form__pending-message" aria-live="polite">
+            {{ pendingCount }} registro(s) pendiente(s) de sincronizar.
+          </div>
+        }
+      } -->
+
       <app-student-form-section title="Informacion del estudiante">
         <div class="student-form__identity-grid">
           <app-student-photo-picker [previewUrl]="photoPreviewUrl" (photoSelected)="onPhotoSelected($event)" />
@@ -131,7 +145,9 @@
 
       <div class="student-form__actions">
         <ion-button class="student-form__cancel" type="button" fill="outline" (click)="cancel()">Cancelar</ion-button>
-        <ion-button class="student-form__submit" type="submit">Registrar estudiante</ion-button>
+        <ion-button class="student-form__submit" type="submit" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : 'Registrar estudiante' }}
+        </ion-button>
       </div>
     </form>
   </ion-content>
