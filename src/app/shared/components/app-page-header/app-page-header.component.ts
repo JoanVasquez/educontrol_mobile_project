@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -12,9 +12,18 @@ import { chevronBack } from 'ionicons/icons';
 })
 export class AppPageHeaderComponent {
   readonly title = input.required<string>();
+  readonly subtitle = input<string>('');
   readonly backUrl = input<string>('/home');
+  readonly showBack = input<boolean>(true);
+  readonly align = input<'center' | 'start'>('center');
+  readonly actionLabel = input<string>('');
+  readonly actionClicked = output<void>();
 
   constructor() {
     addIcons({ chevronBack });
+  }
+
+  handleAction(): void {
+    this.actionClicked.emit();
   }
 }

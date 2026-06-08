@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    canActivate: [authenticatedGuard],
+    canActivate: [roleGuard(['admin', 'director'], '/login')],
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
   },
   {

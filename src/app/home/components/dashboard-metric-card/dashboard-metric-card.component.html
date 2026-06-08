@@ -1,0 +1,28 @@
+<article class="metric-card">
+  <span class="metric-card__icon" aria-hidden="true">
+    @switch (icon()) {
+      @case ('student') {
+        <img class="metric-card__icon-img" src="assets/estudiantes inscritos.png" alt="" />
+      }
+      @case ('attendance') {
+        <img class="metric-card__icon-img" src="assets/asistencia del dia.png" alt="" />
+      }
+      @case ('absence') {
+        <img class="metric-card__icon-img" src="assets/ausencia del dia.png" alt="" />
+      }
+      @case ('teacher') {
+        <img class="metric-card__icon-img" src="assets/docer activos iconos.png" alt="" />
+      }
+    }
+  </span>
+  <span class="metric-card__label">{{ label() }}</span>
+  <strong class="metric-card__value" [class.metric-card__value--percentage]="value().includes('%')">
+    @if (value().includes('%')) {
+      <span>{{ value().replace('%', '') }}</span>
+      <span class="metric-card__percent-sign">%</span>
+    } @else {
+      {{ value() }}
+    }
+  </strong>
+  <span class="metric-card__helper">{{ helper() }}</span>
+</article>

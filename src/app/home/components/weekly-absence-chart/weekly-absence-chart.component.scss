@@ -1,0 +1,84 @@
+:host {
+  display: block;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.weekly-chart {
+  display: grid;
+  gap: 12px;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+h2 {
+  color: #3158ad;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.weekly-chart__canvas {
+  display: grid;
+  gap: 8px;
+  inline-size: 100%;
+  min-inline-size: 0;
+}
+
+svg {
+  aspect-ratio: 2.25 / 1;
+  block-size: auto;
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
+.weekly-chart__grid {
+  line {
+    stroke: #e6eaf2;
+    stroke-width: 1;
+  }
+}
+
+.weekly-chart__axis {
+  fill: #8b93a3;
+  font-size: 5px;
+}
+
+.weekly-chart__area {
+  fill: rgba(255, 99, 132, 0.08);
+}
+
+.weekly-chart__line {
+  fill: none;
+  stroke: #ff6384;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.weekly-chart__points {
+  circle {
+    fill: #ffa0b4;
+    stroke: #ff6384;
+    stroke-width: 1.4;
+  }
+}
+
+.weekly-chart__labels {
+  color: #6f7788;
+  display: grid;
+  font-size: 8px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin-inline-start: 12px;
+  min-inline-size: 0;
+  text-align: center;
+}
+
+@media (min-width: 720px) {
+  svg {
+    aspect-ratio: 2.7 / 1;
+  }
+}

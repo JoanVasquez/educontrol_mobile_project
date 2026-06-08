@@ -1,9 +1,20 @@
-<ion-header class="app-header">
+<ion-header class="app-header" [class.app-header--start]="align() === 'start'">
   <ion-toolbar>
-    <ion-button class="app-header__back" fill="clear" slot="start" [routerLink]="backUrl()" aria-label="Volver">
-      <ion-icon name="chevron-back" aria-hidden="true"></ion-icon>
-    </ion-button>
+    @if (showBack()) {
+      <ion-button class="app-header__back" fill="clear" slot="start" [routerLink]="backUrl()" aria-label="Volver">
+        <ion-icon name="chevron-back" aria-hidden="true"></ion-icon>
+      </ion-button>
+    }
 
-    <ion-title>{{ title() }}</ion-title>
+    <ion-title>
+      <span class="app-header__title">{{ title() }}</span>
+      @if (subtitle()) {
+        <span class="app-header__subtitle">{{ subtitle() }}</span>
+      }
+    </ion-title>
+
+    @if (actionLabel()) {
+      <ion-button class="app-header__action" fill="clear" slot="end" type="button" (click)="handleAction()">{{ actionLabel() }}</ion-button>
+    }
   </ion-toolbar>
 </ion-header>

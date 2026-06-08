@@ -27,13 +27,13 @@ export const adminGuard: CanActivateFn = (): ReturnType<CanActivateFn> => {
   );
 };
 
-export const roleGuard = (allowedRoles: UserRole[]): CanActivateFn => (): ReturnType<CanActivateFn> => {
+export const roleGuard = (allowedRoles: UserRole[], fallbackPath = '/home'): CanActivateFn => (): ReturnType<CanActivateFn> => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
   return authService.waitUntilReady().pipe(
     filter(Boolean),
     take(1),
-    map((): boolean | UrlTree => (authService.hasAnyRole(allowedRoles) ? true : router.createUrlTree(['/home']))),
+    map((): boolean | UrlTree => (authService.hasAnyRole(allowedRoles) ? true : router.createUrlTree([fallbackPath]))),
   );
 };

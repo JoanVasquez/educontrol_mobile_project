@@ -1,0 +1,117 @@
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
+.metric-card {
+  align-items: center;
+  background: #ffffff;
+  border: 0;
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(49, 88, 173, 0.08);
+  box-sizing: border-box;
+  display: grid;
+  gap: 6px;
+  grid-template-rows: auto auto auto auto;
+  inline-size: 100%;
+  justify-items: center;
+  min-block-size: 132px;
+  min-inline-size: 0;
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.metric-card__icon {
+  color: #4267b2;
+  display: block;
+  inline-size: 44px;
+  justify-self: center;
+  margin-inline: auto;
+}
+
+.metric-card__icon svg {
+  block-size: auto;
+  display: block;
+  fill: none;
+  inline-size: 100%;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.2;
+}
+
+.metric-card__icon-img {
+  block-size: auto;
+  display: block;
+  inline-size: 100%;
+  object-fit: contain;
+}
+
+.metric-card__label {
+  color: #3158ad;
+  font-size: 16px;
+  font-weight: 500;
+  inline-size: 100%;
+  justify-self: stretch;
+  line-height: 1.25;
+  margin-inline: auto;
+  max-inline-size: 92px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.metric-card__value {
+  align-items: baseline;
+  color: #3158ad;
+  display: flex;
+  font-size: 18px;
+  font-weight: 800;
+  inline-size: 100%;
+  justify-content: center;
+  justify-self: stretch;
+  line-height: 1;
+  text-align: center;
+}
+
+.metric-card__value--percentage {
+  transform: none;
+}
+
+.metric-card__percent-sign {
+  font-size: 0.86em;
+  line-height: 1;
+  margin-inline-start: 0;
+}
+
+.metric-card__helper {
+  color: #3158ad;
+  font-size: 11px;
+  font-weight: 700;
+  inline-size: 100%;
+  justify-self: stretch;
+  text-align: center;
+}
+
+@media (min-width: 720px) {
+  .metric-card {
+    min-block-size: 148px;
+    padding: 16px 12px;
+  }
+
+  .metric-card__icon {
+    inline-size: 46px;
+  }
+
+  .metric-card__label {
+    font-size: 13px;
+    max-inline-size: 130px;
+  }
+
+  .metric-card__value {
+    font-size: 32px;
+  }
+
+  .metric-card__helper {
+    font-size: 12px;
+  }
+}

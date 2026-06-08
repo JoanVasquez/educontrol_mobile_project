@@ -1,0 +1,38 @@
+<section class="weekly-chart" aria-labelledby="weekly-absence-title">
+  <h2 id="weekly-absence-title">Resumen Semanal ausencias</h2>
+
+  <div class="weekly-chart__canvas" role="img" aria-label="Grafica de ausencias de los ultimos seis dias">
+    <svg viewBox="0 0 280 164" preserveAspectRatio="none" aria-hidden="true">
+      <g class="weekly-chart__grid">
+        @for (guide of horizontalGuides; track guide) {
+          <line x1="8" [attr.y1]="guide" x2="264" [attr.y2]="guide"></line>
+        }
+        <line x1="8" y1="18" x2="8" y2="126"></line>
+      </g>
+
+      <g class="weekly-chart__axis">
+        @for (label of yLabels; track label; let index = $index) {
+          <text x="0" [attr.y]="horizontalGuides[index] + 3">{{ label }}</text>
+        }
+      </g>
+
+      <polygon class="weekly-chart__area" [attr.points]="areaPoints"></polygon>
+      <polyline class="weekly-chart__line" [attr.points]="plotPoints"></polyline>
+
+      <g class="weekly-chart__points">
+        <circle cx="8" cy="26" r="4"></circle>
+        <circle cx="56" cy="49" r="4"></circle>
+        <circle cx="104" cy="112" r="4"></circle>
+        <circle cx="152" cy="66" r="4"></circle>
+        <circle cx="200" cy="58" r="4"></circle>
+        <circle cx="248" cy="18" r="4"></circle>
+      </g>
+    </svg>
+
+    <div class="weekly-chart__labels">
+      @for (point of points(); track point.label) {
+        <span>{{ point.label }}</span>
+      }
+    </div>
+  </div>
+</section>
