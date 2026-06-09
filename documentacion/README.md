@@ -12,38 +12,11 @@ El modulo permite:
 - Enviar registros directamente a Firebase cuando hay conexion.
 - Sincronizar automaticamente registros pendientes al recuperar conexion.
 
-## Diagrama de flujo
+## Contenido: Diagrama de flujo del proceso de detección de conectividad y modo offline
+<img src="capturas/diagrama_de_flujo.png" alt="Diagrama de flujo">
 
-```mermaid
-flowchart TD
-  A[Usuario registra estudiante] --> B{Formulario valido?}
-  B -- No --> C[Se mantiene en pantalla y muestra validaciones]
-  B -- Si --> D[StudentOfflineSyncService.register]
-  D --> E{NetworkService.isOnline}
-  E -- No --> F[Guardar en PendingStudentStorageRepository]
-  F --> G[Mostrar mensaje: modo offline / pendiente por sincronizar]
-  E -- Si --> H[Obtener sesion local vigente]
-  H --> I{Sesion disponible?}
-  I -- No --> F
-  I -- Si --> J{Token vencido?}
-  J -- Si --> K[Refrescar token con FirebaseAuthApiService]
-  J -- No --> L[Usar idToken actual]
-  K --> M{Refresh exitoso?}
-  M -- No --> F
-  M -- Si --> L
-  L --> N[Enviar a Firestore por StudentRemoteRepository]
-  N --> O{Firebase acepta?}
-  O -- Si --> P[Sincronizar pendientes locales]
-  O -- No --> F
-  P --> Q[Actualizar contador de pendientes]
-  Q --> R[Mostrar mensaje de exito]
 
-  S[Network networkStatusChange] --> T{connected=true?}
-  T -- Si --> P
-  T -- No --> U[Mostrar banner offline]
-```
-
-## Capturas de pantalla
+## Capturas de pantalla de la aplicación con conexión y sin conexión
 
 ### Registro con conexion
 <img src="capturas/estudiante_registrado.png" alt="Registro de estudiante online" width="300">
@@ -52,32 +25,8 @@ flowchart TD
 ### Registro sin conexion
 <img src="capturas/estudiante_registrado_sin_conexion.png" alt="Registro de estudiante offline" width="300">
 <img src="capturas/localstorage.png" alt="localstorage">
-<!-- ![Registro de estudiante online](capturas/estudiante_registrado.png)
-![Firebase](capturas/firebase.png)
-![Registro de estudiante offline](capturas/estudiante_registrado_sin_conexion.png)
-![localstorage](capturas/localstorage.png) -->
 
-
-## Arquitectura del modulo
-
-La implementacion esta separada en dos entregables funcionales dentro de `src/app`:
-
-- `detector_red`: deteccion de conectividad y componente visual de estado.
-- `modo_offline`: persistencia local, envio remoto y sincronizacion.
-
-### Componentes principales
-
-| Archivo | Responsabilidad |
-| --- | --- |
-| `src/app/detector_red/network.service.ts` | Envuelve `@capacitor/network`, mantiene el estado de conectividad y expone observables. |
-| `src/app/detector_red/network-status.component.*` | Muestra el banner de modo offline cuando no hay conexion. |
-| `src/app/modo_offline/student-offline-sync.service.ts` | Orquesta registro online/offline y sincronizacion de pendientes. |
-| `src/app/modo_offline/pending-student-storage.repository.ts` | Persiste registros pendientes en `localStorage`. |
-| `src/app/modo_offline/student-remote.repository.ts` | Envia registros a la coleccion `estudiantes` de Firestore por REST. |
-| `src/app/modo_offline/student-firestore.mapper.ts` | Convierte el modelo del formulario al formato esperado por Firestore REST. |
-| `src/app/student-registration/student-registration.page.ts` | Integra el formulario con el servicio offline y muestra mensajes al usuario. |
-
-## Codigo fuente comentado
+## Código fuente comentado explicando cada sección relevante
 
 ### Deteccion de conectividad
 
@@ -217,6 +166,26 @@ add(payload: StudentRegistrationDraft): PendingStudentRegistration[] {
   return queue;
 }
 ```
+
+## Explicación de la arquitectura del módulo y decisiones de diseño
+
+La implementacion esta separada en dos entregables funcionales dentro de `src/app`:
+
+- `detector_red`: deteccion de conectividad y componente visual de estado.
+- `modo_offline`: persistencia local, envio remoto y sincronizacion.
+
+### Componentes principales
+
+| Archivo | Responsabilidad |
+| --- | --- |
+| `src/app/detector_red/network.service.ts` | Envuelve `@capacitor/network`, mantiene el estado de conectividad y expone observables. |
+| `src/app/detector_red/network-status.component.*` | Muestra el banner de modo offline cuando no hay conexion. |
+| `src/app/modo_offline/student-offline-sync.service.ts` | Orquesta registro online/offline y sincronizacion de pendientes. |
+| `src/app/modo_offline/pending-student-storage.repository.ts` | Persiste registros pendientes en `localStorage`. |
+| `src/app/modo_offline/student-remote.repository.ts` | Envia registros a la coleccion `estudiantes` de Firestore por REST. |
+| `src/app/modo_offline/student-firestore.mapper.ts` | Convierte el modelo del formulario al formato esperado por Firestore REST. |
+| `src/app/student-registration/student-registration.page.ts` | Integra el formulario con el servicio offline y muestra mensajes al usuario. |
+
 
 La cola local usa `localStorage` porque el alcance actual es un entregable simple y no requiere consultas complejas. Si el modulo crece, se puede reemplazar por `@ionic/storage` o IndexedDB manteniendo el mismo contrato de repositorio.
 
