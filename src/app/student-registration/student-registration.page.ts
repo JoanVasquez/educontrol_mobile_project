@@ -21,6 +21,8 @@ import { StudentOfflineSyncService } from '../modo_offline/student-offline-sync.
 import type { StudentRegistrationDraft } from '../modo_offline/student-registration.model';
 import { StudentFormSectionComponent } from './components/student-form-section/student-form-section.component';
 import { StudentPhotoPickerComponent } from './components/student-photo-picker/student-photo-picker.component';
+import { WifiDirectService } from '../core/wifi-direct.service';
+import type { WifiDirectDevice } from '../core/wifi-direct.plugin';
 
 @Component({
   selector: 'app-student-registration',
@@ -49,6 +51,7 @@ export class StudentRegistrationPage {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly offlineSyncService = inject(StudentOfflineSyncService);
+  private readonly wifiDirectService = inject(WifiDirectService);
 
   photoPreviewUrl: string | null = null;
   selectedPhoto: File | null = null;
@@ -56,6 +59,10 @@ export class StudentRegistrationPage {
   readonly saveMessage = signal<string | null>(null);
   readonly saving = signal(false);
   readonly pendingCount$ = this.offlineSyncService.pendingCount$;
+  readonly peerDevices = signal<WifiDirectDevice[]>([]);
+  readonly wifiDirectMessage = signal<string | null>(null);
+  readonly isScanningPeers = signal(false);
+  readonly shareLoading = signal(false);
 
   readonly form = this.formBuilder.nonNullable.group({
     firstName: ['', Validators.required],
@@ -103,6 +110,70 @@ export class StudentRegistrationPage {
       URL.revokeObjectURL(this.photoPreviewUrl);
       this.photoPreviewUrl = null;
     }
+  }
+
+  async scanPeers(): Promise<void> {
+    this.isScanningPeers.set(true);
+    this.wifiDirectMessage.set(null);
+
+    try {
+      await this.wifiDirectService.requestPermissions();
+      const peers = await this.wifiDirectService.discoverPeers();
+      this.peerDevices.set(peers);
+      this.wifiDirectMessage.set(peers.length > 0 ? `${peers.length} peer(s) encontrados` : 'No se encontraron peers Wi-Fi Direct');
+    } catch (error) {
+      this.wifiDirectMessage.set(error instanceof Error ? error.message : String(error));
+    } finally {
+      this.isScanningPeers.set(false);
+    }
+  }
+
+  async connectPeer(deviceAddress: string): Promise<void> {
+    this.wifiDirectMessage.set(null);
+
+    try {
+      const result = await this.wifiDirectService.connect(deviceAddress);
+      this.wifiDirectMessage.set(result.message);
+    } catch (error) {
+      this.wifiDirectMessage.set(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async sharePhoto(): Promise<void> {
+    if (!this.selectedPhoto) {
+      this.wifiDirectMessage.set('Selecciona primero una foto para compartir.');
+      return;
+    }
+
+    this.shareLoading.set(true);
+    this.wifiDirectMessage.set(null);
+
+    try {
+      const base64 = await this.readFileAsBase64(this.selectedPhoto);
+      const result = await this.wifiDirectService.sendPhoto(base64, this.selectedPhoto.name || 'photo.jpg');
+      this.wifiDirectMessage.set(result.message);
+    } catch (error) {
+      this.wifiDirectMessage.set(error instanceof Error ? error.message : String(error));
+    } finally {
+      this.shareLoading.set(false);
+    }
+  }
+
+  private readFileAsBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === 'string') {
+          const commaIndex = result.indexOf(',');
+          resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
+        } else {
+          reject(new Error('No se pudo leer la imagen'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Error leyendo la imagen'));
+      reader.readAsDataURL(file);
+    });
   }
 
   openBirthDatePicker(): void {

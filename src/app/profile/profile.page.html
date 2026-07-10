@@ -1,0 +1,48 @@
+<div class="profile-shell">
+  <app-page-header title="Mi perfil" backUrl="/home" />
+
+  <ion-content class="profile-content" [fullscreen]="false">
+    <main class="profile">
+      <article class="school-card">
+        <span class="school-card__icon"><ion-icon name="school-outline" /></span>
+        <span>
+          <strong>Escuela Hermanos Trejo</strong>
+          <small>Código : 552233</small>
+          <small>Distrito 05-01</small>
+        </span>
+      </article>
+
+      @if (profile$ | async; as user) {
+        <article class="user-card">
+          <span class="user-card__avatar"><ion-icon name="person" /></span>
+          <small>{{ user.role | titlecase }}</small>
+          <span class="user-card__data">
+            <strong>{{ user.fullName }}</strong>
+            <small>{{ user.email }}</small>
+          </span>
+          <ion-icon name="chevron-forward" aria-hidden="true" />
+        </article>
+      }
+
+      <nav class="profile-menu" aria-label="Opciones del perfil">
+        @for (option of options; track option.label) {
+          @if (option.path) {
+            <a [routerLink]="option.path">
+              <ion-icon [name]="option.icon" aria-hidden="true" />
+              <span>{{ option.label }}</span>
+              <ion-icon name="chevron-forward" aria-hidden="true" />
+            </a>
+          } @else {
+            <button type="button" (click)="selectOption(option)">
+              <ion-icon [name]="option.icon" aria-hidden="true" />
+              <span>{{ option.label }}</span>
+              <ion-icon name="chevron-forward" aria-hidden="true" />
+            </button>
+          }
+        }
+      </nav>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/perfil" />
+</div>

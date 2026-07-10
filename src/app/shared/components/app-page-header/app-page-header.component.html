@@ -1,4 +1,4 @@
-<ion-header class="app-header" [class.app-header--start]="align() === 'start'">
+<ion-header class="app-header" [class.app-header--start]="align() === 'start'" [class.app-header--red]="color() === 'red'">
   <ion-toolbar>
     @if (showBack()) {
       <ion-button class="app-header__back" fill="clear" slot="start" [routerLink]="backUrl()" aria-label="Volver">
@@ -13,8 +13,14 @@
       }
     </ion-title>
 
-    @if (actionLabel()) {
-      <ion-button class="app-header__action" fill="clear" slot="end" type="button" (click)="handleAction()">{{ actionLabel() }}</ion-button>
+    @if (actionLabel() || actionIcon()) {
+      <ion-button class="app-header__action" fill="clear" slot="end" type="button" (click)="handleAction()" [attr.aria-label]="actionLabel() || 'Acción'">
+        @if (actionIcon()) {
+          <ion-icon [name]="actionIcon()" aria-hidden="true" />
+        } @else {
+          {{ actionLabel() }}
+        }
+      </ion-button>
     }
   </ion-toolbar>
 </ion-header>

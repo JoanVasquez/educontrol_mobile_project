@@ -40,6 +40,39 @@
           </div>
         </div>
 
+        <section class="student-form__wifi-share" aria-label="Compartir foto por Wi-Fi Direct">
+          <div class="student-form__wifi-actions">
+            <ion-button type="button" fill="outline" size="small" (click)="scanPeers()" [disabled]="isScanningPeers()">
+              {{ isScanningPeers() ? 'Buscando...' : 'Buscar Wi-Fi Direct' }}
+            </ion-button>
+            <ion-button
+              type="button"
+              size="small"
+              [disabled]="!selectedPhoto || shareLoading() || peerDevices().length === 0"
+              (click)="sharePhoto()"
+            >
+              {{ shareLoading() ? 'Compartiendo...' : 'Compartir foto' }}
+            </ion-button>
+          </div>
+
+          @if (peerDevices().length > 0) {
+            <div class="peer-list">
+              <span>Dispositivos encontrados:</span>
+              <div class="peer-list__items">
+                @for (peer of peerDevices(); track peer.deviceAddress) {
+                  <button type="button" class="peer-link" (click)="connectPeer(peer.deviceAddress)">
+                    {{ peer.deviceName || peer.deviceAddress }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          @if (wifiDirectMessage()) {
+            <div class="student-form__wifi-message" aria-live="polite">{{ wifiDirectMessage() }}</div>
+          }
+        </section>
+
         <div class="student-form__two-columns">
           <label class="field">
             <span>Fecha de nacimiento<b>*</b></span>

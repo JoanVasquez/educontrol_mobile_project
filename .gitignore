@@ -31,6 +31,15 @@ log.txt
 *.apk
 *.ap_
 *.aab
+*.jks
+*.keystore
+*.p8
+/android/app/google-services.json
+/google-services.json
+
+# Firebase / local tooling
+/.firebase/
+firebase-debug.log*
 
 # Compiled output
 /dist

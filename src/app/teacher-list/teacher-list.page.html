@@ -1,0 +1,33 @@
+<div class="teacher-list-shell">
+  <app-page-header title="Listado de docente" [showBack]="false" />
+
+  <ion-content class="teacher-list-content" [fullscreen]="false">
+    <main class="teacher-list">
+      <label class="teacher-list__search">
+        <ion-icon name="search-outline" aria-hidden="true" />
+        <span class="sr-only">Buscar docentes</span>
+        <input type="search" placeholder="Buscar docentes..." [value]="searchTerm()" (input)="search($event)" />
+      </label>
+
+      <section class="teacher-cards" aria-label="Listado de docentes">
+        @for (teacher of teachers(); track teacher.id; let position = $index) {
+          <article class="teacher-card">
+            <span class="teacher-card__avatar" aria-hidden="true"><ion-icon name="person" /></span>
+            <strong>{{ position + 1 }}. {{ teacher.name }}</strong>
+            <span class="teacher-card__details">
+              <span>{{ teacher.subject }}</span>
+              <span>{{ teacher.courses }}</span>
+            </span>
+            <button type="button" aria-label="Modificar {{ teacher.name }}" (click)="editTeacher(teacher.id)">
+              <ion-icon name="ellipsis-horizontal" aria-hidden="true" />
+            </button>
+          </article>
+        } @empty {
+          <p class="teacher-cards__empty">No se encontraron docentes.</p>
+        }
+      </section>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/docentes/listado" />
+</div>

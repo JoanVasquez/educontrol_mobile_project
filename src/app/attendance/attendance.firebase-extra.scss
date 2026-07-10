@@ -1,0 +1,67 @@
+.student-row__avatar img {
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.attendance__notice,
+.attendance__message,
+.attendance__progress,
+.attendance__empty {
+  margin: 0;
+  font-size: 12px;
+}
+
+.attendance__notice {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff6d8;
+  color: #745800;
+}
+
+.attendance__progress { color: #64708a; text-align: right; }
+
+.attendance__message {
+  padding: 10px;
+  border-radius: 8px;
+  background: #edf3ff;
+  color: #244d9e;
+  text-align: center;
+}
+
+.attendance__empty { padding-block: 32px; color: #64708a; text-align: center; }
+
+.attendance__state {
+  min-height: 240px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: #64708a;
+  text-align: center;
+}
+
+.attendance__state button {
+  min-height: 38px;
+  padding-inline: 22px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 700;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #dbe3f2;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: attendance-spin .8s linear infinite;
+}
+
+.attendance__save:disabled,
+.filter-field :disabled { opacity: .55; }
+
+@keyframes attendance-spin { to { transform: rotate(360deg); } }

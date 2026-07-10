@@ -18,29 +18,39 @@
 
 .student-form {
   display: grid;
-  gap: 18px;
+  gap: 12px;
   inline-size: min(100%, 430px);
   margin-inline: auto;
-  padding: 12px 20px 24px;
+  padding: 8px 14px 18px;
   padding-block-end: calc(24px + env(safe-area-inset-bottom));
 }
 
 .student-form__identity-grid {
   align-items: start;
   display: grid;
-  gap: 20px;
-  grid-template-columns: 102px minmax(0, 1fr);
+  gap: 12px;
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+.student-form__identity-grid > app-student-photo-picker {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.student-form__name-fields {
+  grid-column: 2;
+  min-inline-size: 0;
 }
 
 .student-form__name-fields,
 .student-form__two-columns {
   display: grid;
-  gap: 10px;
+  gap: 7px;
 }
 
 .student-form__two-columns {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  column-gap: 16px;
+  column-gap: 8px;
 }
 
 .student-form__status-message,
@@ -72,7 +82,7 @@
   position: relative;
 
   span {
-    font-size: 12px;
+    font-size: 9px;
     font-weight: 700;
     line-height: 1.2;
   }
@@ -90,17 +100,15 @@
     display: flex;
     gap: 8px;
     inline-size: 100%;
-    min-block-size: 33px;
+    box-sizing: border-box;
+    min-block-size: 29px;
     min-inline-size: 0;
-    padding-inline: 11px 6px;
-    transition:
-      border-color 160ms ease,
-      box-shadow 160ms ease;
-
+    overflow: hidden;
+    padding-inline: 8px 5px;
     > ion-icon {
       color: #3158ad;
       flex: 0 0 auto;
-      font-size: 18px;
+      font-size: 15px;
       pointer-events: none;
     }
   }
@@ -137,17 +145,18 @@
     border: 0;
     color: #172033;
     flex: 1 1 auto;
-    font-size: 12px;
+    font-size: 9px;
     inline-size: 100%;
+    max-inline-size: 100%;
     line-height: 1.25;
-    min-block-size: 31px;
+    min-block-size: 27px;
     min-inline-size: 0;
   }
 
   ion-textarea {
     --padding-bottom: 8px;
     --padding-top: 0;
-    min-block-size: 68px;
+    min-block-size: 40px;
   }
 
   .field__date-button {
@@ -156,10 +165,10 @@
     color: #172033;
     flex: 1 1 auto;
     font: inherit;
-    font-size: 12px;
+    font-size: 9px;
     font-weight: 700;
     line-height: 1.25;
-    min-block-size: 31px;
+    min-block-size: 27px;
     min-inline-size: 0;
     padding: 0 8px 0 0;
     text-align: start;
@@ -189,7 +198,7 @@ ion-datetime {
 
 .student-form__actions {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   inline-size: 100%;
   padding-block-start: 6px;
@@ -197,9 +206,9 @@ ion-datetime {
 
 ion-button {
   --border-radius: 8px;
-  font-size: 13px;
+  font-size: 10px;
   font-weight: 800;
-  min-block-size: 42px;
+  min-block-size: 34px;
   text-transform: none;
 }
 
@@ -217,12 +226,12 @@ ion-button {
 
 @media (max-width: 380px) {
   .student-form {
-    padding-inline: 14px;
+    padding-inline: 12px;
   }
 
   .student-form__identity-grid {
-    gap: 14px;
-    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 10px;
+    grid-template-columns: 72px minmax(0, 1fr);
   }
 
   .student-form__two-columns {
@@ -235,10 +244,13 @@ ion-button {
 }
 
 @media (max-width: 320px) {
-  .student-form__identity-grid,
   .student-form__two-columns,
   .student-form__actions {
     grid-template-columns: 1fr;
+  }
+
+  .student-form__identity-grid {
+    grid-template-columns: 68px minmax(0, 1fr);
   }
 }
 

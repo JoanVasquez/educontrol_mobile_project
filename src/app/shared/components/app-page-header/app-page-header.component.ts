@@ -2,7 +2,7 @@ import { Component, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonButton, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { chevronBack } from 'ionicons/icons';
+import { chevronBack, searchOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-page-header',
@@ -16,11 +16,13 @@ export class AppPageHeaderComponent {
   readonly backUrl = input<string>('/home');
   readonly showBack = input<boolean>(true);
   readonly align = input<'center' | 'start'>('center');
+  readonly color = input<'blue' | 'red'>('blue');
   readonly actionLabel = input<string>('');
+  readonly actionIcon = input<string>('');
   readonly actionClicked = output<void>();
 
   constructor() {
-    addIcons({ chevronBack });
+    addIcons({ chevronBack, searchOutline });
   }
 
   handleAction(): void {

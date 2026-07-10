@@ -1,0 +1,172 @@
+:host {
+  --blue: #3158ad;
+  background: #fff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.profile-shell {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.profile-content {
+  --background: #fff;
+}
+
+.profile {
+  display: grid;
+  gap: 28px;
+  inline-size: min(100%, 680px);
+  margin-inline: auto;
+  padding: 8px 16px 32px;
+}
+
+.school-card,
+.user-card,
+.profile-menu {
+  background: #f7f7f7;
+  border-radius: 14px;
+}
+
+.school-card {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 38px minmax(0, 1fr);
+  min-block-size: 52px;
+  padding: 8px 14px;
+}
+
+.school-card__icon {
+  background: var(--blue);
+  block-size: 31px;
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  inline-size: 31px;
+  place-items: center;
+}
+
+.school-card__icon ion-icon {
+  font-size: 21px;
+}
+
+.school-card > span:last-child,
+.user-card__data {
+  display: grid;
+  min-inline-size: 0;
+}
+
+.school-card strong {
+  color: var(--blue);
+  font-size: 11px;
+}
+
+.school-card small {
+  color: #8b8b8b;
+  font-size: 10px;
+}
+
+.user-card {
+  align-items: center;
+  display: grid;
+  gap: 7px;
+  grid-template-columns: 28px 30px minmax(0, 1fr) 16px;
+  min-block-size: 49px;
+  padding: 8px 10px;
+}
+
+.user-card__avatar {
+  color: #d0d0d0;
+  display: grid;
+  place-items: center;
+}
+
+.user-card__avatar ion-icon {
+  font-size: 28px;
+}
+
+.user-card > small {
+  font-size: 8px;
+}
+
+.user-card__data strong,
+.user-card__data small {
+  font-size: 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-card > ion-icon {
+  color: var(--blue);
+}
+
+.profile-menu {
+  overflow: hidden;
+}
+
+.profile-menu a,
+.profile-menu button {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #dedede;
+  color: #181818;
+  display: grid;
+  font: inherit;
+  grid-template-columns: 22px minmax(0, 1fr) 15px;
+  min-block-size: 31px;
+  padding: 5px 8px;
+  text-align: start;
+  text-decoration: none;
+  width: 100%;
+}
+
+.profile-menu a:last-child,
+.profile-menu button:last-child {
+  border-bottom: 0;
+}
+
+.profile-menu ion-icon {
+  color: var(--blue);
+  font-size: 17px;
+}
+
+.profile-menu span {
+  font-size: 10px;
+}
+
+.profile-menu ion-icon:last-child {
+  font-size: 14px;
+}
+
+.profile-menu button:last-child ion-icon:first-child {
+  color: #d20c16;
+}
+
+@media (max-width: 340px) {
+  .profile {
+    padding-inline: 10px;
+  }
+}
+
+@media (min-width: 700px) {
+  .profile {
+    gap: 24px;
+    padding: 24px 40px 44px;
+  }
+
+  .school-card,
+  .user-card {
+    min-block-size: 68px;
+  }
+
+  .profile-menu a,
+  .profile-menu button {
+    min-block-size: 42px;
+  }
+}

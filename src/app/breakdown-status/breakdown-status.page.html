@@ -1,0 +1,30 @@
+<div class="status-shell">
+  <app-page-header title="Estado Averías" backUrl="/averias" color="red" />
+
+  <nav class="status-tabs" aria-label="Estados de averías">
+    <button type="button" [class.is-active]="activeState() === 'pending'" (click)="selectState('pending')">Pendientes</button>
+    <button type="button" [class.is-active]="activeState() === 'in-progress'" (click)="selectState('in-progress')">En proceso</button>
+    <button type="button" [class.is-active]="activeState() === 'resolved'" (click)="selectState('resolved')">Resueltas</button>
+  </nav>
+
+  <ion-content class="status-content" [fullscreen]="false">
+    <main class="breakdown-list">
+      @for (breakdown of visibleBreakdowns(); track breakdown.id) {
+        <button class="breakdown-card" type="button" (click)="openBreakdown(breakdown.id)">
+          <img [src]="breakdown.image" [alt]="breakdown.title" />
+          <span class="breakdown-card__copy">
+            <strong>{{ breakdown.title }}</strong>
+            <span>{{ breakdown.location }}</span>
+            <em [class]="'priority priority--' + breakdown.priority">{{ priorityLabel(breakdown.priority) }}</em>
+          </span>
+          <time>{{ breakdown.date }}</time>
+          <ion-icon name="chevron-forward" aria-hidden="true" />
+        </button>
+      } @empty {
+        <p class="breakdown-list__empty">No hay averías en este estado.</p>
+      }
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/averias" color="red" />
+</div>

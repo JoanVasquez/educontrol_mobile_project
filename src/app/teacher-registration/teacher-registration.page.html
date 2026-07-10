@@ -1,0 +1,115 @@
+<div class="teacher-shell">
+  <app-page-header title="Registrar docente" [showBack]="false" />
+
+  <ion-content class="teacher-content" [fullscreen]="false">
+    <main class="teacher-form">
+      <h1>Información del docente</h1>
+
+      <section class="identity">
+        <label class="photo-picker">
+          <ion-icon name="camera-outline" aria-hidden="true" />
+          <span>Foto del docente</span>
+          <strong>{{ photoName() || 'Subir foto' }}</strong>
+          <input type="file" accept="image/*" capture="user" (change)="selectPhoto($event)" />
+        </label>
+
+        <div class="identity__names">
+          <label class="field">
+            <span>Nombres<b>*</b></span>
+            <input [(ngModel)]="firstName" placeholder="Ingrese el/los nombres" />
+          </label>
+          <label class="field">
+            <span>Apellidos<b>*</b></span>
+            <input [(ngModel)]="lastName" placeholder="Ingrese los apellidos" />
+          </label>
+        </div>
+      </section>
+
+      <section class="two-columns">
+        <label class="field">
+          <span>Fecha de nacimiento<b>*</b></span>
+          <span class="date-field">
+            <input type="date" [(ngModel)]="birthDate" />
+            <ion-icon name="calendar-outline" aria-hidden="true" />
+          </span>
+        </label>
+        <label class="field">
+          <span>Nacionalidad<b>*</b></span>
+          <select [(ngModel)]="nationality">
+            <option value="" disabled>Seleccione</option>
+            @for (nationalityOption of nationalities; track nationalityOption) {
+              <option [value]="nationalityOption">{{ nationalityOption }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span>Género<b>*</b></span>
+          <select [(ngModel)]="gender">
+            <option value="" disabled>Seleccione</option>
+            @for (genderOption of genders; track genderOption) {
+              <option [value]="genderOption">{{ genderOption }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span>Cédula<b>*</b></span>
+          <input [(ngModel)]="idNumber" inputmode="numeric" placeholder="Ingrese número" />
+        </label>
+      </section>
+
+      <h1>Información de contacto</h1>
+      <label class="field">
+        <span>Dirección<b>*</b></span>
+        <textarea [(ngModel)]="address" placeholder="Ingrese dirección"></textarea>
+      </label>
+      <label class="field">
+        <span>Teléfono de contacto<b>*</b></span>
+        <input [(ngModel)]="phone" inputmode="tel" placeholder="Ingrese teléfono de contacto" />
+      </label>
+
+      <h1>Asignatura/Curso</h1>
+      <section class="assignment-section">
+        <span class="assignment-section__label">Asignatura/s</span>
+        @for (assignment of assignments; track $index; let index = $index) {
+          <div class="assignment-row">
+            <select [(ngModel)]="assignment.subject">
+              <option value="" disabled>Seleccione asignatura/s</option>
+              @for (subject of subjects; track subject) {
+                <option [value]="subject">{{ subject }}</option>
+              }
+            </select>
+            <button type="button" (click)="addAssignment()" aria-label="Agregar asignatura">&gt;</button>
+            <input [(ngModel)]="assignment.detail" aria-label="Detalle de asignatura" />
+          </div>
+        }
+
+        <span class="assignment-section__label">Curso/s</span>
+        @for (courseAssignment of courseAssignments; track $index) {
+          <div class="assignment-row">
+            <select [(ngModel)]="courseAssignment.course">
+              <option value="" disabled>Seleccione curso/s</option>
+              @for (course of courses; track course) {
+                <option [value]="course">{{ course }}</option>
+              }
+            </select>
+            <button type="button" (click)="addCourse()" aria-label="Agregar curso">&gt;</button>
+            <input [(ngModel)]="courseAssignment.section" aria-label="Sección del curso" />
+          </div>
+        }
+      </section>
+
+      @if (message()) {
+        <p class="teacher-form__message" aria-live="polite">{{ message() }}</p>
+      }
+
+      <div class="teacher-form__actions">
+        <button class="teacher-form__cancel" type="button" (click)="cancel()">Cancelar</button>
+        <button class="teacher-form__submit" type="button" [disabled]="saving()" (click)="submit()">
+          {{ saving() ? 'Guardando...' : 'Registrar docente' }}
+        </button>
+      </div>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/docentes" />
+</div>

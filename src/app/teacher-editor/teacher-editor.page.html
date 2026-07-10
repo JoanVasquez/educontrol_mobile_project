@@ -1,0 +1,151 @@
+<div class="teacher-editor-shell">
+  <app-page-header title="Modificar registrar docente" backUrl="/docentes/listado" />
+
+  <ion-content class="teacher-editor-content" [fullscreen]="false">
+    <main class="teacher-editor">
+      @if (loading()) {
+        <section class="state-card" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>Cargando docente...</p>
+        </section>
+      } @else if (errorMessage()) {
+        <section class="state-card state-card--error">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" (click)="load()">Reintentar</button>
+        </section>
+      } @else if (teacher; as currentTeacher) {
+        <div class="form-container">
+          @if (showingCache()) {
+            <p class="cache-notice">Mostrando la última copia guardada. Conéctate para actualizar en Firebase.</p>
+          }
+
+          <section class="form-section">
+            <h1>Información del docente</h1>
+
+            <div class="teacher-profile">
+              <label class="photo-picker">
+                @if (photoPreviewUrl()) {
+                  <img [src]="photoPreviewUrl()" [alt]="'Foto de ' + currentTeacher.firstName" />
+                } @else {
+                  <ion-icon name="person" aria-hidden="true" />
+                }
+                <input type="file" accept="image/*" (change)="selectPhoto($event)" />
+                <span><ion-icon name="camera-outline" aria-hidden="true" /> Actualizar foto</span>
+              </label>
+
+              <div class="teacher-fields">
+                <label class="field">
+                  <span>Nombres<b>*</b></span>
+                  <input [(ngModel)]="currentTeacher.firstName" autocomplete="given-name" />
+                </label>
+                <label class="field">
+                  <span>Apellidos<b>*</b></span>
+                  <input [(ngModel)]="currentTeacher.lastName" autocomplete="family-name" />
+                </label>
+                <label class="field">
+                  <span>Fecha de nacimiento<b>*</b></span>
+                  <input type="date" [(ngModel)]="currentTeacher.birthDate" />
+                </label>
+                <label class="field">
+                  <span>Nacionalidad<b>*</b></span>
+                  <select [(ngModel)]="currentTeacher.nationality">
+                    <option value="">Seleccione</option>
+                    @for (option of nationalities; track option) {
+                      <option [value]="option">{{ option }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Género<b>*</b></span>
+                  <select [(ngModel)]="currentTeacher.gender">
+                    <option value="">Seleccione</option>
+                    @for (option of genders; track option) {
+                      <option [value]="option">{{ option }}</option>
+                    }
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Cédula<b>*</b></span>
+                  <input [(ngModel)]="currentTeacher.idNumber" inputmode="numeric" />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h1>Información de contacto</h1>
+            <div class="contact-fields">
+              <label class="field field--address">
+                <span>Dirección<b>*</b></span>
+                <textarea [(ngModel)]="currentTeacher.address" autocomplete="street-address"></textarea>
+              </label>
+              <label class="field">
+                <span>Teléfono de contacto<b>*</b></span>
+                <input [(ngModel)]="currentTeacher.phone" inputmode="tel" autocomplete="tel" />
+              </label>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <h1>Asignatura/Curso</h1>
+            <div class="academic-columns">
+              <div class="selection-group">
+                <div class="selection-heading">
+                  <span>Asignatura/s</span>
+                  <button type="button" (click)="addAssignment()">+ Agregar</button>
+                </div>
+                @for (assignment of currentTeacher.assignments; track $index; let index = $index) {
+                  <div class="selection-row">
+                    <select [(ngModel)]="assignment.subject" aria-label="Asignatura">
+                      <option value="">Seleccione asignatura</option>
+                      @for (option of subjects; track option) {
+                        <option [value]="option">{{ option }}</option>
+                      }
+                    </select>
+                    <input [(ngModel)]="assignment.detail" placeholder="Detalle" aria-label="Detalle de asignatura" />
+                    <button class="remove" type="button" (click)="removeAssignment(index)" aria-label="Quitar asignatura">×</button>
+                  </div>
+                }
+              </div>
+
+              <div class="selection-group">
+                <div class="selection-heading">
+                  <span>Curso/s</span>
+                  <button type="button" (click)="addCourse()">+ Agregar</button>
+                </div>
+                @for (course of currentTeacher.courses; track $index; let index = $index) {
+                  <div class="selection-row">
+                    <select [(ngModel)]="course.course" aria-label="Curso">
+                      <option value="">Seleccione curso</option>
+                      @for (option of courses; track option) {
+                        <option [value]="option">{{ option }}</option>
+                      }
+                    </select>
+                    <input [(ngModel)]="course.section" placeholder="Sección" aria-label="Sección" />
+                    <button class="remove" type="button" (click)="removeCourse(index)" aria-label="Quitar curso">×</button>
+                  </div>
+                }
+              </div>
+            </div>
+          </section>
+
+          @if (message()) {
+            <p class="form-message" aria-live="polite">{{ message() }}</p>
+          }
+
+          <div class="actions">
+            <button class="cancel" type="button" [disabled]="saving() || deleting()" (click)="cancel()">Cancelar</button>
+            <button class="update" type="button" [disabled]="saving() || deleting()" (click)="update()">
+              {{ saving() ? 'Guardando...' : 'Actualizar' }}
+            </button>
+            <button class="delete" type="button" [disabled]="saving() || deleting()" (click)="deleteTeacher()">
+              {{ deleting() ? 'Eliminando...' : 'Eliminar' }}
+            </button>
+          </div>
+        </div>
+      }
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/docentes/listado" />
+</div>

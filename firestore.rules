@@ -10,9 +10,13 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/user/$(request.auth.uid)).data;
     }
 
-    function isActiveStaff() {
+    function isActiveUser() {
       return signedIn()
-        && currentUserProfile().status in ['active', 'Active', 'ACTIVE']
+        && currentUserProfile().status in ['active', 'Active', 'ACTIVE'];
+    }
+
+    function isActiveStaff() {
+      return isActiveUser()
         && currentUserProfile().role in [
           'admin',
           'director',
@@ -26,14 +30,122 @@ service cloud.firestore {
         ];
     }
 
+    function canManageAttendance() {
+      return isActiveUser()
+        && currentUserProfile().role in [
+          'admin',
+          'director',
+          'secretaria',
+          'docente',
+          'teacher',
+          'Admin',
+          'Director',
+          'Secretaria',
+          'Docente',
+          'Teacher',
+          'ADMIN',
+          'DIRECTOR',
+          'SECRETARIA',
+          'DOCENTE',
+          'TEACHER',
+        ];
+    }
+
+    function validTeacher() {
+      return request.resource.data.keys().hasAll([
+          'firstName',
+          'lastName',
+          'birthDate',
+          'nationality',
+          'gender',
+          'idNumber',
+          'address',
+          'phone',
+          'assignments',
+          'courses',
+          'photoUrl',
+          'photoPath',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.keys().hasOnly([
+          'firstName',
+          'lastName',
+          'birthDate',
+          'nationality',
+          'gender',
+          'idNumber',
+          'address',
+          'phone',
+          'assignments',
+          'courses',
+          'photoUrl',
+          'photoPath',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.firstName is string
+        && request.resource.data.firstName.size() > 0
+        && request.resource.data.lastName is string
+        && request.resource.data.lastName.size() > 0
+        && request.resource.data.idNumber is string
+        && request.resource.data.assignments is list
+        && request.resource.data.courses is list
+        && request.resource.data.status == 'active'
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validAttendance() {
+      return request.resource.data.keys().hasAll([
+          'course',
+          'date',
+          'records',
+          'createdBy',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.keys().hasOnly([
+          'course',
+          'date',
+          'records',
+          'createdBy',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.course is string
+        && request.resource.data.course.size() > 0
+        && request.resource.data.date is string
+        && request.resource.data.date.size() == 10
+        && request.resource.data.records is list
+        && request.resource.data.records.size() > 0
+        && request.resource.data.createdBy is string
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     match /user/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
       allow write: if false;
     }
 
     match /estudiantes/{studentId} {
-      allow create: if isActiveStaff();
-      allow read, update, delete: if isActiveStaff();
+      allow create, update, delete: if isActiveStaff();
+      allow read: if canManageAttendance();
+    }
+
+    match /docentes/{teacherId} {
+      allow create: if isActiveStaff() && validTeacher();
+      allow update: if isActiveStaff() && validTeacher();
+      allow read, delete: if isActiveStaff();
+    }
+
+    match /asistencias/{attendanceId} {
+      allow read: if canManageAttendance();
+      allow create, update: if canManageAttendance() && validAttendance();
+      allow delete: if isActiveStaff();
     }
   }
 }

@@ -14,20 +14,58 @@ export const routes: Routes = [
   {
     path: 'asistencia',
     canActivate: [authenticatedGuard],
-    loadComponent: () => import('./feature-placeholder/feature-placeholder.page').then((m) => m.FeaturePlaceholderPage),
-    data: { title: 'Asistencia', activePath: '/asistencia' },
+    loadComponent: () => import('./attendance/attendance.page').then((m) => m.AttendancePage),
+  },
+  {
+    path: 'asistencia/resumen',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./attendance-summary/attendance-summary.page').then((m) => m.AttendanceSummaryPage),
+  },
+  {
+    path: 'ubicacion',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./location/location.page').then((m) => m.LocationPage),
+  },
+  {
+    path: 'averias/actualizar/:id',
+    canActivate: [authenticatedGuard],
+    loadComponent: () =>
+      import('./breakdown-update/breakdown-update.page').then(({ BreakdownUpdatePage }) => BreakdownUpdatePage),
+  },
+  {
+    path: 'averias/estado',
+    canActivate: [authenticatedGuard],
+    loadComponent: () =>
+      import('./breakdown-status/breakdown-status.page').then(({ BreakdownStatusPage }) => BreakdownStatusPage),
   },
   {
     path: 'averias',
     canActivate: [authenticatedGuard],
-    loadComponent: () => import('./feature-placeholder/feature-placeholder.page').then((m) => m.FeaturePlaceholderPage),
-    data: { title: 'Averias', activePath: '/averias' },
+    loadComponent: () =>
+      import('./breakdown-report/breakdown-report.page').then(({ BreakdownReportPage }) => BreakdownReportPage),
+  },
+  {
+    path: 'docentes/modificar/:id',
+    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    loadComponent: () =>
+      import('./teacher-editor/teacher-editor.page').then(({ TeacherEditorPage }) => TeacherEditorPage),
+  },
+  {
+    path: 'docentes/listado',
+    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    loadComponent: () =>
+      import('./teacher-directory/teacher-directory.page').then(({ TeacherDirectoryPage }) => TeacherDirectoryPage),
   },
   {
     path: 'docentes',
+    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    loadComponent: () =>
+      import('./teacher-registration/teacher-registration.page').then(({ TeacherRegistrationPage }) => TeacherRegistrationPage),
+  },
+  {
+    path: 'perfil',
     canActivate: [authenticatedGuard],
-    loadComponent: () => import('./feature-placeholder/feature-placeholder.page').then((m) => m.FeaturePlaceholderPage),
-    data: { title: 'Docentes', activePath: '/docentes' },
+    loadComponent: () => import('./profile/profile.page').then(({ ProfilePage }) => ProfilePage),
   },
   {
     path: 'registrar-estudiante',

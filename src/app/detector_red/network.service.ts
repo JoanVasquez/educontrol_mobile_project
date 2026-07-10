@@ -1,21 +1,8 @@
 import { Injectable, NgZone, inject } from '@angular/core';
-import { registerPlugin } from '@capacitor/core';
 import type { PluginListenerHandle } from '@capacitor/core';
+import { Network } from '@capacitor/network';
+import type { ConnectionStatus } from '@capacitor/network';
 import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
-
-type ConnectionType = 'wifi' | 'cellular' | 'none' | 'unknown';
-
-interface ConnectionStatus {
-  connected: boolean;
-  connectionType: ConnectionType;
-}
-
-interface NetworkPlugin {
-  getStatus(): Promise<ConnectionStatus>;
-  addListener(eventName: 'networkStatusChange', listenerFunc: (status: ConnectionStatus) => void): Promise<PluginListenerHandle>;
-}
-
-const Network = registerPlugin<NetworkPlugin>('Network');
 
 @Injectable({ providedIn: 'root' })
 export class NetworkService {
@@ -46,12 +33,20 @@ export class NetworkService {
   }
 
   private async initialize(): Promise<void> {
-    const status = await Network.getStatus();
-    this.updateStatus(status);
+    try {
+      const status = await Network.getStatus();
+      this.updateStatus(status);
 
-    this.listener = await Network.addListener('networkStatusChange', (networkStatus) => {
-      this.zone.run(() => this.updateStatus(networkStatus));
-    });
+      this.listener = await Network.addListener('networkStatusChange', (networkStatus) => {
+        this.zone.run(() => this.updateStatus(networkStatus));
+      });
+    } catch (error) {
+      console.warn('No se pudo inicializar el monitor de red:', error);
+      this.updateStatus({
+        connected: typeof navigator === 'undefined' ? true : navigator.onLine,
+        connectionType: 'unknown',
+      });
+    }
   }
 
   private updateStatus(status: ConnectionStatus): void {

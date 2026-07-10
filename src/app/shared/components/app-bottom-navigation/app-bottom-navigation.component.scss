@@ -63,6 +63,14 @@
   }
 }
 
+.bottom-nav--red .bottom-nav__item--active {
+  color: #c5060b;
+
+  ion-icon {
+    background: transparent;
+  }
+}
+
 .bottom-nav__menu {
   background: #ffffff;
   border: 1px solid #d7dbe5;
@@ -75,6 +83,24 @@
   min-inline-size: min(260px, calc(100vw - 24px));
   padding: 8px;
   position: absolute;
+}
+
+.bottom-nav__menu--attendance {
+  inset-inline-end: auto;
+  inset-inline-start: max(8px, calc(20% - 54px));
+  min-inline-size: min(220px, calc(100vw - 24px));
+}
+
+.bottom-nav__menu--breakdown {
+  inset-inline-end: auto;
+  inset-inline-start: max(8px, calc(40% - 54px));
+  min-inline-size: min(220px, calc(100vw - 24px));
+}
+
+.bottom-nav__menu--teachers {
+  inset-inline-end: auto;
+  inset-inline-start: clamp(8px, calc(50% - 110px), calc(100% - 228px));
+  min-inline-size: min(220px, calc(100vw - 24px));
 }
 
 .bottom-nav__menu-item {

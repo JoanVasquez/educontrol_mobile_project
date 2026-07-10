@@ -1,0 +1,91 @@
+<div class="teacher-update-shell">
+  <app-page-header title="Modificar registrar docente" backUrl="/docentes/listado" />
+
+  <ion-content class="teacher-update-content" [fullscreen]="false">
+    <main class="teacher-update">
+      <h1>Información del docente</h1>
+
+      <section class="teacher-profile">
+        <ion-icon name="person" aria-hidden="true" />
+        <strong>Jessibel Pion</strong>
+        <button type="button">Actualizar</button>
+      </section>
+
+      <section class="two-columns">
+        <label class="field">
+          <span>Fecha de nacimiento<b>*</b></span>
+          <span class="date-field">
+            <input type="date" [(ngModel)]="birthDate" />
+            <ion-icon name="calendar-outline" aria-hidden="true" />
+          </span>
+        </label>
+        <label class="field">
+          <span>Nacionalidad<b>*</b></span>
+          <select [(ngModel)]="nationality">
+            @for (nationalityOption of nationalities; track nationalityOption) {
+              <option [value]="nationalityOption">{{ nationalityOption }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span>Género<b>*</b></span>
+          <select [(ngModel)]="gender">
+            @for (genderOption of genders; track genderOption) {
+              <option [value]="genderOption">{{ genderOption }}</option>
+            }
+          </select>
+        </label>
+        <label class="field">
+          <span>Cédula<b>*</b></span>
+          <input [(ngModel)]="idNumber" />
+        </label>
+      </section>
+
+      <h1>Información de contacto</h1>
+      <label class="field">
+        <span>Dirección<b>*</b></span>
+        <textarea [(ngModel)]="address"></textarea>
+      </label>
+      <label class="field">
+        <span>Teléfono de contacto<b>*</b></span>
+        <input [(ngModel)]="phone" inputmode="tel" />
+      </label>
+
+      <h1>Asignatura/Curso</h1>
+      <section class="assignments">
+        <span>Asignatura/s</span>
+        <div class="assignment-row">
+          <select [(ngModel)]="subject">
+            @for (subjectOption of subjects; track subjectOption) {
+              <option [value]="subjectOption">{{ subjectOption }}</option>
+            }
+          </select>
+          <b>&gt;</b>
+          <span class="selected-value">{{ subject }}<sup>×</sup></span>
+        </div>
+        <span>Curso/s</span>
+        <div class="assignment-row">
+          <select [(ngModel)]="course">
+            @for (courseOption of courses; track courseOption) {
+              <option [value]="courseOption">{{ courseOption }}</option>
+            }
+          </select>
+          <b>&gt;</b>
+          <span class="selected-value">{{ course }}<sup>×</sup></span>
+        </div>
+      </section>
+
+      @if (message()) {
+        <p class="teacher-update__message" aria-live="polite">{{ message() }}</p>
+      }
+
+      <div class="teacher-update__actions">
+        <button class="cancel" type="button" (click)="cancel()">Cancelar</button>
+        <button class="update" type="button" (click)="update()">Actualizar</button>
+        <button class="delete" type="button" (click)="deleteTeacher()">Eliminar</button>
+      </div>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/docentes/listado" />
+</div>

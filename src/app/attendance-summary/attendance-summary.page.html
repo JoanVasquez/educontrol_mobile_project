@@ -1,0 +1,91 @@
+<div class="attendance-shell">
+  <app-page-header title="Filtrar Asistencia" backUrl="/asistencia" />
+
+  <ion-content class="attendance-content" [fullscreen]="false">
+    <main class="attendance">
+      <section class="attendance__filters" aria-label="Filtros de asistencia">
+        <label class="filter-field">
+          <span class="sr-only">Curso</span>
+          <select [value]="selectedCourse()" [disabled]="loading()" (change)="setCourse($event)">
+            @for (course of courses(); track course) {
+              <option [value]="course">{{ course }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="filter-field">
+          <ion-icon name="calendar-outline" aria-hidden="true" />
+          <span class="sr-only">Fecha</span>
+          <input type="date" [value]="selectedDate()" [disabled]="loading()" (change)="setDate($event)" />
+        </label>
+      </section>
+
+      @if (showingCache()) {
+        <p class="attendance__notice">Mostrando la última información guardada localmente.</p>
+      }
+
+      @if (loading()) {
+        <section class="attendance__state" aria-live="polite">
+          <span class="spinner" aria-hidden="true"></span>
+          <p>Consultando asistencia...</p>
+        </section>
+      } @else if (errorMessage()) {
+        <section class="attendance__state">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" (click)="reload()">Reintentar</button>
+        </section>
+      } @else {
+        <section class="metrics" aria-label="Resumen de asistencia">
+          <article class="metric-card metric-card--total">
+            <ion-icon name="people-outline" aria-hidden="true" />
+            <span>Total<br />estudiantes</span>
+            <strong>{{ metrics().total }}</strong>
+          </article>
+          <article class="metric-card metric-card--present">
+            <strong>{{ metrics().present }}</strong><span>Presentes</span>
+            <i class="metric-card__icon"><ion-icon name="checkmark" aria-hidden="true" /></i>
+            <b>{{ percentage(metrics().present) }}</b>
+          </article>
+          <article class="metric-card metric-card--absent">
+            <strong>{{ metrics().absent }}</strong><span>Ausentes</span>
+            <i class="metric-card__icon"><ion-icon name="close" aria-hidden="true" /></i>
+            <b>{{ percentage(metrics().absent) }}</b>
+          </article>
+          <article class="metric-card metric-card--excused">
+            <strong>{{ metrics().excused }}</strong><span>Excusa</span>
+            <i class="metric-card__icon"><ion-icon name="time-outline" aria-hidden="true" /></i>
+            <b>{{ percentage(metrics().excused) }}</b>
+          </article>
+        </section>
+
+        @if (metrics().unmarked) {
+          <p class="attendance__pending">{{ metrics().unmarked }} estudiante(s) sin asistencia registrada.</p>
+        }
+
+        <div class="attendance__divider" aria-hidden="true">···</div>
+
+        <section class="student-list" aria-label="Lista de estudiantes">
+          @for (student of students(); track student.id; let position = $index) {
+            <article class="student-row">
+              <span class="student-row__avatar" aria-hidden="true">
+                @if (student.photoUrl) {
+                  <img [src]="student.photoUrl" alt="" />
+                } @else {
+                  <ion-icon name="person" />
+                }
+              </span>
+              <span class="student-row__name">{{ position + 1 }}. {{ student.fullName }}</span>
+              <span [class]="'student-row__status student-row__status--' + statusClass(student.status)">
+                {{ statusLabel(student.status) }}
+              </span>
+            </article>
+          } @empty {
+            <p class="attendance__empty">No hay estudiantes registrados en este curso.</p>
+          }
+        </section>
+      }
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/asistencia" />
+</div>

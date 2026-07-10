@@ -1,0 +1,64 @@
+<div class="report-shell">
+  <app-page-header
+    title="Reporte de averias"
+    backUrl="/home"
+    color="red"
+    actionLabel="Estado"
+    (actionClicked)="viewStatus()"
+  />
+
+  <ion-content class="report-content" [fullscreen]="false">
+    <main class="report">
+      <h1>Registrar avería</h1>
+
+      <label class="field">
+        <span>Categoría</span>
+        <select [(ngModel)]="category" (ngModelChange)="message.set('')">
+          <option value="" disabled>Selecciona una categoría</option>
+          @for (categoryOption of categories; track categoryOption) {
+            <option [value]="categoryOption">{{ categoryOption }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Descripción</span>
+        <textarea [(ngModel)]="description" (ngModelChange)="message.set('')" placeholder="Describa la avería..."></textarea>
+      </label>
+
+      <fieldset class="priority">
+        <legend>Prioridad</legend>
+        <div class="priority__options">
+          <button type="button" class="priority__button priority__button--low" [class.is-selected]="priority() === 'low'" (click)="selectPriority('low')">Baja</button>
+          <button type="button" class="priority__button priority__button--medium" [class.is-selected]="priority() === 'medium'" (click)="selectPriority('medium')">Media</button>
+          <button type="button" class="priority__button priority__button--high" [class.is-selected]="priority() === 'high'" (click)="selectPriority('high')">Alta</button>
+        </div>
+      </fieldset>
+
+      <label class="field">
+        <span>Ubicación</span>
+        <span class="field__location">
+          <ion-icon name="location-outline" aria-hidden="true" />
+          <input [(ngModel)]="location" (ngModelChange)="message.set('')" placeholder="Ej: Baño 2do nivel..." />
+        </span>
+      </label>
+
+      <label class="field">
+        <span>Evidencia (foto)</span>
+        <span class="photo-picker">
+          <ion-icon name="camera-outline" aria-hidden="true" />
+          <strong>{{ photoName() || 'Agregar foto' }}</strong>
+          <input type="file" accept="image/*" capture="environment" (change)="selectPhoto($event)" />
+        </span>
+      </label>
+
+      @if (message()) {
+        <p class="report__message" aria-live="polite">{{ message() }}</p>
+      }
+
+      <button class="report__submit" type="button" (click)="submit()">Enviar reporte</button>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/averias" color="red" />
+</div>

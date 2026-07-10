@@ -35,3 +35,60 @@
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
+
+app-student-registration .student-form__wifi-share {
+  background: #f5f7fc;
+  border: 1px solid #dce2ef;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 7px;
+}
+
+app-student-registration .student-form__wifi-actions {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+app-student-registration .student-form__wifi-actions ion-button {
+  --border-radius: 6px;
+  font-size: 9px;
+  inline-size: 100%;
+  margin: 0;
+  min-block-size: 30px;
+}
+
+app-student-registration .peer-list {
+  color: #49566f;
+  display: grid;
+  font-size: 9px;
+  gap: 5px;
+}
+
+app-student-registration .peer-list__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+app-student-registration .peer-link {
+  background: #fff;
+  border: 1px solid #3158ad;
+  border-radius: 999px;
+  color: #3158ad;
+  font: inherit;
+  padding: 4px 8px;
+}
+
+app-student-registration .student-form__wifi-message {
+  color: #49566f;
+  font-size: 9px;
+  line-height: 1.3;
+}
+
+@media (max-width: 320px) {
+  app-student-registration .student-form__wifi-actions {
+    grid-template-columns: 1fr;
+  }
+}

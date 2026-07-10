@@ -1,0 +1,72 @@
+.student-row__avatar img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.student-row__status--unmarked {
+  color: #7a8292;
+}
+
+.attendance__notice,
+.attendance__pending,
+.attendance__empty {
+  margin: 0;
+  font-size: 12px;
+}
+
+.attendance__notice {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fff6d8;
+  color: #745800;
+}
+
+.attendance__pending {
+  color: #7a5a00;
+  text-align: center;
+}
+
+.attendance__empty {
+  padding-block: 32px;
+  color: #687386;
+  text-align: center;
+}
+
+.attendance__state {
+  min-height: 300px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  color: #687386;
+  text-align: center;
+}
+
+.attendance__state button {
+  min-height: 38px;
+  padding-inline: 22px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 700;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #dbe3f2;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: summary-spin .8s linear infinite;
+}
+
+.filter-field :disabled {
+  opacity: .55;
+}
+
+@keyframes summary-spin {
+  to { transform: rotate(360deg); }
+}

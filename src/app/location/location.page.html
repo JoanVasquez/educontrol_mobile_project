@@ -1,0 +1,112 @@
+<div class="location-shell">
+  <app-page-header title="Ubicación y lugares" backUrl="/home" />
+
+  <ion-content class="location-content" [fullscreen]="false">
+    <main class="location-page">
+      <section class="location-card">
+        <div class="location-card__heading">
+          <span class="location-card__icon"><ion-icon name="location-outline" /></span>
+          <div>
+            <h1>Mi ubicación</h1>
+            <p>Permiso: {{ permission() === 'granted' ? 'concedido' : permission() === 'denied' ? 'rechazado' : 'pendiente' }}</p>
+          </div>
+          @if (tracking()) {
+            <span class="live-indicator"><i></i> En vivo</span>
+          }
+        </div>
+
+        @if (point(); as currentPoint) {
+          <div class="coordinates">
+            <div><span>Latitud</span><strong>{{ currentPoint.latitude.toFixed(6) }}</strong></div>
+            <div><span>Longitud</span><strong>{{ currentPoint.longitude.toFixed(6) }}</strong></div>
+            <div>
+              <span>Precisión</span>
+              <strong [class]="'quality quality--' + quality()">{{ currentPoint.accuracy.toFixed(0) }} m · {{ qualityLabel() }}</strong>
+            </div>
+            <div><span>Actualizada</span><strong>{{ currentPoint.timestamp | date:'HH:mm:ss' }}</strong></div>
+          </div>
+        } @else {
+          <p class="location-card__empty">Activa el GPS para obtener tus coordenadas y buscar lugares cercanos.</p>
+        }
+
+        <div class="location-actions">
+          <button type="button" [disabled]="locating()" (click)="locate()">
+            <ion-icon name="navigate-outline" /> {{ locating() ? 'Buscando...' : 'Mi ubicación' }}
+          </button>
+          @if (tracking()) {
+            <button class="secondary" type="button" (click)="stopTracking()">
+              <ion-icon name="stop-circle-outline" /> Detener
+            </button>
+          } @else {
+            <button class="secondary" type="button" (click)="startTracking()">
+              <ion-icon name="refresh-outline" /> Seguir en vivo
+            </button>
+          }
+          <button class="secondary" type="button" [disabled]="!point()" (click)="shareLocation()">
+            <ion-icon name="share-social-outline" /> Compartir
+          </button>
+          <button class="secondary" type="button" [disabled]="!point()" (click)="openCurrentLocation()">
+            <ion-icon name="compass-outline" /> Abrir mapa
+          </button>
+        </div>
+      </section>
+
+      <section class="places-card">
+        <div class="section-heading">
+          <div>
+            <h2>Lugares cercanos</h2>
+            <p>Datos abiertos de OpenStreetMap</p>
+          </div>
+          @if (placesFromCache()) {
+            <span class="cache-badge">Caché local</span>
+          }
+        </div>
+
+        <div class="place-filters">
+          <label>
+            <span>Categoría</span>
+            <select [value]="category()" (change)="setCategory($event)">
+              @for (option of categories; track option.value) {
+                <option [value]="option.value">{{ option.label }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            <span>Radio</span>
+            <select [value]="radiusMeters()" (change)="setRadius($event)">
+              <option value="500">500 m</option>
+              <option value="1000">1 km</option>
+              <option value="2000">2 km</option>
+              <option value="5000">5 km</option>
+            </select>
+          </label>
+          <button type="button" [disabled]="searching()" (click)="searchNearby()">
+            {{ searching() ? 'Consultando...' : 'Buscar cerca de mí' }}
+          </button>
+        </div>
+
+        @if (message()) {
+          <p class="location-message" aria-live="polite">{{ message() }}</p>
+        }
+
+        <div class="places-list">
+          @for (place of places(); track place.id) {
+            <article class="place-item">
+              <span class="place-item__icon"><ion-icon name="location-outline" /></span>
+              <div>
+                <strong>{{ place.name }}</strong>
+                <span>{{ categoryLabel(place.category) }} · {{ distanceLabel(place.distanceMeters) }}</span>
+                <small>{{ place.address }}</small>
+              </div>
+              <button type="button" (click)="openPlace(place)" aria-label="Abrir lugar en OpenStreetMap">
+                <ion-icon name="compass-outline" />
+              </button>
+            </article>
+          }
+        </div>
+      </section>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/ubicacion" />
+</div>

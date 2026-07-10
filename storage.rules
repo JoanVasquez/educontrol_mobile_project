@@ -1,0 +1,37 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function currentUserProfile() {
+      return firestore.get(/databases/(default)/documents/user/$(request.auth.uid)).data;
+    }
+
+    function isActiveStaff() {
+      return signedIn()
+        && currentUserProfile().status in ['active', 'Active', 'ACTIVE']
+        && currentUserProfile().role in [
+          'admin',
+          'director',
+          'secretaria',
+          'Admin',
+          'Director',
+          'Secretaria',
+          'ADMIN',
+          'DIRECTOR',
+          'SECRETARIA',
+        ];
+    }
+
+    match /docentes/{teacherId}/{fileName} {
+      allow read: if isActiveStaff();
+      allow create, update: if isActiveStaff()
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isActiveStaff();
+    }
+  }
+}

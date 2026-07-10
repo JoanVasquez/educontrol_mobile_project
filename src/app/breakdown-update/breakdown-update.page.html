@@ -1,0 +1,80 @@
+<div class="update-shell">
+  <app-page-header
+    title="Actualizar Averías"
+    backUrl="/averias/estado"
+    color="red"
+    actionIcon="search-outline"
+    (actionClicked)="search()"
+  />
+
+  <ion-content class="update-content" [fullscreen]="false">
+    <main class="update-form">
+      <article class="report-summary">
+        <span class="report-summary__icon"><ion-icon name="build-outline" /></span>
+        <span class="report-summary__copy">
+          <strong>AV-0001</strong>
+          <span>Inodoro Roto / Baño 1er nivel</span>
+          <span>Reportada Hace 2 horas</span>
+        </span>
+        <span class="report-summary__state">
+          <i><ion-icon name="build-outline" /></i>
+          <b>En Proceso</b>
+        </span>
+      </article>
+
+      <h1>Información de la avería</h1>
+
+      <div class="two-columns">
+        <label class="field">
+          <span>Categoría</span>
+          <select [(ngModel)]="category">
+            @for (categoryOption of categories; track categoryOption) {
+              <option [value]="categoryOption">{{ categoryOption }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Prioridad</span>
+          <select [(ngModel)]="priority" class="priority-select">
+            @for (priorityOption of priorities; track priorityOption.value) {
+              <option [value]="priorityOption.value">{{ priorityOption.label }}</option>
+            }
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        <span>Ubicación <ion-icon name="location-outline" /></span>
+        <input [(ngModel)]="location" />
+      </label>
+
+      <label class="field">
+        <span>Descripción</span>
+        <textarea [(ngModel)]="description"></textarea>
+      </label>
+
+      <label class="field field--state">
+        <span>Actualizar estado</span>
+        <select [(ngModel)]="state">
+          @for (stateOption of states; track stateOption.value) {
+            <option [value]="stateOption.value">{{ stateOption.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field">
+        <span>Notas/ Observaciones</span>
+        <textarea [(ngModel)]="notes"></textarea>
+      </label>
+
+      @if (message()) {
+        <p class="update-form__message" aria-live="polite">{{ message() }}</p>
+      }
+
+      <button class="update-form__save" type="button" (click)="save()">Guardar cambios</button>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/averias" color="red" />
+</div>
