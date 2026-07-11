@@ -126,6 +126,50 @@ service cloud.firestore {
         && request.resource.data.updatedAt is timestamp;
     }
 
+
+    function validBreakdown() {
+      return request.resource.data.keys().hasAll([
+          'category',
+          'description',
+          'priority',
+          'location',
+          'photoUrl',
+          'photoDataUrl',
+          'photoName',
+          'photoContentType',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.keys().hasOnly([
+          'category',
+          'description',
+          'priority',
+          'location',
+          'photoUrl',
+          'photoDataUrl',
+          'photoName',
+          'photoContentType',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.category is string
+        && request.resource.data.category.size() > 0
+        && request.resource.data.description is string
+        && request.resource.data.description.size() > 0
+        && request.resource.data.priority in ['low', 'medium', 'high']
+        && request.resource.data.location is string
+        && request.resource.data.location.size() > 0
+        && (request.resource.data.photoUrl == null || request.resource.data.photoUrl is string)
+        && (request.resource.data.photoDataUrl == null || request.resource.data.photoDataUrl is string)
+        && (request.resource.data.photoName == null || request.resource.data.photoName is string)
+        && (request.resource.data.photoContentType == null || request.resource.data.photoContentType in ['image/jpeg'])
+        && request.resource.data.status in ['pending', 'in-progress', 'resolved']
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
     match /user/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
       allow write: if false;
@@ -145,6 +189,12 @@ service cloud.firestore {
     match /asistencias/{attendanceId} {
       allow read: if canManageAttendance();
       allow create, update: if canManageAttendance() && validAttendance();
+      allow delete: if isActiveStaff();
+    }
+
+    match /breakdowns/{breakdownId} {
+      allow read: if canManageAttendance();
+      allow create, update: if canManageAttendance() && validBreakdown();
       allow delete: if isActiveStaff();
     }
   }

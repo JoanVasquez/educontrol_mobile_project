@@ -13,7 +13,7 @@
 
       <label class="field">
         <span>Categoría</span>
-        <select [(ngModel)]="category" (ngModelChange)="message.set('')">
+        <select [(ngModel)]="category" (ngModelChange)="clearMessages()">
           <option value="" disabled>Selecciona una categoría</option>
           @for (categoryOption of categories; track categoryOption) {
             <option [value]="categoryOption">{{ categoryOption }}</option>
@@ -23,7 +23,7 @@
 
       <label class="field">
         <span>Descripción</span>
-        <textarea [(ngModel)]="description" (ngModelChange)="message.set('')" placeholder="Describa la avería..."></textarea>
+        <textarea [(ngModel)]="description" (ngModelChange)="clearMessages()" placeholder="Describa la avería..."></textarea>
       </label>
 
       <fieldset class="priority">
@@ -39,24 +39,79 @@
         <span>Ubicación</span>
         <span class="field__location">
           <ion-icon name="location-outline" aria-hidden="true" />
-          <input [(ngModel)]="location" (ngModelChange)="message.set('')" placeholder="Ej: Baño 2do nivel..." />
+          <input [(ngModel)]="location" (ngModelChange)="clearMessages()" placeholder="Ej: Baño 2do nivel..." />
         </span>
       </label>
 
-      <label class="field">
-        <span>Evidencia (foto)</span>
-        <span class="photo-picker">
+      <fieldset class="photo-section">
+        <legend>Evidencia (foto)</legend>
+        <div class="photo-info">
           <ion-icon name="camera-outline" aria-hidden="true" />
-          <strong>{{ photoName() || 'Agregar foto' }}</strong>
-          <input type="file" accept="image/*" capture="environment" (change)="selectPhoto($event)" />
-        </span>
-      </label>
+          <strong>{{ photoName() || 'Ninguna foto seleccionada' }}</strong>
+        </div>
 
-      @if (message()) {
-        <p class="report__message" aria-live="polite">{{ message() }}</p>
+        <div class="photo-buttons">
+          <button
+            type="button"
+            class="photo-button photo-button--camera"
+            (click)="takePhoto()"
+            [disabled]="isLoading()"
+            aria-label="Tomar foto con cámara"
+          >
+            <ion-icon name="camera-outline" aria-hidden="true" />
+            Agregar foto
+          </button>
+
+          <button
+            type="button"
+            class="photo-button photo-button--gallery"
+            (click)="pickPhotoFromGallery()"
+            [disabled]="isLoading()"
+            aria-label="Seleccionar foto de galería"
+          >
+            <ion-icon name="image-outline" aria-hidden="true" />
+            Galería
+          </button>
+        </div>
+
+        <label class="photo-button photo-button--file">
+          <ion-icon name="cloud-upload-outline" aria-hidden="true" />
+          Seleccionar archivo
+          <input 
+            type="file" 
+            accept="image/*" 
+            (change)="selectPhoto($event)" 
+            [disabled]="isLoading()"
+            aria-label="Seleccionar archivo de imagen"
+          />
+        </label>
+      </fieldset>
+
+      @if (errorMessage()) {
+        <div class="report__message report__message--error" aria-live="polite" role="alert">
+          {{ errorMessage() }}
+        </div>
       }
 
-      <button class="report__submit" type="button" (click)="submit()">Enviar reporte</button>
+      @if (successMessage()) {
+        <div class="report__message report__message--success" aria-live="polite" role="status">
+          {{ successMessage() }}
+        </div>
+      }
+
+      <button 
+        class="report__submit" 
+        type="button" 
+        (click)="submit()"
+        [disabled]="isLoading()"
+      >
+        @if (isLoading()) {
+          <ion-spinner name="crescent"></ion-spinner>
+          Enviando...
+        } @else {
+          Enviar reporte
+        }
+      </button>
     </main>
   </ion-content>
 

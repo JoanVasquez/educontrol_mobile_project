@@ -10,6 +10,32 @@ service firebase.storage {
       return firestore.get(/databases/(default)/documents/user/$(request.auth.uid)).data;
     }
 
+    function canManageAttendance() {
+      return signedIn()
+        && currentUserProfile().status in [
+          'active',
+          'Active',
+          'ACTIVE',
+        ]
+        && currentUserProfile().role in [
+          'admin',
+          'director',
+          'secretaria',
+          'docente',
+          'teacher',
+          'Admin',
+          'Director',
+          'Secretaria',
+          'Docente',
+          'Teacher',
+          'ADMIN',
+          'DIRECTOR',
+          'SECRETARIA',
+          'DOCENTE',
+          'TEACHER',
+        ];
+    }
+
     function isActiveStaff() {
       return signedIn()
         && currentUserProfile().status in ['active', 'Active', 'ACTIVE']
@@ -30,6 +56,14 @@ service firebase.storage {
       allow read: if isActiveStaff();
       allow create, update: if isActiveStaff()
         && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if isActiveStaff();
+    }
+
+    match /breakdowns/{breakdownId}/{fileName} {
+      allow read: if signedIn();
+      allow create, update: if canManageAttendance()
+        && request.resource.size < 5 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
       allow delete: if isActiveStaff();
     }
