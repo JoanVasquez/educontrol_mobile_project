@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import type { AttendanceSheet, AttendanceStudent } from './attendance.model';
 
 const STUDENTS_KEY = 'educontrol.cache.attendance.students';
+const SHEET_INDEX_KEY = 'educontrol.cache.attendance.sheet-ids';
 const SHEET_PREFIX = 'educontrol.cache.attendance.sheet:';
 
 @Injectable({ providedIn: 'root' })
@@ -18,8 +19,15 @@ export class AttendanceCacheRepository {
     return this.read<AttendanceSheet>(`${SHEET_PREFIX}${documentId}`);
   }
 
+  getSheets(): AttendanceSheet[] {
+    return this.getSheetIds()
+      .map((documentId) => this.getSheet(documentId))
+      .filter((sheet): sheet is AttendanceSheet => Boolean(sheet));
+  }
+
   saveSheet(sheet: AttendanceSheet): void {
     localStorage.setItem(`${SHEET_PREFIX}${sheet.id}`, JSON.stringify(sheet));
+    this.saveSheetId(sheet.id);
   }
 
   private read<T>(key: string): T | null {
@@ -32,5 +40,16 @@ export class AttendanceCacheRepository {
       localStorage.removeItem(key);
       return null;
     }
+  }
+
+  private getSheetIds(): string[] {
+    return this.read<string[]>(SHEET_INDEX_KEY) ?? [];
+  }
+
+  private saveSheetId(documentId: string): void {
+    const sheetIds = this.getSheetIds();
+    if (sheetIds.includes(documentId)) return;
+
+    localStorage.setItem(SHEET_INDEX_KEY, JSON.stringify([...sheetIds, documentId]));
   }
 }

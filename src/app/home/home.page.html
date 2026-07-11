@@ -8,29 +8,35 @@
           <div class="dashboard__date">
             <ion-icon name="today-outline" aria-hidden="true"></ion-icon>
             <span>Hoy, {{ todayLabel }}</span>
+            @if (isOfflineSource()) {
+              <span class="dashboard__source">Offline</span>
+            }
+            <button class="dashboard__refresh" type="button" aria-label="Actualizar dashboard" [disabled]="isLoadingDashboard()" (click)="loadDashboard()">
+              <ion-icon name="refresh-outline" aria-hidden="true"></ion-icon>
+            </button>
           </div>
 
           <div class="dashboard__content">
             <div class="dashboard__summary">
               <div class="metrics-grid">
-                @for (metric of metrics; track metric.label) {
+                @for (metric of metrics(); track metric.label) {
                   <app-dashboard-metric-card [icon]="metric.icon" [label]="metric.label" [value]="metric.value" [helper]="metric.helper" />
                 }
               </div>
 
-              <button class="breakdown-alert" type="button" aria-label="Ver averias pendientes">
+              <button class="breakdown-alert" type="button" aria-label="Ver averias pendientes" (click)="openBreakdownStatus()">
                 <span class="breakdown-alert__icon">
                   <ion-icon name="alert-circle" aria-hidden="true"></ion-icon>
                 </span>
                 <span class="breakdown-alert__copy">
                   <span>Averias pendientes</span>
-                  <strong>8</strong>
+                  <strong>{{ pendingBreakdowns() }}</strong>
                 </span>
                 <ion-icon class="breakdown-alert__chevron" name="chevron-forward" aria-hidden="true"></ion-icon>
               </button>
             </div>
 
-            <app-weekly-absence-chart class="dashboard__chart" [points]="weeklyAbsences" />
+            <app-weekly-absence-chart class="dashboard__chart" [points]="weeklyAbsences()" />
           </div>
         </section>
       </main>

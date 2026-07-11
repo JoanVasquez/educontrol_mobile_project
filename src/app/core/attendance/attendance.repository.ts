@@ -40,6 +40,14 @@ export class AttendanceRepository {
       .pipe(map((document) => this.sheetMapper.fromDocument(document)));
   }
 
+  findSheets(idToken: string): Observable<AttendanceSheet[]> {
+    return this.http
+      .get<FirestoreListResponse>(`${this.baseUrl}/asistencias?pageSize=100`, {
+        headers: this.headers(idToken),
+      })
+      .pipe(map((response) => (response.documents ?? []).map((document) => this.sheetMapper.fromDocument(document))));
+  }
+
   saveSheet(sheet: AttendanceSheet, idToken: string): Observable<unknown> {
     return this.http.patch(
       `${this.baseUrl}/asistencias/${encodeURIComponent(sheet.id)}`,

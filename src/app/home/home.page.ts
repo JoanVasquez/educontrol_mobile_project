@@ -1,5 +1,6 @@
 import { AsyncPipe, TitleCasePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -9,37 +10,17 @@ import {
   chevronForward,
   closeOutline,
   peopleCircleOutline,
+  refreshOutline,
   schoolOutline,
   todayOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../core/auth/auth.service';
+import { DashboardService } from '../core/dashboard/dashboard.service';
+import type { DashboardMetric, DashboardWeeklyPoint } from '../core/dashboard/dashboard.model';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 import { DashboardMetricCardComponent } from './components/dashboard-metric-card/dashboard-metric-card.component';
-import { WeeklyAbsenceChartComponent, type WeeklyAbsencePoint } from './components/weekly-absence-chart/weekly-absence-chart.component';
-
-interface DashboardMetric {
-  icon: string;
-  label: string;
-  value: string;
-  helper: string;
-}
-
-const DASHBOARD_METRICS: DashboardMetric[] = [
-  { icon: 'student', label: 'Estudiantes inscritos', value: '512', helper: 'Total' },
-  { icon: 'attendance', label: 'Asistencia del dia', value: '93%', helper: 'Presente' },
-  { icon: 'absence', label: 'Ausencia del dia', value: '35', helper: 'Hoy' },
-  { icon: 'teacher', label: 'Docentes activos', value: '24', helper: 'Total' },
-];
-
-const WEEKLY_ABSENCES: WeeklyAbsencePoint[] = [
-  { label: 'Dia 1', value: 26 },
-  { label: 'Dia 2', value: 18 },
-  { label: 'Dia 3', value: -18 },
-  { label: 'Dia 4', value: 8 },
-  { label: 'Dia 5', value: 12 },
-  { label: 'Dia 6', value: 30 },
-];
+import { WeeklyAbsenceChartComponent } from './components/weekly-absence-chart/weekly-absence-chart.component';
 
 @Component({
   selector: 'app-home',
@@ -58,11 +39,16 @@ const WEEKLY_ABSENCES: WeeklyAbsencePoint[] = [
 })
 export class HomePage {
   private readonly authService = inject(AuthService);
+  private readonly dashboardService = inject(DashboardService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
 
   readonly profile$ = this.authService.profile$;
-  readonly metrics = DASHBOARD_METRICS;
-  readonly weeklyAbsences = WEEKLY_ABSENCES;
+  readonly metrics = signal<DashboardMetric[]>([]);
+  readonly weeklyAbsences = signal<DashboardWeeklyPoint[]>([]);
+  readonly pendingBreakdowns = signal(0);
+  readonly isLoadingDashboard = signal(false);
+  readonly isOfflineSource = signal(false);
   readonly todayLabel = new Intl.DateTimeFormat('es-DO', {
     day: 'numeric',
     month: 'long',
@@ -77,9 +63,36 @@ export class HomePage {
       chevronForward,
       closeOutline,
       peopleCircleOutline,
+      refreshOutline,
       schoolOutline,
       todayOutline,
     });
+    this.loadDashboard();
+  }
+
+  loadDashboard(): void {
+    this.isLoadingDashboard.set(true);
+
+    this.dashboardService
+      .load()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (dashboard) => {
+          this.metrics.set(dashboard.metrics);
+          this.weeklyAbsences.set(dashboard.weeklyAbsences);
+          this.pendingBreakdowns.set(dashboard.pendingBreakdowns);
+          this.isOfflineSource.set(dashboard.source === 'cache');
+          this.isLoadingDashboard.set(false);
+        },
+        error: () => {
+          this.isLoadingDashboard.set(false);
+          this.isOfflineSource.set(true);
+        },
+      });
+  }
+
+  openBreakdownStatus(): void {
+    this.router.navigateByUrl('/averias/estado');
   }
 
   signOut(): void {

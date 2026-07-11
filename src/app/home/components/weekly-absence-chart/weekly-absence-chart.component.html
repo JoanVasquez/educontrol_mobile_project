@@ -11,21 +11,18 @@
       </g>
 
       <g class="weekly-chart__axis">
-        @for (label of yLabels; track label; let index = $index) {
+        @for (label of yLabels(); track label; let index = $index) {
           <text x="0" [attr.y]="horizontalGuides[index] + 3">{{ label }}</text>
         }
       </g>
 
-      <polygon class="weekly-chart__area" [attr.points]="areaPoints"></polygon>
-      <polyline class="weekly-chart__line" [attr.points]="plotPoints"></polyline>
+      <polygon class="weekly-chart__area" [attr.points]="areaPoints()"></polygon>
+      <polyline class="weekly-chart__line" [attr.points]="plotPoints()"></polyline>
 
       <g class="weekly-chart__points">
-        <circle cx="8" cy="26" r="4"></circle>
-        <circle cx="56" cy="49" r="4"></circle>
-        <circle cx="104" cy="112" r="4"></circle>
-        <circle cx="152" cy="66" r="4"></circle>
-        <circle cx="200" cy="58" r="4"></circle>
-        <circle cx="248" cy="18" r="4"></circle>
+        @for (point of chartPoints(); track point.x) {
+          <circle [attr.cx]="point.x" [attr.cy]="point.y" r="4"></circle>
+        }
       </g>
     </svg>
 
