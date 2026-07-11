@@ -28,6 +28,7 @@ log.txt
 /android/.gradle/
 /android/build/
 /android/app/build/
+/app
 *.apk
 *.ap_
 *.aab
