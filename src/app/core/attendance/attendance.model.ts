@@ -29,3 +29,18 @@ export interface AttendanceRoster {
   students: AttendanceStudent[];
   source: 'remote' | 'cache';
 }
+
+export interface PendingAttendanceSheet {
+  localId: string;
+  sheet: AttendanceSheet;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SaveAttendanceResult {
+  mode: 'online' | 'offline' | 'queued';
+  reason?: 'auth-missing' | 'remote-error';
+  synced: boolean;
+  pendingCount: number;
+  sheet: AttendanceSheet;
+}

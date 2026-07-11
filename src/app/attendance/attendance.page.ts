@@ -67,9 +67,11 @@ export class AttendancePage {
     this.message.set('');
 
     try {
-      await firstValueFrom(this.attendanceService.save(this.selectedCourse(), this.selectedDate(), this.students()));
-      this.showingCache.set(false);
-      this.message.set('Asistencia guardada correctamente en Firebase.');
+      const result = await firstValueFrom(
+        this.attendanceService.save(this.selectedCourse(), this.selectedDate(), this.students()),
+      );
+      this.showingCache.set(result.mode !== 'online');
+      this.message.set(this.saveMessage(result.mode, result.pendingCount, result.reason));
     } catch (error: unknown) {
       this.message.set(error instanceof Error ? error.message : 'No se pudo guardar la asistencia.');
     } finally {
@@ -127,5 +129,23 @@ export class AttendancePage {
 
   private normalize(value: string): string {
     return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  }
+
+  private saveMessage(mode: 'online' | 'offline' | 'queued', pendingCount: number, reason?: 'auth-missing' | 'remote-error'): string {
+    const pending = pendingCount > 0 ? ` Pendientes por sincronizar: ${pendingCount}.` : '';
+
+    if (mode === 'online') {
+      return `Asistencia guardada correctamente en Firebase.${pending}`;
+    }
+
+    if (mode === 'offline') {
+      return `Sin conexión: asistencia guardada localmente.${pending}`;
+    }
+
+    if (reason === 'auth-missing') {
+      return `La sesión no está disponible. Asistencia guardada para sincronizar.${pending}`;
+    }
+
+    return `Firebase no recibió la asistencia. Guardada para reintentar.${pending}`;
   }
 }

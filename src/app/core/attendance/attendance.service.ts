@@ -2,17 +2,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
+import { SessionStorageService } from '../auth/session-storage.service';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
+import { AttendanceOfflineSyncService } from './attendance-offline-sync.service';
 import { AttendanceCacheRepository } from './attendance-cache.repository';
 import { AttendanceDateUtil } from './attendance-date.util';
-import type { AttendanceRoster, AttendanceSheet, AttendanceStudent } from './attendance.model';
+import type { AttendanceRoster, AttendanceSheet, AttendanceStudent, SaveAttendanceResult } from './attendance.model';
 import { AttendanceRepository } from './attendance.repository';
 
 @Injectable({ providedIn: 'root' })
 export class AttendanceService {
   private readonly sessionService = inject(ValidAuthSessionService);
+  private readonly sessionStorage = inject(SessionStorageService);
   private readonly repository = inject(AttendanceRepository);
   private readonly cache = inject(AttendanceCacheRepository);
+  private readonly offlineSyncService = inject(AttendanceOfflineSyncService);
 
   load(course: string, date: string): Observable<AttendanceRoster> {
     return this.sessionService.get().pipe(
@@ -41,7 +45,7 @@ export class AttendanceService {
     );
   }
 
-  save(course: string, date: string, students: AttendanceStudent[]): Observable<AttendanceSheet> {
+  save(course: string, date: string, students: AttendanceStudent[]): Observable<SaveAttendanceResult> {
     const unmarked = students.filter((student) => !student.status);
     if (unmarked.length) {
       return throwError(() => new Error(`Falta marcar la asistencia de ${unmarked.length} estudiante(s).`));
@@ -49,7 +53,11 @@ export class AttendanceService {
 
     return this.sessionService.get().pipe(
       switchMap((session) => {
-        if (!session) return throwError(() => new Error('No hay una sesión válida para guardar la asistencia.'));
+        const fallbackSession = this.sessionStorage.getSession();
+
+        if (!session && !fallbackSession) {
+          return throwError(() => new Error('No hay una sesión válida para guardar la asistencia.'));
+        }
 
         const id = AttendanceDateUtil.documentId(course, date);
         const previous = this.cache.getSheet(id);
@@ -63,15 +71,15 @@ export class AttendanceService {
             studentName: student.fullName,
             status: student.status!,
           })),
-          createdBy: previous?.createdBy || session.uid,
+          createdBy: previous?.createdBy || session?.uid || fallbackSession?.uid || 'offline',
           createdAt: previous?.createdAt || now,
           updatedAt: now,
         };
 
-        return this.repository.saveSheet(sheet, session.idToken).pipe(
-          map(() => {
+        return this.offlineSyncService.save(sheet).pipe(
+          map((result) => {
             this.cache.saveSheet(sheet);
-            return sheet;
+            return result;
           }),
         );
       }),
