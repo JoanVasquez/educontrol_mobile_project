@@ -138,6 +138,7 @@ service cloud.firestore {
           'photoName',
           'photoContentType',
           'status',
+          'notes',
           'createdAt',
           'updatedAt',
         ])
@@ -151,6 +152,7 @@ service cloud.firestore {
           'photoName',
           'photoContentType',
           'status',
+          'notes',
           'createdAt',
           'updatedAt',
         ])
@@ -166,6 +168,7 @@ service cloud.firestore {
         && (request.resource.data.photoName == null || request.resource.data.photoName is string)
         && (request.resource.data.photoContentType == null || request.resource.data.photoContentType in ['image/jpeg'])
         && request.resource.data.status in ['pending', 'in-progress', 'resolved']
+        && (request.resource.data.notes == null || request.resource.data.notes is string)
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
     }

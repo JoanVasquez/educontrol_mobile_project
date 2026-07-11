@@ -42,7 +42,6 @@
   border: 1px solid #d4d8e7;
   border-radius: 8px;
   color: var(--blue);
-  cursor: pointer;
   display: grid;
   gap: 6px;
   justify-items: center;
@@ -53,8 +52,23 @@
   text-align: center;
 }
 
-.photo-picker ion-icon {
+.photo-picker__preview {
+  block-size: 34px;
+  border-radius: 50%;
+  display: grid;
+  inline-size: 34px;
+  overflow: hidden;
+  place-items: center;
+}
+
+.photo-picker__preview ion-icon {
   font-size: 24px;
+}
+
+.photo-picker__preview img {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: cover;
 }
 
 .photo-picker span,
@@ -63,7 +77,49 @@
   font-weight: 500;
 }
 
-.photo-picker input {
+.photo-picker strong {
+  max-inline-size: 78px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.photo-picker__actions {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  inline-size: 100%;
+}
+
+.photo-picker__actions button,
+.photo-picker__actions label {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #c5cbe0;
+  border-radius: 5px;
+  color: var(--blue);
+  cursor: pointer;
+  display: grid;
+  font-size: 8px;
+  font-weight: 800;
+  min-block-size: 24px;
+  overflow: hidden;
+  padding: 0;
+  place-items: center;
+  position: relative;
+}
+
+.photo-picker__actions ion-icon {
+  font-size: 14px;
+}
+
+.photo-picker__actions button:disabled,
+.photo-picker__actions label:has(input:disabled) {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.photo-picker__actions input {
   cursor: pointer;
   inset: 0;
   opacity: 0;

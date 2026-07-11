@@ -6,12 +6,31 @@
       <h1>Información del docente</h1>
 
       <section class="identity">
-        <label class="photo-picker">
-          <ion-icon name="camera-outline" aria-hidden="true" />
+        <div class="photo-picker">
+          <div class="photo-picker__preview">
+            @if (photoPreviewUrl()) {
+              <img [src]="photoPreviewUrl()" alt="" />
+            } @else {
+              <ion-icon name="camera-outline" aria-hidden="true" />
+            }
+          </div>
+
           <span>Foto del docente</span>
-          <strong>{{ photoName() || 'Subir foto' }}</strong>
-          <input type="file" accept="image/*" capture="user" (change)="selectPhoto($event)" />
-        </label>
+          <strong>{{ photoName() || 'Sin foto' }}</strong>
+
+          <div class="photo-picker__actions">
+            <button type="button" (click)="takePhoto()" [disabled]="saving()" aria-label="Tomar foto con cámara">
+              <ion-icon name="camera-outline" aria-hidden="true" />
+            </button>
+            <button type="button" (click)="pickPhotoFromGallery()" [disabled]="saving()" aria-label="Seleccionar foto de galería">
+              <ion-icon name="image-outline" aria-hidden="true" />
+            </button>
+            <label aria-label="Seleccionar archivo de imagen">
+              <span>Archivo</span>
+              <input type="file" accept="image/*" (change)="selectPhoto($event)" [disabled]="saving()" />
+            </label>
+          </div>
+        </div>
 
         <div class="identity__names">
           <label class="field">

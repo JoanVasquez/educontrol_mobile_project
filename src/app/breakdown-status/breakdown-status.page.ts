@@ -1,58 +1,70 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { IonContent, IonIcon } from '@ionic/angular/standalone';
+import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronForward } from 'ionicons/icons';
+import { firstValueFrom } from 'rxjs';
+import type { BreakdownStatusListItem } from '../core/breakdowns/status/breakdown-status.model';
+import { BreakdownStatusService } from '../core/breakdowns/status/breakdown-status.service';
+import type { BreakdownStatus, Priority } from '../core/models/breakdown.model';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
-
-type BreakdownState = 'pending' | 'in-progress' | 'resolved';
-type BreakdownPriority = 'high' | 'medium' | 'low';
-
-interface Breakdown {
-  id: number;
-  title: string;
-  location: string;
-  date: string;
-  priority: BreakdownPriority;
-  state: BreakdownState;
-  image: string;
-}
-
-const BREAKDOWNS: Breakdown[] = [
-  { id: 1, title: 'Inodoro Roto', location: 'Baño 1er nivel', date: '14 de mayo 2026', priority: 'high', state: 'pending', image: 'assets/breakdowns/toilet.svg' },
-  { id: 2, title: 'Filtración baño', location: 'Baño 1er nivel', date: '14 de mayo 2026', priority: 'high', state: 'pending', image: 'assets/breakdowns/leak.svg' },
-  { id: 3, title: 'Butaca Rota', location: 'Aula 312', date: '14 de mayo 2026', priority: 'medium', state: 'pending', image: 'assets/breakdowns/chair.svg' },
-  { id: 4, title: 'Pintura desprendida', location: 'Aula 112', date: '14 de mayo 2026', priority: 'low', state: 'pending', image: 'assets/breakdowns/paint.svg' },
-  { id: 5, title: 'Reparación eléctrica', location: 'Laboratorio', date: '13 de mayo 2026', priority: 'high', state: 'in-progress', image: 'assets/breakdowns/paint.svg' },
-  { id: 6, title: 'Puerta reparada', location: 'Aula 204', date: '10 de mayo 2026', priority: 'medium', state: 'resolved', image: 'assets/breakdowns/chair.svg' },
-];
 
 @Component({
   selector: 'app-breakdown-status',
   templateUrl: './breakdown-status.page.html',
   styleUrls: ['./breakdown-status.page.scss'],
-  imports: [AppBottomNavigationComponent, AppPageHeaderComponent, IonContent, IonIcon],
+  imports: [AppBottomNavigationComponent, AppPageHeaderComponent, IonContent, IonIcon, IonSpinner],
 })
 export class BreakdownStatusPage {
   private readonly router = inject(Router);
+  private readonly statusService = inject(BreakdownStatusService);
 
-  readonly activeState = signal<BreakdownState>('pending');
-  readonly visibleBreakdowns = computed(() => BREAKDOWNS.filter((breakdown) => breakdown.state === this.activeState()));
+  readonly activeState = signal<BreakdownStatus>('pending');
+  readonly breakdowns = signal<BreakdownStatusListItem[]>([]);
+  readonly loading = signal(true);
+  readonly errorMessage = signal('');
+  readonly visibleBreakdowns = computed(() =>
+    this.breakdowns().filter((breakdown) => breakdown.status === this.activeState()),
+  );
 
   constructor() {
     addIcons({ chevronForward });
+    void this.loadBreakdowns();
   }
 
-  selectState(state: BreakdownState): void {
+  selectState(state: BreakdownStatus): void {
     this.activeState.set(state);
   }
 
-  openBreakdown(id: number): void {
+  openBreakdown(id: string): void {
     this.router.navigate(['/averias/actualizar', id]);
   }
 
-  priorityLabel(priority: BreakdownPriority): string {
-    return priority === 'high' ? 'Alta' : priority === 'medium' ? 'Media' : 'Baja';
+  priorityLabel(priority: Priority): string {
+    return this.statusService.priorityLabel(priority);
+  }
+
+  statusLabel(status: BreakdownStatus): string {
+    return this.statusService.statusLabel(status);
+  }
+
+  async reload(): Promise<void> {
+    await this.loadBreakdowns();
+  }
+
+  private async loadBreakdowns(): Promise<void> {
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    try {
+      const result = await firstValueFrom(this.statusService.load());
+      this.breakdowns.set(result.items);
+    } catch (error: unknown) {
+      this.breakdowns.set([]);
+      this.errorMessage.set(error instanceof Error ? error.message : 'No se pudieron consultar las averías.');
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

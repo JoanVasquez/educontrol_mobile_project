@@ -126,6 +126,41 @@
   text-align: center;
 }
 
+.breakdown-list__state {
+  align-items: center;
+  color: #555;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding-block: 44px;
+  text-align: center;
+}
+
+.breakdown-list__state ion-spinner {
+  color: var(--red);
+}
+
+.breakdown-list__state p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.breakdown-list__state button {
+  background: var(--red);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  min-block-size: 38px;
+  padding-inline: 18px;
+}
+
+.breakdown-list__state--error p {
+  color: #9f1317;
+  max-inline-size: 320px;
+}
+
 @media (max-width: 360px) {
   .breakdown-list {
     padding-inline: 12px;

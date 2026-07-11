@@ -1,9 +1,11 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { calendarOutline, cameraOutline } from 'ionicons/icons';
+import { calendarOutline, cameraOutline, imageOutline } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
+import { CameraService } from '../core/camera/camera.service';
 import type {
   RegisterTeacherResult,
   TeacherAssignment,
@@ -13,8 +15,11 @@ import type {
 } from '../core/teachers/teacher-registration.model';
 import { TeacherRegistrationService } from '../core/teachers/teacher-registration.service';
 import { DataUrlFileSerializer } from '../core/teachers/utils/data-url-file.serializer';
+import { isValidFileSize, isValidImageFile } from '../core/utils/validators.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
+
+const TEACHER_PHOTO_MAX_MB = 1.5;
 
 @Component({
   selector: 'app-teacher-registration',
@@ -22,14 +27,17 @@ import { AppPageHeaderComponent } from '../shared/components/app-page-header/app
   styleUrls: ['./teacher-registration.page.scss'],
   imports: [AppBottomNavigationComponent, AppPageHeaderComponent, FormsModule, IonContent, IonIcon],
 })
-export class TeacherRegistrationPage {
+export class TeacherRegistrationPage implements OnDestroy {
   private readonly registrationService = inject(TeacherRegistrationService);
+  private readonly cameraService = inject(CameraService);
   private readonly fileSerializer = new DataUrlFileSerializer();
 
   readonly photoName = signal('');
+  readonly photoPreviewUrl = signal('');
   readonly message = signal('');
   readonly saving = signal(false);
   private selectedPhoto: File | null = null;
+  private objectUrl = '';
 
   firstName = '';
   lastName = '';
@@ -48,28 +56,63 @@ export class TeacherRegistrationPage {
   readonly courses = ['1ro', '2do', '3ro', '4to', '5to', '6to'];
 
   constructor() {
-    addIcons({ calendarOutline, cameraOutline });
+    addIcons({ calendarOutline, cameraOutline, imageOutline });
+  }
+
+  ngOnDestroy(): void {
+    this.revokeObjectUrl();
+  }
+
+  async takePhoto(): Promise<void> {
+    await this.selectPhotoFromSource(() => firstValueFrom(this.cameraService.takePhoto('docente')));
+  }
+
+  async pickPhotoFromGallery(): Promise<void> {
+    await this.selectPhotoFromSource(() => firstValueFrom(this.cameraService.pickPhotoFromGallery('docente')));
   }
 
   selectPhoto(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
+    const input = event.target as HTMLInputElement;
 
     if (!file) {
       return;
     }
 
-    if (!file.type.startsWith('image/')) {
-      this.message.set('Selecciona un archivo de imagen válido.');
+    this.setPhoto(file);
+    input.value = '';
+  }
+
+  private async selectPhotoFromSource(source: () => Promise<File>): Promise<void> {
+    if (this.saving()) {
       return;
     }
 
-    if (file.size > 1_500_000) {
+    try {
+      this.setPhoto(await source());
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'No se pudo seleccionar la foto.';
+
+      if (!message.toLowerCase().includes('cancelada')) {
+        this.message.set(message);
+      }
+    }
+  }
+
+  private setPhoto(file: File): void {
+    if (!isValidImageFile(file)) {
+      this.message.set('Selecciona una imagen JPEG, PNG, WebP o GIF.');
+      return;
+    }
+
+    if (!isValidFileSize(file, TEACHER_PHOTO_MAX_MB)) {
       this.message.set('La foto debe pesar menos de 1.5 MB.');
       return;
     }
 
     this.selectedPhoto = file;
     this.photoName.set(file.name);
+    this.setPreview(file);
     this.message.set('');
   }
 
@@ -173,5 +216,20 @@ export class TeacherRegistrationPage {
     this.courseAssignments = [{ course: '', section: '' }];
     this.selectedPhoto = null;
     this.photoName.set('');
+    this.revokeObjectUrl();
+    this.photoPreviewUrl.set('');
+  }
+
+  private setPreview(file: File): void {
+    this.revokeObjectUrl();
+    this.objectUrl = URL.createObjectURL(file);
+    this.photoPreviewUrl.set(this.objectUrl);
+  }
+
+  private revokeObjectUrl(): void {
+    if (this.objectUrl) {
+      URL.revokeObjectURL(this.objectUrl);
+      this.objectUrl = '';
+    }
   }
 }

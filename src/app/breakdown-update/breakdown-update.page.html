@@ -9,70 +9,94 @@
 
   <ion-content class="update-content" [fullscreen]="false">
     <main class="update-form">
-      <article class="report-summary">
-        <span class="report-summary__icon"><ion-icon name="build-outline" /></span>
-        <span class="report-summary__copy">
-          <strong>AV-0001</strong>
-          <span>Inodoro Roto / Baño 1er nivel</span>
-          <span>Reportada Hace 2 horas</span>
-        </span>
-        <span class="report-summary__state">
-          <i><ion-icon name="build-outline" /></i>
-          <b>En Proceso</b>
-        </span>
-      </article>
+      @if (loading()) {
+        <div class="update-form__state">
+          <ion-spinner name="crescent" />
+          <p>Consultando avería...</p>
+        </div>
+      } @else if (errorMessage() && !summary()) {
+        <div class="update-form__state update-form__state--error">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" (click)="reload()">Reintentar</button>
+        </div>
+      } @else {
+        @if (summary(); as report) {
+          <article class="report-summary">
+            <span class="report-summary__icon"><ion-icon name="build-outline" /></span>
+            <span class="report-summary__copy">
+              <strong>{{ report.code }}</strong>
+              <span>{{ report.title }} / {{ report.location }}</span>
+              <span>Reportada {{ report.reportedAt }}</span>
+            </span>
+            <span class="report-summary__state">
+              <i><ion-icon name="build-outline" /></i>
+              <b>{{ report.statusLabel }}</b>
+            </span>
+          </article>
+        }
 
-      <h1>Información de la avería</h1>
+        <h1>Información de la avería</h1>
 
-      <div class="two-columns">
+        <div class="two-columns">
+          <label class="field">
+            <span>Categoría</span>
+            <select [(ngModel)]="category" [disabled]="saving()">
+              @for (categoryOption of categories; track categoryOption) {
+                <option [value]="categoryOption">{{ categoryOption }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Prioridad</span>
+            <select [(ngModel)]="priority" class="priority-select" [disabled]="saving()">
+              @for (priorityOption of priorities; track priorityOption.value) {
+                <option [value]="priorityOption.value">{{ priorityOption.label }}</option>
+              }
+            </select>
+          </label>
+        </div>
+
         <label class="field">
-          <span>Categoría</span>
-          <select [(ngModel)]="category">
-            @for (categoryOption of categories; track categoryOption) {
-              <option [value]="categoryOption">{{ categoryOption }}</option>
+          <span>Ubicación <ion-icon name="location-outline" /></span>
+          <input [(ngModel)]="location" [disabled]="saving()" />
+        </label>
+
+        <label class="field">
+          <span>Descripción</span>
+          <textarea [(ngModel)]="description" [disabled]="saving()"></textarea>
+        </label>
+
+        <label class="field field--state">
+          <span>Actualizar estado</span>
+          <select [(ngModel)]="status" [disabled]="saving()">
+            @for (stateOption of states; track stateOption.value) {
+              <option [value]="stateOption.value">{{ stateOption.label }}</option>
             }
           </select>
         </label>
 
         <label class="field">
-          <span>Prioridad</span>
-          <select [(ngModel)]="priority" class="priority-select">
-            @for (priorityOption of priorities; track priorityOption.value) {
-              <option [value]="priorityOption.value">{{ priorityOption.label }}</option>
-            }
-          </select>
+          <span>Notas/ Observaciones</span>
+          <textarea [(ngModel)]="notes" [disabled]="saving()"></textarea>
         </label>
-      </div>
 
-      <label class="field">
-        <span>Ubicación <ion-icon name="location-outline" /></span>
-        <input [(ngModel)]="location" />
-      </label>
+        @if (message()) {
+          <p class="update-form__message" aria-live="polite">{{ message() }}</p>
+        }
 
-      <label class="field">
-        <span>Descripción</span>
-        <textarea [(ngModel)]="description"></textarea>
-      </label>
+        @if (errorMessage()) {
+          <p class="update-form__message update-form__message--error" aria-live="polite">{{ errorMessage() }}</p>
+        }
 
-      <label class="field field--state">
-        <span>Actualizar estado</span>
-        <select [(ngModel)]="state">
-          @for (stateOption of states; track stateOption.value) {
-            <option [value]="stateOption.value">{{ stateOption.label }}</option>
+        <button class="update-form__save" type="button" [disabled]="saving()" (click)="save()">
+          @if (saving()) {
+            Guardando...
+          } @else {
+            Guardar cambios
           }
-        </select>
-      </label>
-
-      <label class="field">
-        <span>Notas/ Observaciones</span>
-        <textarea [(ngModel)]="notes"></textarea>
-      </label>
-
-      @if (message()) {
-        <p class="update-form__message" aria-live="polite">{{ message() }}</p>
+        </button>
       }
-
-      <button class="update-form__save" type="button" (click)="save()">Guardar cambios</button>
     </main>
   </ion-content>
 

@@ -8,16 +8,16 @@ import { catchError, switchMap } from "rxjs/operators";
   providedIn: "root",
 })
 export class CameraService {
-  takePhoto(): Observable<File> {
+  takePhoto(fileNamePrefix = "foto"): Observable<File> {
     return from(this.getPhotoFromCamera()).pipe(
-      switchMap((photo) => from(this.convertPhotoToFile(photo))),
+      switchMap((photo) => from(this.convertPhotoToFile(photo, fileNamePrefix))),
       catchError((error) => this.handleError("No se pudo abrir la camara", error)),
     );
   }
 
-  pickPhotoFromGallery(): Observable<File> {
+  pickPhotoFromGallery(fileNamePrefix = "foto"): Observable<File> {
     return from(this.getPhotoFromGallery()).pipe(
-      switchMap((photo) => from(this.convertPhotoToFile(photo))),
+      switchMap((photo) => from(this.convertPhotoToFile(photo, fileNamePrefix))),
       catchError((error) => this.handleError("No se pudo seleccionar la foto", error)),
     );
   }
@@ -44,7 +44,7 @@ export class CameraService {
     });
   }
 
-  private async convertPhotoToFile(photo: Photo): Promise<File> {
+  private async convertPhotoToFile(photo: Photo, fileNamePrefix: string): Promise<File> {
     if (!photo.webPath) {
       throw new Error("La foto no devolvio una ruta valida");
     }
@@ -57,7 +57,7 @@ export class CameraService {
 
     const blob = await response.blob();
     const extension = this.extensionFrom(photo.format, blob.type);
-    const fileName = "averia_" + Date.now() + "." + extension;
+    const fileName = fileNamePrefix + "_" + Date.now() + "." + extension;
 
     return new File([blob], fileName, { type: blob.type || "image/" + extension });
   }

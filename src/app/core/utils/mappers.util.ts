@@ -18,6 +18,7 @@ export function mapFormToBreakdown(formData: BreakdownFormData): Breakdown {
     photoName: null,
     photoContentType: null,
     status: 'pending',
+    notes: null,
     createdAt: new Date().toISOString(),
   };
 }

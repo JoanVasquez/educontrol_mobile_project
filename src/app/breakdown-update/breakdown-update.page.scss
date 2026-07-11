@@ -160,6 +160,11 @@
   text-align: center;
 }
 
+.update-form__message--error {
+  background: #fff1f1;
+  color: #a01418;
+}
+
 .update-form__save {
   background: var(--blue);
   border: 0;
@@ -169,6 +174,45 @@
   font-size: 12px;
   font-weight: 800;
   min-block-size: 34px;
+}
+
+.update-form__save:disabled {
+  opacity: 0.65;
+}
+
+.update-form__state {
+  align-items: center;
+  color: #555;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding-block: 44px;
+  text-align: center;
+}
+
+.update-form__state ion-spinner {
+  color: var(--red);
+}
+
+.update-form__state p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.update-form__state button {
+  background: var(--red);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  min-block-size: 38px;
+  padding-inline: 18px;
+}
+
+.update-form__state--error p {
+  color: #9f1317;
+  max-inline-size: 320px;
 }
 
 @media (max-width: 350px) {

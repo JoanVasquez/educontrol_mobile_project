@@ -48,6 +48,17 @@ export class BreakdownService {
     );
   }
 
+  getBreakdown(id: string): Observable<Breakdown> {
+    return this.withIdToken().pipe(
+      switchMap((idToken) =>
+        this.http.get<FirestoreDocumentResponse>(this.documentUrl(id), {
+          headers: this.authHeaders(idToken),
+        }),
+      ),
+      map((document) => this.mapFromDocument(document)),
+    );
+  }
+
   getAllBreakdowns(): Observable<Breakdown[]> {
     return this.withIdToken().pipe(
       switchMap((idToken) =>
@@ -60,13 +71,21 @@ export class BreakdownService {
   }
 
   updateBreakdown(id: string, updates: Partial<Breakdown>): Observable<void> {
-    const payload = this.mapPartialToPayload({ ...updates, updatedAt: new Date().toISOString() });
-
-    return this.withIdToken().pipe(
-      switchMap((idToken) =>
-        this.http.patch<unknown>(this.documentUrl(id), payload, {
-          headers: this.authHeaders(idToken),
-        }),
+    return this.getBreakdown(id).pipe(
+      map((current) => ({
+        ...current,
+        ...updates,
+        id,
+        updatedAt: new Date().toISOString(),
+      })),
+      switchMap((updatedBreakdown) =>
+        this.withIdToken().pipe(
+          switchMap((token) =>
+            this.http.patch<unknown>(this.documentUrl(id), this.mapToPayload(updatedBreakdown), {
+              headers: this.authHeaders(token),
+            }),
+          ),
+        ),
       ),
       map(() => undefined),
     );
@@ -134,6 +153,7 @@ export class BreakdownService {
       photoName: fields.photoName?.stringValue || null,
       photoContentType: fields.photoContentType?.stringValue || null,
       status: String(fields.status?.stringValue || 'pending') as Breakdown['status'],
+      notes: fields.notes?.stringValue || null,
       createdAt: String(fields.createdAt?.timestampValue || new Date().toISOString()),
       updatedAt: fields.updatedAt?.timestampValue,
     };
@@ -151,6 +171,7 @@ export class BreakdownService {
         photoName: this.nullableString(breakdown.photoName),
         photoContentType: this.nullableString(breakdown.photoContentType),
         status: { stringValue: breakdown.status },
+        notes: this.nullableString(breakdown.notes),
         createdAt: { timestampValue: breakdown.createdAt },
         updatedAt: { timestampValue: breakdown.updatedAt || breakdown.createdAt },
       },
@@ -171,6 +192,7 @@ export class BreakdownService {
     if (breakdown.photoContentType !== undefined) {
       fields['photoContentType'] = this.nullableString(breakdown.photoContentType);
     }
+    if (breakdown.notes !== undefined) fields['notes'] = this.nullableString(breakdown.notes);
     if (breakdown.createdAt) fields['createdAt'] = { timestampValue: breakdown.createdAt };
     if (breakdown.updatedAt) fields['updatedAt'] = { timestampValue: breakdown.updatedAt };
 

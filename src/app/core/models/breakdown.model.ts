@@ -13,6 +13,7 @@ export interface Breakdown {
   photoName: string | null;
   photoContentType: string | null;
   status: BreakdownStatus;
+  notes: string | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -27,6 +28,7 @@ export interface BreakdownDTO {
   photoName?: string | null;
   photoContentType?: string | null;
   status: string;
+  notes?: string | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -66,6 +68,7 @@ export function createBreakdown(
     photoName: null,
     photoContentType: null,
     status: 'pending',
+    notes: null,
     createdAt: new Date().toISOString(),
   };
 }

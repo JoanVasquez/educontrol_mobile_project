@@ -29,7 +29,7 @@ export class BreakdownReportFacade {
     this.setLoading(true);
     this.clearMessages();
 
-    return this.cameraService.takePhoto().pipe(
+    return this.cameraService.takePhoto('averia').pipe(
       tap((photo) => this.validateAndSetPhoto(photo)),
       catchError((error: Error) => {
         this.setError(error.message);
@@ -43,7 +43,7 @@ export class BreakdownReportFacade {
     this.setLoading(true);
     this.clearMessages();
 
-    return this.cameraService.pickPhotoFromGallery().pipe(
+    return this.cameraService.pickPhotoFromGallery('averia').pipe(
       tap((photo) => this.validateAndSetPhoto(photo)),
       catchError((error: Error) => {
         this.setError(error.message);

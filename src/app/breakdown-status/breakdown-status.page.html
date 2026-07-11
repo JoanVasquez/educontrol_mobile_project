@@ -9,19 +9,31 @@
 
   <ion-content class="status-content" [fullscreen]="false">
     <main class="breakdown-list">
-      @for (breakdown of visibleBreakdowns(); track breakdown.id) {
-        <button class="breakdown-card" type="button" (click)="openBreakdown(breakdown.id)">
-          <img [src]="breakdown.image" [alt]="breakdown.title" />
-          <span class="breakdown-card__copy">
-            <strong>{{ breakdown.title }}</strong>
-            <span>{{ breakdown.location }}</span>
-            <em [class]="'priority priority--' + breakdown.priority">{{ priorityLabel(breakdown.priority) }}</em>
-          </span>
-          <time>{{ breakdown.date }}</time>
-          <ion-icon name="chevron-forward" aria-hidden="true" />
-        </button>
-      } @empty {
-        <p class="breakdown-list__empty">No hay averías en este estado.</p>
+      @if (loading()) {
+        <div class="breakdown-list__state">
+          <ion-spinner name="crescent" />
+          <p>Consultando averías...</p>
+        </div>
+      } @else if (errorMessage()) {
+        <div class="breakdown-list__state breakdown-list__state--error">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" (click)="reload()">Reintentar</button>
+        </div>
+      } @else {
+        @for (breakdown of visibleBreakdowns(); track breakdown.id) {
+          <button class="breakdown-card" type="button" (click)="openBreakdown(breakdown.id)">
+            <img [src]="breakdown.image" [alt]="breakdown.title" />
+            <span class="breakdown-card__copy">
+              <strong>{{ breakdown.title }}</strong>
+              <span>{{ breakdown.location }}</span>
+              <em [class]="'priority priority--' + breakdown.priority">{{ priorityLabel(breakdown.priority) }}</em>
+            </span>
+            <time>{{ breakdown.date }}</time>
+            <ion-icon name="chevron-forward" aria-hidden="true" />
+          </button>
+        } @empty {
+          <p class="breakdown-list__empty">No hay averías {{ statusLabel(activeState()).toLowerCase() }}.</p>
+        }
       }
     </main>
   </ion-content>
