@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, from, of } from 'rxjs';
-import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
+import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CameraService } from '../../core/camera/camera.service';
+import { BreakdownOfflineSyncService } from '../../core/breakdowns/offline/breakdown-offline-sync.service';
+import type { RegisterBreakdownResult } from '../../core/breakdowns/offline/breakdown-offline.model';
 import { BreakdownService } from '../../core/firebase/breakdown.service';
 import type { Breakdown, BreakdownCategory, BreakdownPhotoEvidence, Priority } from '../../core/models/breakdown.model';
 import { BreakdownPhotoSerializer } from '../../core/utils/breakdown-photo.serializer';
@@ -22,6 +24,7 @@ export class BreakdownReportFacade {
   readonly success$ = this.successMessage$.asObservable();
 
   private readonly breakdownService = inject(BreakdownService);
+  private readonly breakdownSyncService = inject(BreakdownOfflineSyncService);
   private readonly cameraService = inject(CameraService);
   private readonly photoSerializer = inject(BreakdownPhotoSerializer);
 
@@ -85,11 +88,12 @@ export class BreakdownReportFacade {
     const evidenceRequest: Observable<BreakdownPhotoEvidence | null> = selectedPhoto ? from(this.photoSerializer.serialize(selectedPhoto)) : of(null);
 
     return evidenceRequest.pipe(
-      switchMap((evidence) => this.breakdownService.createBreakdown(this.withEvidence(breakdown, evidence), breakdownId)),
-      tap(() => {
-        this.setSuccess('Averia registrada exitosamente');
+      switchMap((evidence) => this.breakdownSyncService.register(this.withEvidence(breakdown, evidence), breakdownId)),
+      tap((result) => {
+        this.setSuccess(this.successMessage(result));
         this.clearPhoto();
       }),
+      map((result) => result.breakdown),
       catchError((error: Error) => {
         this.setError(error.message || 'No se pudo registrar la averia');
         return of(null);
@@ -117,6 +121,24 @@ export class BreakdownReportFacade {
       photoName: evidence.name,
       photoContentType: evidence.contentType,
     };
+  }
+
+  private successMessage(result: RegisterBreakdownResult): string {
+    const pending = result.pendingCount > 0 ? ` Pendientes por sincronizar: ${result.pendingCount}.` : '';
+
+    if (result.mode === 'online') {
+      return `Averia registrada en Firebase.${pending}`;
+    }
+
+    if (result.mode === 'offline') {
+      return `Sin conexion: averia guardada localmente.${pending}`;
+    }
+
+    if (result.reason === 'auth-missing') {
+      return `La sesion no esta disponible. Averia guardada para sincronizar.${pending}`;
+    }
+
+    return `Firebase no recibio la averia. Guardada para reintentar.${pending}`;
   }
 
   private validateAndSetPhoto(photo: File): boolean {
