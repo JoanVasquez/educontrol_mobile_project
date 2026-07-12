@@ -5,11 +5,13 @@
     <main class="profile">
       <article class="school-card">
         <span class="school-card__icon"><ion-icon name="school-outline" /></span>
-        <span>
-          <strong>Escuela Hermanos Trejo</strong>
-          <small>Código : 552233</small>
-          <small>Distrito 05-01</small>
-        </span>
+        @if(profile$ | async; as user) {
+          <span>
+            <strong>{{ user.institucion }}</strong>
+            <small>Código : {{ user.codigo }}</small>
+            <small>{{ user.distrito }}</small>
+          </span>
+        }
       </article>
 
       @if (profile$ | async; as user) {

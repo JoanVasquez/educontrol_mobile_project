@@ -9,6 +9,7 @@ import {
   ellipsisHorizontal,
   homeOutline,
   locationOutline,
+  radioOutline,
   peopleOutline,
   personCircleOutline,
   personAddOutline,
@@ -33,6 +34,7 @@ const PRIMARY_ITEMS: NavigationItem[] = [
 
 const MORE_ITEMS: NavigationItem[] = [
   { icon: 'person-circle-outline', label: 'Mi perfil', path: '/perfil' },
+  { icon: 'radio-outline', label: 'Sincronizacion local', path: '/sincronizacion-local' },
   { icon: 'location-outline', label: 'Ubicación y lugares', path: '/ubicacion' },
   { icon: 'person-add-outline', label: 'Registrar estudiante', path: '/registrar-estudiante', roles: ['admin', 'director', 'secretaria'] },
   { icon: 'build-outline', label: 'Reportar averia', path: '/averias', roles: ['admin', 'director', 'docente'] },
@@ -63,6 +65,7 @@ export class AppBottomNavigationComponent {
       ellipsisHorizontal,
       homeOutline,
       locationOutline,
+      radioOutline,
       peopleOutline,
       personCircleOutline,
       personAddOutline,

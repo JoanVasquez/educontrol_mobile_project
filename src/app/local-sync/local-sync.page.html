@@ -1,0 +1,87 @@
+<div class="local-sync-shell">
+  <app-page-header title="Sincronizacion local" subtitle="Bluetooth y registros offline" backUrl="/home" align="start" />
+
+  <ion-content class="local-sync-content" [fullscreen]="false">
+    <main class="local-sync" aria-label="Sincronizacion local por Bluetooth">
+      <section class="status-panel">
+        <div class="status-panel__icon">
+          <ion-icon name="bluetooth-outline" aria-hidden="true"></ion-icon>
+        </div>
+        <div class="status-panel__copy">
+          <h1>Bluetooth local</h1>
+          <p>{{ statusMessage() }}</p>
+        </div>
+      </section>
+
+      @if (isBluetoothAvailable() === false) {
+        <section class="notice notice--warning">
+          <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
+          <span>El transporte Bluetooth nativo aun no esta disponible en esta plataforma.</span>
+        </section>
+      }
+
+      @if (successMessage()) {
+        <section class="notice notice--success">
+          <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>
+          <span>{{ successMessage() }}</span>
+        </section>
+      }
+
+      <section class="sync-summary" aria-label="Registros pendientes">
+        <article>
+          <span>Asistencias</span>
+          <strong>{{ summary().attendanceCount }}</strong>
+        </article>
+        <article>
+          <span>Averias</span>
+          <strong>{{ summary().breakdownCount }}</strong>
+        </article>
+        <article>
+          <span>Total</span>
+          <strong>{{ summary().totalCount }}</strong>
+        </article>
+      </section>
+
+      <section class="actions" aria-label="Acciones Bluetooth">
+        <ion-button type="button" expand="block" (click)="scanDevices()" [disabled]="isScanning() || isSending()">
+          @if (isScanning()) {
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+          } @else {
+            <ion-icon name="refresh-outline" aria-hidden="true"></ion-icon>
+          }
+          Buscar dispositivos
+        </ion-button>
+
+        <ion-button type="button" expand="block" color="danger" (click)="sendPending()" [disabled]="isSending() || !selectedDeviceId() || !summary().totalCount">
+          @if (isSending()) {
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+          } @else {
+            <ion-icon name="send-outline" aria-hidden="true"></ion-icon>
+          }
+          Enviar pendientes
+        </ion-button>
+      </section>
+
+      <section class="device-list" aria-label="Dispositivos cercanos">
+        @for (device of devices(); track device.id) {
+          <button type="button" class="device-card" [class.device-card--selected]="selectedDeviceId() === device.id" (click)="selectDevice(device.id)">
+            <span>
+              <strong>{{ device.name || 'Dispositivo cercano' }}</strong>
+              <small>{{ device.id }}</small>
+            </span>
+            @if (device.signalStrength !== undefined) {
+              <em>{{ device.signalStrength }} dBm</em>
+            }
+          </button>
+        } @empty {
+          <div class="empty-state">
+            <ion-icon name="bluetooth-outline" aria-hidden="true"></ion-icon>
+            <span>Busca dispositivos para iniciar una sincronizacion.</span>
+          </div>
+        }
+      </section>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/sincronizacion-local" />
+</div>

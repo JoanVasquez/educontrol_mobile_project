@@ -27,6 +27,11 @@ export const routes: Routes = [
     loadComponent: () => import('./location/location.page').then((m) => m.LocationPage),
   },
   {
+    path: 'sincronizacion-local',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./local-sync/local-sync.page').then(({ LocalSyncPage }) => LocalSyncPage),
+  },
+  {
     path: 'averias/actualizar/:id',
     canActivate: [authenticatedGuard],
     loadComponent: () =>

@@ -5,6 +5,9 @@ export interface UserProfile {
   uid: string;
   email: string;
   fullName: string;
+  codigo: string;
+  distrito: string;
+  institucion: string;
   role: UserRole;
   status: UserStatus;
   createdAt?: Date;
