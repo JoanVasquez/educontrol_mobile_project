@@ -13,6 +13,14 @@ interface FirebaseSignInResponse {
   expiresIn: string;
 }
 
+interface FirebaseSignUpResponse {
+  localId: string;
+  email: string;
+  idToken: string;
+  refreshToken: string;
+  expiresIn: string;
+}
+
 interface FirebaseRefreshResponse {
   user_id: string;
   id_token: string;
@@ -30,6 +38,16 @@ export class FirebaseAuthApiService {
   signInWithEmailAndPassword(email: string, password: string): Observable<AuthSession> {
     return this.http
       .post<FirebaseSignInResponse>(`${this.authUrl}:signInWithPassword?key=${this.apiKey}`, {
+        email,
+        password,
+        returnSecureToken: true,
+      })
+      .pipe(map((response) => this.toSession(response)));
+  }
+
+  createUserWithEmailAndPassword(email: string, password: string): Observable<AuthSession> {
+    return this.http
+      .post<FirebaseSignUpResponse>(`${this.authUrl}:signUp?key=${this.apiKey}`, {
         email,
         password,
         returnSecureToken: true,

@@ -9,6 +9,8 @@ export interface TeacherCourseAssignment {
 }
 
 export interface TeacherRegistrationDraft {
+  email: string;
+  authUid: string;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -46,7 +48,7 @@ export interface PendingTeacherRegistration {
 
 export interface RegisterTeacherResult {
   mode: 'online' | 'offline' | 'queued' | 'rejected';
-  reason?: 'auth-missing' | 'remote-error' | 'permission-denied';
+  reason?: 'auth-missing' | 'auth-user-exists' | 'remote-error' | 'permission-denied';
   pendingCount: number;
   synced: boolean;
 }

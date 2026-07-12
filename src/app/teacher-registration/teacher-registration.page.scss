@@ -132,6 +132,23 @@
   gap: 8px;
 }
 
+.access-note {
+  align-items: center;
+  background: #edf4ff;
+  border-radius: 8px;
+  color: #244d9e;
+  display: grid;
+  font-size: 11px;
+  gap: 4px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 9px 11px;
+}
+
+.access-note strong {
+  color: #172033;
+  font-size: 12px;
+}
+
 .two-columns {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }

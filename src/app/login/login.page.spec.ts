@@ -34,7 +34,7 @@ describe('LoginPage', () => {
     expect(component.loginForm.touched).toBeTrue();
   });
 
-  it('should navigate home after a successful login', () => {
+  it('should navigate home after a successful admin login', () => {
     authService.signIn.and.returnValue(of({
       uid: 'firebase-auth-uid',
       email: 'admin@example.com',
@@ -48,6 +48,21 @@ describe('LoginPage', () => {
 
     expect(authService.signIn).toHaveBeenCalledOnceWith('admin@example.com', 'valid-password');
     expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/home', { replaceUrl: true });
+  });
+
+  it('should navigate teachers to attendance after login', () => {
+    authService.signIn.and.returnValue(of({
+      uid: 'teacher-auth-uid',
+      email: 'docente@example.com',
+      fullName: 'Docente Prueba',
+      role: 'docente',
+      status: 'active',
+    }));
+    component.loginForm.setValue({ email: 'docente@example.com', password: 'valid-password', rememberUser: false });
+
+    component.submit();
+
+    expect(router.navigateByUrl).toHaveBeenCalledOnceWith('/asistencia', { replaceUrl: true });
   });
 
   it('should display authentication errors', () => {

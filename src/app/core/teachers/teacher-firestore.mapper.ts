@@ -14,6 +14,8 @@ export class TeacherFirestoreMapper {
   toCreatePayload(teacher: TeacherRegistrationDraft): FirestoreCreateTeacherPayload {
     return {
       fields: {
+        email: { stringValue: teacher.email },
+        authUid: { stringValue: teacher.authUid },
         firstName: { stringValue: teacher.firstName },
         lastName: { stringValue: teacher.lastName },
         birthDate: { stringValue: teacher.birthDate },

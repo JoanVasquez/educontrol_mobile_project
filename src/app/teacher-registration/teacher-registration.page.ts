@@ -6,6 +6,7 @@ import { addIcons } from 'ionicons';
 import { calendarOutline, cameraOutline, imageOutline } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
 import { CameraService } from '../core/camera/camera.service';
+import { DEFAULT_TEACHER_PASSWORD } from '../core/teachers/teacher-access.constants';
 import type {
   RegisterTeacherResult,
   TeacherAssignment,
@@ -41,6 +42,7 @@ export class TeacherRegistrationPage implements OnDestroy {
 
   firstName = '';
   lastName = '';
+  email = '';
   birthDate = '';
   nationality = '';
   gender = '';
@@ -54,6 +56,7 @@ export class TeacherRegistrationPage implements OnDestroy {
   readonly genders = ['Masculino', 'Femenino'];
   readonly subjects = ['Matemáticas', 'Lengua Española', 'Ciencias Sociales', 'Ciencias Naturales', 'Inglés'];
   readonly courses = ['1ro', '2do', '3ro', '4to', '5to', '6to'];
+  readonly defaultPassword = DEFAULT_TEACHER_PASSWORD;
 
   constructor() {
     addIcons({ calendarOutline, cameraOutline, imageOutline });
@@ -130,8 +133,23 @@ export class TeacherRegistrationPage implements OnDestroy {
   }
 
   async submit(): Promise<void> {
-    if (!this.firstName.trim() || !this.lastName.trim() || !this.birthDate || !this.nationality || !this.gender || !this.idNumber.trim() || !this.address.trim() || !this.phone.trim()) {
+    if (
+      !this.firstName.trim() ||
+      !this.lastName.trim() ||
+      !this.email.trim() ||
+      !this.birthDate ||
+      !this.nationality ||
+      !this.gender ||
+      !this.idNumber.trim() ||
+      !this.address.trim() ||
+      !this.phone.trim()
+    ) {
       this.message.set('Completa todos los campos obligatorios.');
+      return;
+    }
+
+    if (!this.isValidEmail(this.email)) {
+      this.message.set('Ingresa un correo válido para el acceso del docente.');
       return;
     }
 
@@ -157,6 +175,8 @@ export class TeacherRegistrationPage implements OnDestroy {
   private async toRegistrationCommand(): Promise<TeacherRegistrationCommand> {
     const now = new Date().toISOString();
     const teacher: TeacherRegistrationDraft = {
+      email: this.email.trim().toLowerCase(),
+      authUid: '',
       firstName: this.firstName.trim(),
       lastName: this.lastName.trim(),
       birthDate: this.birthDate,
@@ -200,12 +220,17 @@ export class TeacherRegistrationPage implements OnDestroy {
       return 'Firebase rechazó el registro por permisos. Despliega las reglas de docentes y verifica el rol del usuario.';
     }
 
+    if (result.reason === 'auth-user-exists') {
+      return 'Ya existe una cuenta con ese correo. Usa otro correo para el docente.';
+    }
+
     return `Firebase no recibió el registro. Docente guardado para reintentar.${pending}`;
   }
 
   private reset(): void {
     this.firstName = '';
     this.lastName = '';
+    this.email = '';
     this.birthDate = '';
     this.nationality = '';
     this.gender = '';
@@ -231,5 +256,9 @@ export class TeacherRegistrationPage implements OnDestroy {
       URL.revokeObjectURL(this.objectUrl);
       this.objectUrl = '';
     }
+  }
+
+  private isValidEmail(email: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
   }
 }

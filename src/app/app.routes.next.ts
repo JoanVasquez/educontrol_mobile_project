@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: 'home',
-    canActivate: [roleGuard(['admin', 'director'], '/login')],
+    canActivate: [roleGuard(['admin', 'director'], '/asistencia')],
     loadComponent: () => import('./home/home.page').then((m) => m.HomePage),
   },
   {
@@ -41,19 +41,19 @@ export const routes: Routes = [
   },
   {
     path: 'docentes/modificar/:id',
-    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    canActivate: [roleGuard(['admin', 'director'])],
     loadComponent: () =>
       import('./teacher-update/teacher-update.page').then(({ TeacherUpdatePage }) => TeacherUpdatePage),
   },
   {
     path: 'docentes/listado',
-    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    canActivate: [roleGuard(['admin', 'director'])],
     loadComponent: () =>
       import('./teacher-list/teacher-list.page').then(({ TeacherListPage }) => TeacherListPage),
   },
   {
     path: 'docentes',
-    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    canActivate: [roleGuard(['admin', 'director'])],
     loadComponent: () =>
       import('./teacher-registration/teacher-registration.page').then(({ TeacherRegistrationPage }) => TeacherRegistrationPage),
   },
@@ -64,7 +64,7 @@ export const routes: Routes = [
   },
   {
     path: 'registrar-estudiante',
-    canActivate: [roleGuard(['admin', 'director', 'secretaria'])],
+    canActivate: [roleGuard(['admin', 'director'])],
     loadComponent: () => import('./student-registration/student-registration.page').then((m) => m.StudentRegistrationPage),
   },
   {

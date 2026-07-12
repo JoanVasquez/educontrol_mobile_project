@@ -7,6 +7,8 @@ import { SessionStorageService } from '../auth/session-storage.service';
 import { NetworkService } from '../../detector_red/network.service';
 import { PendingTeacherRepository } from './pending-teacher.repository';
 import { TeacherPhotoRepository } from './teacher-photo.repository';
+import { TeacherAccessRepository } from './teacher-access.repository';
+import { DEFAULT_TEACHER_PASSWORD } from './teacher-access.constants';
 import type {
   PendingTeacherRegistration,
   RegisterTeacherResult,
@@ -20,6 +22,7 @@ export class TeacherRegistrationService {
   private readonly networkService = inject(NetworkService);
   private readonly pendingRepository = inject(PendingTeacherRepository);
   private readonly remoteRepository = inject(TeacherRemoteRepository);
+  private readonly accessRepository = inject(TeacherAccessRepository);
   private readonly photoRepository = inject(TeacherPhotoRepository);
   private readonly authApi = inject(FirebaseAuthApiService);
   private readonly sessionStorage = inject(SessionStorageService);
@@ -70,6 +73,15 @@ export class TeacherRegistrationService {
           });
         }
 
+        if (this.isEmailAlreadyInUse(error)) {
+          return of<RegisterTeacherResult>({
+            mode: 'rejected',
+            reason: 'auth-user-exists',
+            synced: false,
+            pendingCount: this.pendingRepository.count(),
+          });
+        }
+
         return of(this.queue(command, 'queued', 'remote-error'));
       }),
     );
@@ -108,7 +120,13 @@ export class TeacherRegistrationService {
   }
 
   private async persist(command: TeacherRegistrationCommand, idToken: string): Promise<void> {
-    let teacher: TeacherRegistrationDraft = command.teacher;
+    const teacherAccount = await firstValueFrom(
+      this.authApi.createUserWithEmailAndPassword(command.teacher.email, DEFAULT_TEACHER_PASSWORD),
+    );
+    let teacher: TeacherRegistrationDraft = {
+      ...command.teacher,
+      authUid: teacherAccount.uid,
+    };
 
     if (command.photo) {
       const uploadedPhoto = await firstValueFrom(this.photoRepository.upload(command.photo, command.registrationId, idToken));
@@ -120,12 +138,25 @@ export class TeacherRegistrationService {
     }
 
     await firstValueFrom(this.remoteRepository.save(command.registrationId, teacher, idToken));
+    await firstValueFrom(
+      this.accessRepository.saveUserProfile(
+        {
+          uid: teacherAccount.uid,
+          email: teacher.email,
+          fullName: `${teacher.firstName} ${teacher.lastName}`.trim(),
+          codigo: teacher.idNumber,
+          createdAt: teacher.createdAt,
+          updatedAt: teacher.updatedAt,
+        },
+        idToken,
+      ),
+    );
   }
 
   private queue(
     command: TeacherRegistrationCommand,
     mode: 'offline' | 'queued',
-    reason?: 'auth-missing' | 'remote-error',
+    reason?: 'auth-missing' | 'auth-user-exists' | 'remote-error',
   ): RegisterTeacherResult {
     const queue = this.pendingRepository.add(command);
     this.pendingCountSubject.next(queue.length);
@@ -179,5 +210,14 @@ export class TeacherRegistrationService {
 
     const httpError = error as { status?: unknown; error?: { error?: { status?: unknown } } };
     return httpError.status === 403 || httpError.error?.error?.status === 'PERMISSION_DENIED';
+  }
+
+  private isEmailAlreadyInUse(error: unknown): boolean {
+    if (!error || typeof error !== 'object') {
+      return false;
+    }
+
+    const httpError = error as { error?: { error?: { message?: unknown } } };
+    return httpError.error?.error?.message === 'EMAIL_EXISTS';
   }
 }

@@ -8,6 +8,8 @@ export class TeacherEditorMapper {
 
     return {
       id: document.name.split('/').pop() ?? '',
+      email: this.string(fields, 'email'),
+      authUid: this.string(fields, 'authUid'),
       firstName: this.string(fields, 'firstName'),
       lastName: this.string(fields, 'lastName'),
       birthDate: this.string(fields, 'birthDate'),
@@ -34,6 +36,8 @@ export class TeacherEditorMapper {
 
   toDraft(teacher: EditableTeacher): TeacherRegistrationDraft {
     return {
+      email: teacher.email,
+      authUid: teacher.authUid,
       firstName: teacher.firstName,
       lastName: teacher.lastName,
       birthDate: teacher.birthDate,

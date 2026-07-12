@@ -20,13 +20,10 @@ service cloud.firestore {
         && currentUserProfile().role in [
           'admin',
           'director',
-          'secretaria',
           'Admin',
           'Director',
-          'Secretaria',
           'ADMIN',
           'DIRECTOR',
-          'SECRETARIA',
         ];
     }
 
@@ -35,24 +32,20 @@ service cloud.firestore {
         && currentUserProfile().role in [
           'admin',
           'director',
-          'secretaria',
           'docente',
-          'teacher',
           'Admin',
           'Director',
-          'Secretaria',
           'Docente',
-          'Teacher',
           'ADMIN',
           'DIRECTOR',
-          'SECRETARIA',
           'DOCENTE',
-          'TEACHER',
         ];
     }
 
     function validTeacher() {
       return request.resource.data.keys().hasAll([
+          'email',
+          'authUid',
           'firstName',
           'lastName',
           'birthDate',
@@ -70,6 +63,8 @@ service cloud.firestore {
           'updatedAt',
         ])
         && request.resource.data.keys().hasOnly([
+          'email',
+          'authUid',
           'firstName',
           'lastName',
           'birthDate',
@@ -86,6 +81,10 @@ service cloud.firestore {
           'createdAt',
           'updatedAt',
         ])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.authUid is string
+        && request.resource.data.authUid.size() > 0
         && request.resource.data.firstName is string
         && request.resource.data.firstName.size() > 0
         && request.resource.data.lastName is string
@@ -93,6 +92,40 @@ service cloud.firestore {
         && request.resource.data.idNumber is string
         && request.resource.data.assignments is list
         && request.resource.data.courses is list
+        && request.resource.data.status == 'active'
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validTeacherUserProfile() {
+      return request.resource.data.keys().hasAll([
+          'email',
+          'fullName',
+          'role',
+          'codigo',
+          'institucion',
+          'distrito',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.keys().hasOnly([
+          'email',
+          'fullName',
+          'role',
+          'codigo',
+          'institucion',
+          'distrito',
+          'status',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 3
+        && request.resource.data.fullName is string
+        && request.resource.data.fullName.size() > 0
+        && request.resource.data.role == 'docente'
+        && request.resource.data.codigo is string
         && request.resource.data.status == 'active'
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
@@ -175,7 +208,8 @@ service cloud.firestore {
 
     match /user/{userId} {
       allow read: if signedIn() && request.auth.uid == userId;
-      allow write: if false;
+      allow create: if isActiveStaff() && validTeacherUserProfile();
+      allow update, delete: if false;
     }
 
     match /estudiantes/{studentId} {

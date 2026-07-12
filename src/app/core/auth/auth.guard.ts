@@ -12,7 +12,7 @@ export const authenticatedGuard: CanActivateFn = (): ReturnType<CanActivateFn> =
   return authService.waitUntilReady().pipe(
     filter(Boolean),
     take(1),
-    map((): boolean | UrlTree => (authService.hasAnyRole(['admin', 'director', 'docente', 'secretaria']) ? true : router.createUrlTree(['/login']))),
+    map((): boolean | UrlTree => (authService.hasAnyRole(['admin', 'director', 'docente']) ? true : router.createUrlTree(['/login']))),
   );
 };
 

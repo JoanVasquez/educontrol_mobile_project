@@ -41,7 +41,16 @@
             <span>Apellidos<b>*</b></span>
             <input [(ngModel)]="lastName" placeholder="Ingrese los apellidos" />
           </label>
+          <label class="field">
+            <span>Correo de acceso<b>*</b></span>
+            <input [(ngModel)]="email" type="email" placeholder="docente@centro.edu.do" />
+          </label>
         </div>
+      </section>
+
+      <section class="access-note" aria-label="Acceso inicial del docente">
+        <span>Contraseña inicial</span>
+        <strong>{{ defaultPassword }}</strong>
       </section>
 
       <section class="two-columns">

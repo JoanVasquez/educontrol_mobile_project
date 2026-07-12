@@ -5,6 +5,7 @@ import { IonButton, IonContent, IonNote, IonSpinner } from '@ionic/angular/stand
 import { addIcons } from 'ionicons';
 import { lockClosedOutline, personOutline } from 'ionicons/icons';
 import { finalize } from 'rxjs';
+import { resolveAuthLandingRoute } from '../core/auth/auth-landing-route.util';
 import { AuthService } from '../core/auth/auth.service';
 import { FieldErrorComponent } from '../shared/components/field-error/field-error.component';
 import { FormCheckboxComponent } from '../shared/components/form-checkbox/form-checkbox.component';
@@ -64,9 +65,9 @@ export class LoginPage {
       .signIn(email, password)
       .pipe(finalize(() => (this.isSubmitting = false)))
       .subscribe({
-        next: () => {
+        next: (profile) => {
           this.persistRememberedUser();
-          this.router.navigateByUrl('/home', { replaceUrl: true });
+          this.router.navigateByUrl(resolveAuthLandingRoute(profile), { replaceUrl: true });
         },
         error: (error: Error) => (this.errorMessage = error.message),
       });
