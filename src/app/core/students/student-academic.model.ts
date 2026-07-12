@@ -12,3 +12,11 @@ export interface StudentCourseUpdate {
   subjects: string[];
   updatedAt: string;
 }
+
+export interface PendingStudentCourseUpdate {
+  localId: string;
+  studentId: string;
+  update: StudentCourseUpdate;
+  createdAt: string;
+  updatedAt: string;
+}

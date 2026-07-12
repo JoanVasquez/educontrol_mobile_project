@@ -123,22 +123,8 @@ export class BreakdownReportFacade {
     };
   }
 
-  private successMessage(result: RegisterBreakdownResult): string {
-    const pending = result.pendingCount > 0 ? ` Pendientes por sincronizar: ${result.pendingCount}.` : '';
-
-    if (result.mode === 'online') {
-      return `Averia registrada en Firebase.${pending}`;
-    }
-
-    if (result.mode === 'offline') {
-      return `Sin conexion: averia guardada localmente.${pending}`;
-    }
-
-    if (result.reason === 'auth-missing') {
-      return `La sesion no esta disponible. Averia guardada para sincronizar.${pending}`;
-    }
-
-    return `Firebase no recibio la averia. Guardada para reintentar.${pending}`;
+  private successMessage(_result: RegisterBreakdownResult): string {
+    return 'Averia registrada correctamente.';
   }
 
   private validateAndSetPhoto(photo: File): boolean {

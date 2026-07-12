@@ -228,11 +228,8 @@ export class StudentRegistrationPage {
     this.saving.set(true);
 
     this.offlineSyncService.register(this.toStudentDraft()).subscribe({
-      next: (result) => {
-        const pendingMessage = result.pendingCount > 0 ? ` Pendientes por sincronizar: ${result.pendingCount}.` : '';
-        const message = this.getSaveMessage(result.mode, result.reason, pendingMessage);
-
-        this.saveMessage.set(message);
+      next: () => {
+        this.saveMessage.set(this.getSaveMessage());
         this.form.reset();
         this.selectedPhoto = null;
         this.revokePhotoPreviewUrl();
@@ -244,20 +241,8 @@ export class StudentRegistrationPage {
     });
   }
 
-  private getSaveMessage(mode: 'online' | 'offline' | 'queued', reason: 'auth-missing' | 'remote-error' | undefined, pendingMessage: string): string {
-    if (mode === 'online') {
-      return `Estudiante registrado en Firebase.${pendingMessage}`;
-    }
-
-    if (mode === 'offline') {
-      return `Sin conexion: el estudiante fue guardado localmente.${pendingMessage}`;
-    }
-
-    if (reason === 'auth-missing') {
-      return `No hay sesion activa para enviar a Firebase. El estudiante fue guardado localmente.${pendingMessage}`;
-    }
-
-    return `Firebase rechazo el registro. El estudiante fue guardado localmente para sincronizarlo cuando se corrija el problema.${pendingMessage}`;
+  private getSaveMessage(): string {
+    return 'Estudiante registrado correctamente.';
   }
 
   isInvalid(controlName: keyof typeof this.form.controls): boolean {

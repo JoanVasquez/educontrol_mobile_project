@@ -158,7 +158,7 @@ export class TeacherEditorPage implements OnDestroy {
       this.teacher = updatedTeacher;
       this.selectedPhoto = null;
       this.showingCache.set(false);
-      this.message.set('Docente actualizado correctamente en Firebase.');
+      this.message.set('Docente actualizado correctamente.');
     } catch {
       this.message.set('No se pudo actualizar el docente. Verifica tu conexión, sesión y permisos.');
     } finally {

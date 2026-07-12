@@ -214,29 +214,19 @@ export class TeacherRegistrationPage implements OnDestroy {
   }
 
   private resultMessage(result: RegisterTeacherResult): string {
-    const pending = result.pendingCount > 0 ? ` Pendientes por sincronizar: ${result.pendingCount}.` : '';
-
-    if (result.mode === 'online') {
-      return `Docente registrado en Firebase.${pending}`;
-    }
-
-    if (result.mode === 'offline') {
-      return `Sin conexión: docente guardado localmente.${pending}`;
-    }
-
-    if (result.reason === 'auth-missing') {
-      return `La sesión no está disponible. Docente guardado para sincronizar.${pending}`;
-    }
-
     if (result.reason === 'permission-denied') {
-      return 'Firebase rechazó el registro por permisos. Despliega las reglas de docentes y verifica el rol del usuario.';
+      return 'No se pudo registrar el docente. Verifica los permisos del usuario.';
     }
 
     if (result.reason === 'auth-user-exists') {
-      return 'Ya existe una cuenta con ese correo. Usa otro correo para el docente.';
+      return 'No se pudo registrar el docente: ya existe una cuenta con ese correo.';
     }
 
-    return `Firebase no recibió el registro. Docente guardado para reintentar.${pending}`;
+    if (result.mode === 'rejected') {
+      return 'No se pudo registrar el docente. Intenta nuevamente.';
+    }
+
+    return 'Docente registrado correctamente.';
   }
 
   private reset(): void {
