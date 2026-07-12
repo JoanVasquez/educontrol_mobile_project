@@ -1,0 +1,39 @@
+.teacher-list__state--error {
+  color: #b42318;
+}
+
+.sr-only {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+@media (max-width: 350px) {
+  .teacher-list {
+    padding-inline: 10px;
+  }
+
+  .teacher-card {
+    gap: 6px;
+    grid-template-columns: 28px minmax(0, 1fr) minmax(0, .8fr) 18px;
+    padding-inline: 7px;
+  }
+}
+
+@media (min-width: 700px) {
+  .teacher-list {
+    gap: 22px;
+    padding: 28px 40px 42px;
+  }
+
+  .teacher-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .teacher-card {
+    min-block-size: 78px;
+  }
+}

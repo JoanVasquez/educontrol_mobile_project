@@ -1,0 +1,30 @@
+.profile-menu ion-icon:last-child {
+  font-size: 14px;
+}
+
+.profile-menu button:last-child ion-icon:first-child {
+  color: #d20c16;
+}
+
+@media (max-width: 340px) {
+  .profile {
+    padding-inline: 10px;
+  }
+}
+
+@media (min-width: 700px) {
+  .profile {
+    gap: 24px;
+    padding: 24px 40px 44px;
+  }
+
+  .school-card,
+  .user-card {
+    min-block-size: 68px;
+  }
+
+  .profile-menu a,
+  .profile-menu button {
+    min-block-size: 42px;
+  }
+}

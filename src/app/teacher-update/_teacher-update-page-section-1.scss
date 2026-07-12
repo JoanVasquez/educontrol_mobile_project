@@ -1,0 +1,79 @@
+:host {
+  --blue: #3158ad;
+  background: #fff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.teacher-update-shell {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.teacher-update-content {
+  --background: #fff;
+}
+
+.teacher-update {
+  display: grid;
+  gap: 12px;
+  inline-size: min(100%, 700px);
+  margin-inline: auto;
+  padding: 14px 12px 24px;
+}
+
+.teacher-update h1 {
+  font-size: 12px;
+  margin: 0;
+}
+
+.teacher-profile {
+  align-items: center;
+  display: grid;
+  justify-items: center;
+}
+
+.teacher-profile ion-icon {
+  color: #ccc;
+  font-size: 39px;
+}
+
+.teacher-profile strong {
+  font-size: 10px;
+}
+
+.teacher-profile button {
+  background: transparent;
+  border: 0;
+  color: var(--blue);
+  font-size: 8px;
+}
+
+.two-columns {
+  display: grid;
+  gap: 8px 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  color: #172033;
+  display: grid;
+  font-size: 9px;
+  gap: 4px;
+  min-inline-size: 0;
+}
+
+.field > span {
+  color: #172033;
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.field b {
+  color: #d50912;
+}
+

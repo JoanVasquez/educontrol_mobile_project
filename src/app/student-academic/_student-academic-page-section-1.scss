@@ -1,0 +1,71 @@
+:host {
+  background: #ffffff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.student-academic-shell {
+  background: #ffffff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.student-academic-content {
+  --background: #ffffff;
+}
+
+.student-academic {
+  display: grid;
+  gap: 12px;
+  inline-size: min(100%, 720px);
+  margin-inline: auto;
+  padding: 12px 14px 22px;
+}
+
+.student-academic__toolbar {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.student-academic__search {
+  align-items: center;
+  border: 1px solid #cfd4dc;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  min-block-size: 38px;
+  padding-inline: 10px;
+}
+
+.student-academic__search ion-icon {
+  color: #3158ad;
+}
+
+.student-academic__search input {
+  border: 0;
+  flex: 1;
+  font-size: 13px;
+  min-inline-size: 0;
+  outline: 0;
+}
+
+.student-academic__message,
+.student-academic__note,
+.student-academic__empty {
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.student-academic__message--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+

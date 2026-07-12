@@ -1,0 +1,80 @@
+:host {
+  --report-red: #c5060b;
+  background: #fff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.report-shell {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.report-content {
+  --background: #fff;
+}
+
+.report {
+  display: grid;
+  gap: 15px;
+  inline-size: min(100%, 620px);
+  margin-inline: auto;
+  padding: 25px 14px 30px;
+}
+
+.report h1 {
+  color: #181818;
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.field {
+  color: #161616;
+  display: grid;
+  font-size: 13px;
+  gap: 7px;
+  min-inline-size: 0;
+}
+
+.field > span {
+  color: #172033;
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.field select,
+.field textarea,
+.field__location {
+  background: #fff;
+  border: 1px solid #d6d7da;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #31343a;
+  font: inherit;
+  inline-size: 100%;
+  outline: 0;
+}
+
+.field select {
+  min-block-size: 37px;
+  padding-inline: 11px;
+}
+
+.field textarea {
+  min-block-size: 81px;
+  padding: 10px;
+  resize: vertical;
+}
+
+.field select:focus,
+.field textarea:focus,
+.field__location:focus-within {
+  border-color: var(--report-red);
+  box-shadow: 0 0 0 3px #c5060b1c;
+}
+

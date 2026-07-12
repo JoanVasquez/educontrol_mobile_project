@@ -2,26 +2,17 @@ import type { OnDestroy } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { calendarOutline, cameraOutline, imageOutline } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
-import { ACADEMIC_COURSES, normalizeCourseAssignments } from '../core/academic/academic-course.catalog';
-import { CameraService } from '../core/camera/camera.service';
-import { DEFAULT_TEACHER_PASSWORD } from '../core/teachers/teacher-access.constants';
-import type {
-  RegisterTeacherResult,
-  TeacherAssignment,
-  TeacherCourseAssignment,
-  TeacherRegistrationCommand,
-  TeacherRegistrationDraft,
-} from '../core/teachers/teacher-registration.model';
+import { ACADEMIC_COURSES } from '../core/academic/academic-course.catalog';
+import type { TeacherAssignment, TeacherCourseAssignment } from '../core/teachers/teacher-registration.model';
 import { TeacherRegistrationService } from '../core/teachers/teacher-registration.service';
-import { DataUrlFileSerializer } from '../core/teachers/utils/data-url-file.serializer';
-import { isValidFileSize, isValidImageFile } from '../core/utils/validators.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
-
-const TEACHER_PHOTO_MAX_MB = 1.5;
+import { TeacherRegistrationCommandFactory, type TeacherRegistrationFormValue } from './services/teacher-registration-command.factory';
+import { TeacherRegistrationMessagePresenter } from './services/teacher-registration-message.presenter';
+import { TeacherRegistrationPhotoService } from './services/teacher-registration-photo.service';
+import { TeacherRegistrationFormValidator } from './utils/teacher-registration-form.validator';
+import { registerTeacherRegistrationIcons } from './utils/teacher-registration-icons.util';
 
 @Component({
   selector: 'app-teacher-registration',
@@ -31,15 +22,14 @@ const TEACHER_PHOTO_MAX_MB = 1.5;
 })
 export class TeacherRegistrationPage implements OnDestroy {
   private readonly registrationService = inject(TeacherRegistrationService);
-  private readonly cameraService = inject(CameraService);
-  private readonly fileSerializer = new DataUrlFileSerializer();
+  private readonly commandFactory = inject(TeacherRegistrationCommandFactory);
+  private readonly messagePresenter = inject(TeacherRegistrationMessagePresenter);
+  private readonly photoService = inject(TeacherRegistrationPhotoService);
 
-  readonly photoName = signal('');
-  readonly photoPreviewUrl = signal('');
+  readonly photoName = this.photoService.photoName;
+  readonly photoPreviewUrl = this.photoService.photoPreviewUrl;
   readonly message = signal('');
   readonly saving = signal(false);
-  private selectedPhoto: File | null = null;
-  private objectUrl = '';
 
   firstName = '';
   lastName = '';
@@ -60,22 +50,21 @@ export class TeacherRegistrationPage implements OnDestroy {
   readonly genders = ['Masculino', 'Femenino'];
   readonly subjects = ['Matemáticas', 'Lengua Española', 'Ciencias Sociales', 'Ciencias Naturales', 'Inglés'];
   readonly courses = ACADEMIC_COURSES;
-  readonly defaultPassword = DEFAULT_TEACHER_PASSWORD;
 
   constructor() {
-    addIcons({ calendarOutline, cameraOutline, imageOutline });
+    registerTeacherRegistrationIcons();
   }
 
   ngOnDestroy(): void {
-    this.revokeObjectUrl();
+    this.photoService.revokeObjectUrl();
   }
 
   async takePhoto(): Promise<void> {
-    await this.selectPhotoFromSource(() => firstValueFrom(this.cameraService.takePhoto('docente')));
+    if (!this.saving()) await this.photoService.takePhoto((message) => this.message.set(message));
   }
 
   async pickPhotoFromGallery(): Promise<void> {
-    await this.selectPhotoFromSource(() => firstValueFrom(this.cameraService.pickPhotoFromGallery('docente')));
+    if (!this.saving()) await this.photoService.pickPhotoFromGallery((message) => this.message.set(message));
   }
 
   selectPhoto(event: Event): void {
@@ -86,50 +75,13 @@ export class TeacherRegistrationPage implements OnDestroy {
       return;
     }
 
-    this.setPhoto(file);
+    if (this.photoService.setPhoto(file, (message) => this.message.set(message))) this.message.set('');
     input.value = '';
   }
 
-  private async selectPhotoFromSource(source: () => Promise<File>): Promise<void> {
-    if (this.saving()) {
-      return;
-    }
+  addAssignment(): void { this.assignments = [...this.assignments, { subject: '', detail: '' }]; }
 
-    try {
-      this.setPhoto(await source());
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'No se pudo seleccionar la foto.';
-
-      if (!message.toLowerCase().includes('cancelada')) {
-        this.message.set(message);
-      }
-    }
-  }
-
-  private setPhoto(file: File): void {
-    if (!isValidImageFile(file)) {
-      this.message.set('Selecciona una imagen JPEG, PNG, WebP o GIF.');
-      return;
-    }
-
-    if (!isValidFileSize(file, TEACHER_PHOTO_MAX_MB)) {
-      this.message.set('La foto debe pesar menos de 1.5 MB.');
-      return;
-    }
-
-    this.selectedPhoto = file;
-    this.photoName.set(file.name);
-    this.setPreview(file);
-    this.message.set('');
-  }
-
-  addAssignment(): void {
-    this.assignments = [...this.assignments, { subject: '', detail: '' }];
-  }
-
-  addCourse(): void {
-    this.courseAssignments = [...this.courseAssignments, { course: '', section: '' }];
-  }
+  addCourse(): void { this.courseAssignments = [...this.courseAssignments, { course: '', section: '' }]; }
 
   cancel(): void {
     this.reset();
@@ -137,25 +89,15 @@ export class TeacherRegistrationPage implements OnDestroy {
   }
 
   async submit(): Promise<void> {
-    if (
-      !this.firstName.trim() ||
-      !this.lastName.trim() ||
-      !this.email.trim() ||
-      !this.accessCode.trim() ||
-      !this.institution.trim() ||
-      !this.district.trim() ||
-      !this.birthDate ||
-      !this.nationality ||
-      !this.gender ||
-      !this.idNumber.trim() ||
-      !this.address.trim() ||
-      !this.phone.trim()
-    ) {
-      this.message.set('Completa todos los campos obligatorios.');
+    const value = this.formValue();
+    const requiredMessage = TeacherRegistrationFormValidator.requiredMessage(value);
+
+    if (requiredMessage) {
+      this.message.set(requiredMessage);
       return;
     }
 
-    if (!this.isValidEmail(this.email)) {
+    if (!TeacherRegistrationFormValidator.isValidEmail(this.email)) {
       this.message.set('Ingresa un correo válido para el acceso del docente.');
       return;
     }
@@ -168,10 +110,10 @@ export class TeacherRegistrationPage implements OnDestroy {
     this.message.set('');
 
     try {
-      const command = await this.toRegistrationCommand();
+      const command = this.commandFactory.create(value, this.assignments, this.courseAssignments, await this.photoService.serializedPhoto());
       const result = await firstValueFrom(this.registrationService.register(command));
       this.reset();
-      this.message.set(this.resultMessage(result));
+      this.message.set(this.messagePresenter.resultMessage(result));
     } catch {
       this.message.set('No se pudo preparar el registro del docente. Intenta nuevamente.');
     } finally {
@@ -179,54 +121,21 @@ export class TeacherRegistrationPage implements OnDestroy {
     }
   }
 
-  private async toRegistrationCommand(): Promise<TeacherRegistrationCommand> {
-    const now = new Date().toISOString();
-    const teacher: TeacherRegistrationDraft = {
-      email: this.email.trim().toLowerCase(),
-      authUid: '',
-      firstName: this.firstName.trim(),
-      lastName: this.lastName.trim(),
+  private formValue(): TeacherRegistrationFormValue {
+    return {
+      firstName: this.firstName,
+      lastName: this.lastName,
+      email: this.email,
+      accessCode: this.accessCode,
+      institution: this.institution,
+      district: this.district,
       birthDate: this.birthDate,
       nationality: this.nationality,
       gender: this.gender,
-      idNumber: this.idNumber.trim(),
-      address: this.address.trim(),
-      phone: this.phone.trim(),
-      assignments: this.assignments.filter((item) => item.subject),
-      courses: normalizeCourseAssignments(this.courseAssignments),
-      photoUrl: '',
-      photoPath: '',
-      status: 'active',
-      createdAt: now,
-      updatedAt: now,
+      idNumber: this.idNumber,
+      address: this.address,
+      phone: this.phone,
     };
-
-    return {
-      registrationId: crypto.randomUUID(),
-      teacher,
-      userProfile: {
-        codigo: this.accessCode.trim(),
-        institucion: this.institution.trim(),
-        distrito: this.district.trim(),
-      },
-      photo: this.selectedPhoto ? await this.fileSerializer.fromFile(this.selectedPhoto) : null,
-    };
-  }
-
-  private resultMessage(result: RegisterTeacherResult): string {
-    if (result.reason === 'permission-denied') {
-      return 'No se pudo registrar el docente. Verifica los permisos del usuario.';
-    }
-
-    if (result.reason === 'auth-user-exists') {
-      return 'No se pudo registrar el docente: ya existe una cuenta con ese correo.';
-    }
-
-    if (result.mode === 'rejected') {
-      return 'No se pudo registrar el docente. Intenta nuevamente.';
-    }
-
-    return 'Docente registrado correctamente.';
   }
 
   private reset(): void {
@@ -244,26 +153,7 @@ export class TeacherRegistrationPage implements OnDestroy {
     this.phone = '';
     this.assignments = [{ subject: '', detail: '' }];
     this.courseAssignments = [{ course: '', section: '' }];
-    this.selectedPhoto = null;
-    this.photoName.set('');
-    this.revokeObjectUrl();
-    this.photoPreviewUrl.set('');
+    this.photoService.reset();
   }
 
-  private setPreview(file: File): void {
-    this.revokeObjectUrl();
-    this.objectUrl = URL.createObjectURL(file);
-    this.photoPreviewUrl.set(this.objectUrl);
-  }
-
-  private revokeObjectUrl(): void {
-    if (this.objectUrl) {
-      URL.revokeObjectURL(this.objectUrl);
-      this.objectUrl = '';
-    }
-  }
-
-  private isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-  }
 }

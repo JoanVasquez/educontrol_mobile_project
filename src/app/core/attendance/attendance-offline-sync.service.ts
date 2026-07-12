@@ -20,6 +20,7 @@ export class AttendanceOfflineSyncService {
   readonly pendingCount$ = this.pendingCountSubject.asObservable();
 
   constructor() {
+    // Al recuperar internet se sincronizan automaticamente las listas pendientes.
     this.networkService.isOnline$
       .pipe(
         switchMap((isOnline) => (isOnline ? from(this.syncPending()) : EMPTY)),
@@ -29,6 +30,7 @@ export class AttendanceOfflineSyncService {
   }
 
   save(sheet: AttendanceSheet): Observable<SaveAttendanceResult> {
+    // Sin conexion se guarda localmente y se devuelve una respuesta positiva para la UI.
     if (!this.networkService.isOnline) {
       const queue = this.pendingRepository.upsert(sheet);
       this.pendingCountSubject.next(queue.length);
@@ -49,6 +51,7 @@ export class AttendanceOfflineSyncService {
 
         return this.repository.saveSheet(sheet, session.idToken).pipe(
           switchMap(() => {
+            // Si el envio remoto fue exitoso, se elimina cualquier version pendiente.
             const queue = this.pendingRepository.removeBySheetId(sheet.id);
             this.pendingCountSubject.next(queue.length);
 
@@ -84,6 +87,7 @@ export class AttendanceOfflineSyncService {
     const failedQueue: PendingAttendanceSheet[] = [];
 
     try {
+      // Solo permanecen en cola las asistencias que vuelvan a fallar durante este intento.
       for (const pendingSheet of this.pendingRepository.getAll()) {
         try {
           await firstValueFrom(this.repository.saveSheet(pendingSheet.sheet, session.idToken));

@@ -1,0 +1,14 @@
+@media (min-width: 700px) {
+  .teacher-form {
+    gap: 16px;
+    padding: 20px 40px 40px;
+  }
+
+  .identity {
+    grid-template-columns: 120px minmax(0, 1fr);
+  }
+
+  .photo-picker {
+    min-block-size: 110px;
+  }
+}

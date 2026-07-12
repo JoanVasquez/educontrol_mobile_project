@@ -1,0 +1,71 @@
+.photo-button ion-icon {
+  font-size: 18px;
+}
+
+.photo-button:not(:disabled):hover {
+  background: #f9f9f9;
+  border-color: var(--report-red);
+  color: var(--report-red);
+}
+
+.photo-button:not(:disabled):active {
+  box-shadow: inset 0 0 0 1px var(--report-red);
+}
+
+.photo-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.photo-button--file {
+  grid-column: 1 / -1;
+  position: relative;
+}
+
+.photo-button--file input[type='file'] {
+  cursor: pointer;
+  inset: 0;
+  opacity: 0;
+  position: absolute;
+}
+
+.photo-button--file:not(:has(input:disabled)):hover {
+  background: #f9f9f9;
+  border-color: var(--report-red);
+  color: var(--report-red);
+}
+
+.report__message {
+  background: #fff1f1;
+  border-radius: 7px;
+  color: #a20b10;
+  font-size: 11px;
+  margin: -4px 0;
+  padding: 8px 10px;
+  text-align: center;
+}
+
+.report__message--error {
+  background: #fff1f1;
+  border-left: 3px solid var(--report-red);
+  color: #a20b10;
+}
+
+.report__message--success {
+  background: #f1fff5;
+  border-left: 3px solid #009f55;
+  color: #007a3d;
+}
+
+.report__submit {
+  background: var(--report-red);
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  min-block-size: 33px;
+  margin-block-start: 3px;
+}
+

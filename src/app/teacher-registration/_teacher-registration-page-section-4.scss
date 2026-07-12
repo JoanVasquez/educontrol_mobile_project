@@ -1,0 +1,73 @@
+.assignment-section {
+  display: grid;
+  gap: 7px;
+}
+
+.assignment-section__label {
+  font-size: 10px;
+  padding-inline-start: 10px;
+}
+
+.assignment-row {
+  align-items: center;
+  display: grid;
+  gap: 9px;
+  grid-template-columns: minmax(0, 1fr) 15px minmax(0, 1fr);
+}
+
+.assignment-row button {
+  background: transparent;
+  border: 0;
+  font-size: 18px;
+  font-weight: 800;
+  padding: 0;
+}
+
+.teacher-form__message {
+  background: #edf4ff;
+  border-radius: 7px;
+  color: #244d9e;
+  font-size: 10px;
+  margin: 0;
+  padding: 8px;
+  text-align: center;
+}
+
+.teacher-form__actions {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-block-start: 3px;
+  padding-inline: 8px;
+}
+
+.teacher-form__actions button {
+  border-radius: 7px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  min-block-size: 33px;
+}
+
+.teacher-form__cancel {
+  background: #ddd;
+  border: 1px solid #dc1d27;
+  color: #fff;
+}
+
+.teacher-form__submit {
+  background: var(--blue);
+  border: 1px solid var(--blue);
+  color: #fff;
+}
+
+@media (max-width: 350px) {
+  .teacher-form {
+    padding-inline: 10px;
+  }
+
+  .identity {
+    grid-template-columns: 78px minmax(0, 1fr);
+  }
+}
+

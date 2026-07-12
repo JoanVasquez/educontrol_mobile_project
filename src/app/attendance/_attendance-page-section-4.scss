@@ -1,0 +1,20 @@
+@media (max-width: 360px) {
+  .attendance {
+    padding-inline: 12px;
+  }
+
+  .student-row__actions {
+    gap: 6px;
+  }
+}
+
+@media (min-width: 700px) {
+  .attendance {
+    padding: 28px 38px 40px;
+  }
+
+  .student-row {
+    border-bottom: 1px solid #edf0f5;
+    min-block-size: 54px;
+  }
+}

@@ -1,10 +1,8 @@
 <div class="teacher-shell">
   <app-page-header title="Registrar docente" [showBack]="false" />
-
   <ion-content class="teacher-content" [fullscreen]="false">
     <main class="teacher-form">
       <h1>Información del docente</h1>
-
       <section class="identity">
         <div class="photo-picker">
           <div class="photo-picker__preview">
@@ -14,24 +12,17 @@
               <ion-icon name="camera-outline" aria-hidden="true" />
             }
           </div>
-
           <span>Foto del docente</span>
           <strong>{{ photoName() || 'Sin foto' }}</strong>
-
           <div class="photo-picker__actions">
-            <button type="button" (click)="takePhoto()" [disabled]="saving()" aria-label="Tomar foto con cámara">
-              <ion-icon name="camera-outline" aria-hidden="true" />
-            </button>
-            <button type="button" (click)="pickPhotoFromGallery()" [disabled]="saving()" aria-label="Seleccionar foto de galería">
-              <ion-icon name="image-outline" aria-hidden="true" />
-            </button>
+            <button type="button" (click)="takePhoto()" [disabled]="saving()" aria-label="Tomar foto con cámara"><ion-icon name="camera-outline" aria-hidden="true" /></button>
+            <button type="button" (click)="pickPhotoFromGallery()" [disabled]="saving()" aria-label="Seleccionar foto de galería"><ion-icon name="image-outline" aria-hidden="true" /></button>
             <label aria-label="Seleccionar archivo de imagen">
               <span>Archivo</span>
               <input type="file" accept="image/*" (change)="selectPhoto($event)" [disabled]="saving()" />
             </label>
           </div>
         </div>
-
         <div class="identity__names">
           <label class="field">
             <span>Nombres<b>*</b></span>
@@ -47,7 +38,6 @@
           </label>
         </div>
       </section>
-
       <h1>Perfil de usuario</h1>
       <section class="two-columns">
         <label class="field">
@@ -63,12 +53,6 @@
           <input [(ngModel)]="institution" placeholder="Nombre del centro educativo" />
         </label>
       </section>
-
-      <section class="access-note" aria-label="Acceso inicial del docente">
-        <span>Contraseña inicial</span>
-        <strong>{{ defaultPassword }}</strong>
-      </section>
-
       <section class="two-columns">
         <label class="field">
           <span>Fecha de nacimiento<b>*</b></span>
@@ -100,7 +84,6 @@
           <input [(ngModel)]="idNumber" inputmode="numeric" placeholder="Ingrese número" />
         </label>
       </section>
-
       <h1>Información de contacto</h1>
       <label class="field">
         <span>Dirección<b>*</b></span>
@@ -110,7 +93,6 @@
         <span>Teléfono de contacto<b>*</b></span>
         <input [(ngModel)]="phone" inputmode="tel" placeholder="Ingrese teléfono de contacto" />
       </label>
-
       <h1>Asignatura/Curso</h1>
       <section class="assignment-section">
         <span class="assignment-section__label">Asignatura/s</span>
@@ -126,7 +108,6 @@
             <input [(ngModel)]="assignment.detail" aria-label="Detalle de asignatura" />
           </div>
         }
-
         <span class="assignment-section__label">Curso/s</span>
         @for (courseAssignment of courseAssignments; track $index) {
           <div class="assignment-row">
@@ -141,19 +122,14 @@
           </div>
         }
       </section>
-
       @if (message()) {
         <p class="teacher-form__message" aria-live="polite">{{ message() }}</p>
       }
-
       <div class="teacher-form__actions">
         <button class="teacher-form__cancel" type="button" (click)="cancel()">Cancelar</button>
-        <button class="teacher-form__submit" type="button" [disabled]="saving()" (click)="submit()">
-          {{ saving() ? 'Guardando...' : 'Registrar docente' }}
-        </button>
+        <button class="teacher-form__submit" type="button" [disabled]="saving()" (click)="submit()">{{ saving() ? 'Guardando...' : 'Registrar docente' }}</button>
       </div>
     </main>
   </ion-content>
-
   <app-bottom-navigation activePath="/docentes" />
 </div>

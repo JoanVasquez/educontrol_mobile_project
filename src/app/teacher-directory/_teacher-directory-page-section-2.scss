@@ -1,0 +1,77 @@
+.teacher-card__avatar {
+  color: #d1d1d1;
+  display: grid;
+  place-items: center;
+}
+
+.teacher-card__avatar ion-icon {
+  font-size: 27px;
+}
+
+.teacher-card__avatar img {
+  block-size: 30px;
+  border-radius: 50%;
+  inline-size: 30px;
+  object-fit: cover;
+}
+
+.teacher-card strong {
+  color: #2852a5;
+  font-size: 11px;
+  min-inline-size: 0;
+}
+
+.teacher-card__details {
+  color: #777;
+  display: grid;
+  font-size: 11px;
+  gap: 5px;
+  min-inline-size: 0;
+}
+
+.teacher-card button {
+  background: transparent;
+  border: 0;
+  color: #a9a9a9;
+  padding: 0;
+}
+
+.teacher-card button ion-icon {
+  font-size: 18px;
+}
+
+.teacher-cards__empty,
+.teacher-list__state {
+  color: #667085;
+  font-size: 12px;
+  padding-block: 30px;
+  text-align: center;
+}
+
+.teacher-list__notice {
+  background: #eff6ff;
+  border-radius: 7px;
+  color: var(--blue);
+  font-size: 10px;
+  padding: 7px 10px;
+  text-align: center;
+}
+
+.teacher-list__state {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.teacher-list__state button {
+  align-items: center;
+  background: var(--blue);
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  display: inline-flex;
+  font: inherit;
+  gap: 6px;
+  padding: 7px 12px;
+}
+

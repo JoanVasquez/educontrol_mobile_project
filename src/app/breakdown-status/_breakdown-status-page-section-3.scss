@@ -1,0 +1,48 @@
+.breakdown-list__state p {
+  font-size: 13px;
+  margin: 0;
+}
+
+.breakdown-list__state button {
+  background: var(--red);
+  border: 0;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  min-block-size: 38px;
+  padding-inline: 18px;
+}
+
+.breakdown-list__state--error p {
+  color: #9f1317;
+  max-inline-size: 320px;
+}
+
+@media (max-width: 360px) {
+  .breakdown-list {
+    padding-inline: 12px;
+  }
+
+  .breakdown-card {
+    gap: 7px;
+    grid-template-columns: 40px minmax(0, 1fr) auto 10px;
+  }
+
+  .breakdown-card img {
+    block-size: 40px;
+    inline-size: 40px;
+  }
+}
+
+@media (min-width: 700px) {
+  .breakdown-list {
+    gap: 16px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    padding: 40px 32px;
+  }
+
+  .breakdown-card {
+    min-block-size: 84px;
+  }
+}

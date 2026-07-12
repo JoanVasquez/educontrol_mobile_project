@@ -5,10 +5,12 @@ import { AuthService } from '../auth/auth.service';
 import { getAcademicSubjectsByCourse, normalizeAcademicCourse } from '../academic/academic-course.catalog';
 import { NetworkService } from '../../detector_red/network.service';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
+import { toLoggableError } from '../utils/loggable-error.util';
 import type { UserProfile } from '../users/user-profile.model';
 import type { PendingStudentCourseUpdate, StudentAcademicRecord, StudentCourseUpdate } from './student-academic.model';
 import { PendingStudentCourseRepository } from './pending-student-course.repository';
 import { StudentAcademicCacheRepository } from './student-academic-cache.repository';
+import { StudentAcademicPresenter } from './student-academic.presenter';
 import { StudentAcademicRepository } from './student-academic.repository';
 
 @Injectable({ providedIn: 'root' })
@@ -17,6 +19,7 @@ export class StudentAcademicService {
   private readonly cacheRepository = inject(StudentAcademicCacheRepository);
   private readonly networkService = inject(NetworkService);
   private readonly pendingRepository = inject(PendingStudentCourseRepository);
+  private readonly presenter = inject(StudentAcademicPresenter);
   private readonly repository = inject(StudentAcademicRepository);
   private readonly validSession = inject(ValidAuthSessionService);
   private readonly pendingCountSubject = new BehaviorSubject<number>(this.pendingRepository.count());
@@ -26,6 +29,7 @@ export class StudentAcademicService {
   readonly pendingCount$ = this.pendingCountSubject.asObservable();
 
   constructor() {
+    // Cuando vuelve la conexion, intenta enviar los cambios de curso guardados localmente.
     this.networkService.isOnline$
       .pipe(
         switchMap((isOnline) => (isOnline ? from(this.syncPending()) : EMPTY)),
@@ -35,6 +39,7 @@ export class StudentAcademicService {
   }
 
   load(): Observable<StudentAcademicRecord[]> {
+    // Offline-first: si no hay red, la pantalla se alimenta de cache local.
     if (!this.networkService.isOnline) {
       return of(this.cachedStudents());
     }
@@ -42,9 +47,9 @@ export class StudentAcademicService {
     return this.sessionContext().pipe(
       switchMap(({ idToken }) =>
         this.repository.findAll(idToken).pipe(
-          map((students) => this.normalizeStudents(students)),
+          map((students) => this.presenter.normalize(students)),
           tap((students) => this.cacheRepository.replaceAll(students)),
-          map((students) => this.mergePendingUpdates(students)),
+          map((students) => this.withPendingUpdates(students)),
           catchError(() => of(this.cachedStudents())),
         ),
       ),
@@ -84,7 +89,7 @@ export class StudentAcademicService {
           }),
           switchMap(() => from(this.syncPending())),
           catchError((error) => {
-            console.error('No se pudo actualizar el curso del estudiante:', this.toLoggableError(error));
+            console.error('No se pudo actualizar el curso del estudiante:', toLoggableError(error));
             return of(this.queueForLater(studentId, update));
           }),
         );
@@ -114,7 +119,7 @@ export class StudentAcademicService {
           );
           this.cacheRepository.applyCourseUpdate(pendingUpdate.studentId, pendingUpdate.update);
         } catch (error) {
-          console.error('No se pudo sincronizar cambio de curso pendiente:', this.toLoggableError(error));
+          console.error('No se pudo sincronizar cambio de curso pendiente:', toLoggableError(error));
           failedQueue.push(pendingUpdate);
         }
       }
@@ -141,6 +146,7 @@ export class StudentAcademicService {
   }
 
   private queueForLater(studentId: string, update: StudentCourseUpdate): StudentCourseUpdate {
+    // La cola usa upsert para conservar solo el ultimo cambio pendiente por estudiante.
     const queue = this.pendingRepository.upsert(studentId, update);
     this.pendingCountSubject.next(queue.length);
     this.cacheRepository.applyCourseUpdate(studentId, update);
@@ -148,46 +154,10 @@ export class StudentAcademicService {
   }
 
   private cachedStudents(): StudentAcademicRecord[] {
-    return this.mergePendingUpdates(this.normalizeStudents(this.cacheRepository.getAll()));
+    return this.withPendingUpdates(this.presenter.normalize(this.cacheRepository.getAll()));
   }
 
-  private normalizeStudents(students: StudentAcademicRecord[]): StudentAcademicRecord[] {
-    return students.map((student) => ({
-      ...student,
-      course: normalizeAcademicCourse(student.course),
-      subjects: student.subjects.length ? student.subjects : getAcademicSubjectsByCourse(student.course),
-    }));
-  }
-
-  private mergePendingUpdates(students: StudentAcademicRecord[]): StudentAcademicRecord[] {
-    const pendingByStudentId = new Map(this.pendingRepository.getAll().map((item) => [item.studentId, item.update]));
-
-    return students.map((student) => {
-      const pendingUpdate = pendingByStudentId.get(student.id);
-
-      return pendingUpdate
-        ? {
-            ...student,
-            course: pendingUpdate.course,
-            subjects: pendingUpdate.subjects,
-            updatedAt: pendingUpdate.updatedAt,
-          }
-        : student;
-    });
-  }
-
-  private toLoggableError(error: unknown): string {
-    if (error && typeof error === 'object') {
-      const maybeHttpError = error as { status?: unknown; statusText?: unknown; message?: unknown; error?: unknown };
-
-      return JSON.stringify({
-        status: maybeHttpError.status,
-        statusText: maybeHttpError.statusText,
-        message: maybeHttpError.message,
-        error: maybeHttpError.error,
-      });
-    }
-
-    return String(error);
+  private withPendingUpdates(students: StudentAcademicRecord[]): StudentAcademicRecord[] {
+    return this.presenter.mergePendingUpdates(students, this.pendingRepository.getAll());
   }
 }

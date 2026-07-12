@@ -20,6 +20,7 @@ export class OfflineFirstSyncService {
   private syncing = false;
 
   start(): void {
+    // Solo se inicializa una vez desde app.component para evitar suscripciones duplicadas.
     if (this.started) {
       return;
     }
@@ -32,12 +33,14 @@ export class OfflineFirstSyncService {
       )
       .subscribe();
 
+    // Si la app abre con conexion, intenta vaciar todas las colas pendientes de inmediato.
     if (this.network.isOnline) {
       void this.syncAll();
     }
   }
 
   async syncAll(): Promise<void> {
+    // Evita carreras cuando varios eventos de red llegan casi al mismo tiempo.
     if (this.syncing || !this.network.isOnline) {
       return;
     }
@@ -45,6 +48,7 @@ export class OfflineFirstSyncService {
     this.syncing = true;
 
     try {
+      // Cada modulo sincroniza su propia cola; una falla no debe bloquear las demas.
       await Promise.all([
         this.runSyncTask(() => this.studentRegistrationSync.syncPending()),
         this.runSyncTask(() => this.studentAcademicSync.syncPending()),

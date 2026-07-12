@@ -1,0 +1,71 @@
+.cancel {
+  border: 1px solid #d21a25;
+  background: #fff;
+  color: #a50d16;
+}
+
+.update,
+.state-card button {
+  border: 0;
+  background: #3159ad;
+  color: #fff;
+}
+
+.delete {
+  border: 0;
+  background: #c4070e;
+  color: #fff;
+}
+
+button:disabled { opacity: .55; }
+
+.state-card {
+  min-height: 50vh;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 12px;
+  text-align: center;
+  color: #526078;
+}
+
+.state-card button { padding: 0 24px; }
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #dce4f4;
+  border-top-color: #3159ad;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+  .teacher-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .academic-columns { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .teacher-editor-content { --background: #fff; }
+  .teacher-editor-shell { background: #fff; }
+  .teacher-editor { padding: 14px; }
+  .form-container { gap: 0; }
+  .form-section {
+    padding: 12px 2px 20px;
+    border: 0;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0;
+  }
+  .teacher-profile {
+    grid-template-columns: 104px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .photo-picker { min-height: 132px; }
+  .photo-picker img { width: 68px; height: 68px; }
+  .teacher-fields,
+  .contact-fields { grid-template-columns: 1fr; gap: 10px; }
+  .actions { width: 100%; margin-top: 18px; }
+}
+

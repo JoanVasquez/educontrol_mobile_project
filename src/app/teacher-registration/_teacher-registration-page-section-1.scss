@@ -1,0 +1,73 @@
+:host {
+  --blue: #3158ad;
+  background: #fff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.teacher-shell {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.teacher-content {
+  --background: #fff;
+}
+
+.teacher-form {
+  display: grid;
+  gap: 12px;
+  inline-size: min(100%, 720px);
+  margin-inline: auto;
+  padding: 10px 14px 24px;
+}
+
+.teacher-form h1 {
+  font-size: 13px;
+  margin: 0;
+}
+
+.identity {
+  align-items: start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 90px minmax(0, 1fr);
+}
+
+.photo-picker {
+  align-items: center;
+  background: #e5e8f5;
+  border: 1px solid #d4d8e7;
+  border-radius: 8px;
+  color: var(--blue);
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  min-block-size: 85px;
+  overflow: hidden;
+  padding: 8px 4px;
+  position: relative;
+  text-align: center;
+}
+
+.photo-picker__preview {
+  block-size: 34px;
+  border-radius: 50%;
+  display: grid;
+  inline-size: 34px;
+  overflow: hidden;
+  place-items: center;
+}
+
+.photo-picker__preview ion-icon {
+  font-size: 24px;
+}
+
+.photo-picker__preview img {
+  block-size: 100%;
+  inline-size: 100%;
+  object-fit: cover;
+}
+

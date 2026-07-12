@@ -1,0 +1,72 @@
+.notice--warning {
+  background: #fff7ed;
+  color: #9a3412;
+}
+
+.notice--success {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.notice ion-icon {
+  font-size: 20px;
+}
+
+.sync-summary {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sync-summary article {
+  background: #f7f8fa;
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  min-block-size: 76px;
+  padding: 12px;
+}
+
+.sync-summary span {
+  color: var(--local-sync-muted);
+  font-size: 12px;
+}
+
+.sync-summary strong {
+  color: var(--local-sync-text);
+  font-size: 22px;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+}
+
+.actions ion-button {
+  --border-radius: 8px;
+  min-block-size: 46px;
+}
+
+.actions ion-icon,
+.actions ion-spinner {
+  margin-inline-end: 8px;
+}
+
+.device-list {
+  display: grid;
+  gap: 10px;
+}
+
+.device-card {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #dfe3ea;
+  border-radius: 8px;
+  color: var(--local-sync-text);
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 13px 14px;
+  text-align: start;
+}
+

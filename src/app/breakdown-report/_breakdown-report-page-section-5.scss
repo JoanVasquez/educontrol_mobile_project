@@ -1,0 +1,17 @@
+@media (max-width: 340px) {
+  .report {
+    padding-inline: 12px;
+  }
+}
+
+@media (min-width: 700px) {
+  .report {
+    gap: 20px;
+    padding: 32px 40px 44px;
+  }
+
+  .priority__options {
+    justify-content: flex-start;
+    gap: 36px;
+  }
+}

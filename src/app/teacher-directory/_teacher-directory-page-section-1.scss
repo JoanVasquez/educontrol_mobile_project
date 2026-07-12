@@ -1,0 +1,73 @@
+:host {
+  --blue: #3158ad;
+  background: #fff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.teacher-list-shell {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.teacher-list-content {
+  --background: #fff;
+}
+
+.teacher-list {
+  display: grid;
+  gap: 16px;
+  inline-size: min(100%, 720px);
+  margin-inline: auto;
+  padding: 20px 14px 30px;
+}
+
+.teacher-list__search {
+  align-items: center;
+  border: 1px solid #8e8e8e;
+  border-radius: 8px;
+  display: flex;
+  gap: 8px;
+  min-block-size: 36px;
+  padding-inline: 14px;
+}
+
+.teacher-list__search ion-icon {
+  color: var(--blue);
+  font-size: 17px;
+}
+
+.teacher-list__search input {
+  background: transparent;
+  border: 0;
+  color: var(--blue);
+  flex: 1;
+  font: inherit;
+  font-size: 11px;
+  min-inline-size: 0;
+  outline: 0;
+}
+
+.teacher-list__search input::placeholder {
+  color: var(--blue);
+  opacity: 1;
+}
+
+.teacher-cards {
+  display: grid;
+  gap: 10px;
+}
+
+.teacher-card {
+  align-items: center;
+  background: #f7f7f7;
+  border-radius: 14px;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 30px minmax(0, 1.15fr) minmax(0, .9fr) 20px;
+  min-block-size: 66px;
+  padding: 8px 10px;
+}
+

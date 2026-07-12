@@ -1,0 +1,8 @@
+@media (max-width: 420px) {
+  .teacher-profile { grid-template-columns: 1fr; }
+  .photo-picker { min-height: 118px; }
+  .selection-row { grid-template-columns: minmax(0, 1fr) 38px; }
+  .selection-row input { grid-column: 1 / -1; grid-row: 2; }
+  .selection-row .remove { grid-column: 2; grid-row: 1; }
+  .actions { grid-template-columns: 1fr; }
+}

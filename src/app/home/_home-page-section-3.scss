@@ -1,0 +1,30 @@
+.breakdown-alert__chevron {
+  color: #7b808b;
+  font-size: 28px;
+}
+
+@media (max-width: 340px) {
+  .dashboard {
+    padding-inline: 14px;
+  }
+
+  .metrics-grid {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 300px) {
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 720px) {
+  .dashboard {
+    inline-size: min(100%, 720px);
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+}

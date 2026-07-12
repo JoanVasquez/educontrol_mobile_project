@@ -1,0 +1,72 @@
+.breakdown-card__copy {
+  display: grid;
+  gap: 3px;
+  min-inline-size: 0;
+}
+
+.breakdown-card__copy strong {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.breakdown-card__copy > span {
+  color: #363636;
+  font-size: 11px;
+}
+
+.breakdown-card time {
+  color: #333;
+  font-size: 9px;
+  white-space: nowrap;
+}
+
+.breakdown-card > ion-icon {
+  color: #858585;
+  font-size: 17px;
+}
+
+.priority {
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  font-size: 10px;
+  font-style: normal;
+  justify-self: start;
+  line-height: 1;
+  padding: 3px 10px;
+}
+
+.priority--high {
+  color: #ed1c24;
+}
+
+.priority--medium {
+  color: #d17a2c;
+}
+
+.priority--low {
+  color: #00a257;
+}
+
+.breakdown-list__empty {
+  color: #777;
+  font-size: 13px;
+  padding-block: 32px;
+  text-align: center;
+}
+
+.breakdown-list__state {
+  align-items: center;
+  color: #555;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+  padding-block: 44px;
+  text-align: center;
+}
+
+.breakdown-list__state ion-spinner {
+  color: var(--red);
+}
+

@@ -1,4 +1,3 @@
-import type { OnDestroy} from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -6,27 +5,27 @@ import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline, person } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
-import { ACADEMIC_COURSES, normalizeCourseAssignments } from '../core/academic/academic-course.catalog';
+import { ACADEMIC_COURSES } from '../core/academic/academic-course.catalog';
 import type { EditableTeacher } from '../core/teachers/editor/teacher-editor.model';
 import { TeacherEditorService } from '../core/teachers/editor/teacher-editor.service';
 import type { TeacherAssignment, TeacherCourseAssignment } from '../core/teachers/teacher-registration.model';
-import { DataUrlFileSerializer } from '../core/teachers/utils/data-url-file.serializer';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
+import { TeacherEditorPhotoService } from './services/teacher-editor-photo.service';
+import { createEditableTeacher, isTeacherEditorValid, normalizeEditableTeacher } from './utils/teacher-editor-form.util';
 
 @Component({
   selector: 'app-teacher-editor',
   templateUrl: './teacher-editor.page.html',
   styleUrls: ['./teacher-editor.page.scss'],
   imports: [AppBottomNavigationComponent, AppPageHeaderComponent, FormsModule, IonContent, IonIcon],
+  providers: [TeacherEditorPhotoService],
 })
-export class TeacherEditorPage implements OnDestroy {
+export class TeacherEditorPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly editorService = inject(TeacherEditorService);
-  private readonly fileSerializer = new DataUrlFileSerializer();
-  private previewObjectUrl = '';
-  private selectedPhoto: File | null = null;
+  private readonly photoService = inject(TeacherEditorPhotoService);
 
   teacher: EditableTeacher | null = null;
   readonly loading = signal(true);
@@ -35,7 +34,7 @@ export class TeacherEditorPage implements OnDestroy {
   readonly message = signal('');
   readonly errorMessage = signal('');
   readonly showingCache = signal(false);
-  readonly photoPreviewUrl = signal('');
+  readonly photoPreviewUrl = this.photoService.photoPreviewUrl;
 
   readonly nationalities = ['Dominicana', 'Haitiana', 'Venezolana', 'Colombiana', 'Otra'];
   readonly genders = ['Masculino', 'Femenino'];
@@ -45,10 +44,6 @@ export class TeacherEditorPage implements OnDestroy {
   constructor() {
     addIcons({ cameraOutline, person });
     void this.load();
-  }
-
-  ngOnDestroy(): void {
-    this.releasePreviewUrl();
   }
 
   async load(): Promise<void> {
@@ -64,16 +59,8 @@ export class TeacherEditorPage implements OnDestroy {
 
     try {
       const result = await firstValueFrom(this.editorService.load(teacherId));
-      this.teacher = {
-        ...result.teacher,
-        assignments: result.teacher.assignments.length
-          ? result.teacher.assignments.map((item) => ({ ...item }))
-          : [{ subject: '', detail: '' }],
-        courses: result.teacher.courses.length
-          ? normalizeCourseAssignments(result.teacher.courses).map((item) => ({ ...item }))
-          : [{ course: '', section: '' }],
-      };
-      this.photoPreviewUrl.set(this.teacher.photoUrl);
+      this.teacher = createEditableTeacher(result.teacher);
+      this.photoService.setRemotePreview(this.teacher.photoUrl);
       this.showingCache.set(result.source === 'cache');
     } catch (error: unknown) {
       this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo cargar el docente.');
@@ -83,30 +70,7 @@ export class TeacherEditorPage implements OnDestroy {
   }
 
   selectPhoto(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      this.message.set('Selecciona un archivo de imagen válido.');
-      input.value = '';
-      return;
-    }
-
-    if (file.size > 1_500_000) {
-      this.message.set('La foto debe pesar menos de 1.5 MB.');
-      input.value = '';
-      return;
-    }
-
-    this.releasePreviewUrl();
-    this.selectedPhoto = file;
-    this.previewObjectUrl = URL.createObjectURL(file);
-    this.photoPreviewUrl.set(this.previewObjectUrl);
-    this.message.set('');
+    this.photoService.select(event, (message) => this.message.set(message));
   }
 
   addAssignment(): void {
@@ -142,7 +106,7 @@ export class TeacherEditorPage implements OnDestroy {
       return;
     }
 
-    if (!this.isValid(this.teacher)) {
+    if (!isTeacherEditorValid(this.teacher)) {
       this.message.set('Completa todos los campos obligatorios.');
       return;
     }
@@ -151,12 +115,12 @@ export class TeacherEditorPage implements OnDestroy {
     this.message.set('');
 
     try {
-      const photo = this.selectedPhoto ? await this.fileSerializer.fromFile(this.selectedPhoto) : null;
+      const photo = await this.photoService.serializedPhoto();
       const updatedTeacher = await firstValueFrom(
-        this.editorService.update(this.normalized(this.teacher), photo),
+        this.editorService.update(normalizeEditableTeacher(this.teacher), photo),
       );
       this.teacher = updatedTeacher;
-      this.selectedPhoto = null;
+      this.photoService.clearSelectedPhoto();
       this.showingCache.set(false);
       this.message.set('Docente actualizado correctamente.');
     } catch {
@@ -196,39 +160,4 @@ export class TeacherEditorPage implements OnDestroy {
     return `${index}-${item.course}-${item.section}`;
   }
 
-  private isValid(teacher: EditableTeacher): boolean {
-    return Boolean(
-      teacher.firstName.trim() &&
-        teacher.lastName.trim() &&
-        teacher.birthDate &&
-        teacher.nationality &&
-        teacher.gender &&
-        teacher.idNumber.trim() &&
-        teacher.address.trim() &&
-        teacher.phone.trim(),
-    );
-  }
-
-  private normalized(teacher: EditableTeacher): EditableTeacher {
-    return {
-      ...teacher,
-      firstName: teacher.firstName.trim(),
-      lastName: teacher.lastName.trim(),
-      idNumber: teacher.idNumber.trim(),
-      address: teacher.address.trim(),
-      phone: teacher.phone.trim(),
-      assignments: teacher.assignments.map((item) => ({
-        subject: item.subject.trim(),
-        detail: item.detail.trim(),
-      })),
-      courses: normalizeCourseAssignments(teacher.courses),
-    };
-  }
-
-  private releasePreviewUrl(): void {
-    if (this.previewObjectUrl) {
-      URL.revokeObjectURL(this.previewObjectUrl);
-      this.previewObjectUrl = '';
-    }
-  }
 }

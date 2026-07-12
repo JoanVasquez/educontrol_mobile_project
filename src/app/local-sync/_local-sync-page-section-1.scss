@@ -1,0 +1,77 @@
+:host {
+  --local-sync-text: #172033;
+  --local-sync-muted: #6c7485;
+  background: #ffffff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.local-sync-shell {
+  background: #ffffff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.local-sync-content {
+  --background: #ffffff;
+}
+
+.local-sync {
+  display: grid;
+  gap: 16px;
+  inline-size: min(100%, 460px);
+  margin-inline: auto;
+  padding: 16px 18px 28px;
+}
+
+.status-panel {
+  align-items: center;
+  background: #f7f8fa;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr);
+  padding: 16px;
+}
+
+.status-panel__icon {
+  align-items: center;
+  background: #1d4ed8;
+  block-size: 42px;
+  border-radius: 999px;
+  color: #ffffff;
+  display: inline-grid;
+  inline-size: 42px;
+  justify-content: center;
+}
+
+.status-panel__icon ion-icon {
+  font-size: 24px;
+}
+
+.status-panel h1 {
+  color: var(--local-sync-text);
+  font-size: 18px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.status-panel p {
+  color: var(--local-sync-muted);
+  font-size: 13px;
+  line-height: 1.35;
+  margin: 4px 0 0;
+}
+
+.notice {
+  align-items: center;
+  border-radius: 8px;
+  display: grid;
+  font-size: 13px;
+  gap: 10px;
+  grid-template-columns: auto minmax(0, 1fr);
+  line-height: 1.35;
+  padding: 12px 14px;
+}
+

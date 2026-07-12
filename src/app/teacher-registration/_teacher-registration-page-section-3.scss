@@ -1,0 +1,79 @@
+.two-columns {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field--wide {
+  grid-column: 1 / -1;
+}
+
+.field {
+  color: #172033;
+  display: grid;
+  font-size: 11px;
+  gap: 4px;
+  min-inline-size: 0;
+}
+
+.field > span {
+  color: #172033;
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.field b {
+  color: #df1018;
+}
+
+.field input,
+.field select,
+.field textarea,
+.assignment-row input,
+.assignment-row select {
+  background: #fff;
+  border: 1px solid #d8d9dc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #222;
+  font: inherit;
+  font-size: 9px;
+  inline-size: 100%;
+  min-block-size: 29px;
+  min-inline-size: 0;
+  outline: 0;
+  padding: 7px 8px;
+}
+
+.field textarea {
+  min-block-size: 42px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus,
+.assignment-row input:focus,
+.assignment-row select:focus {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px #3158ad18;
+}
+
+.date-field {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.date-field input {
+  padding-inline-end: 28px;
+}
+
+.date-field ion-icon {
+  color: #74777d;
+  font-size: 14px;
+  inset-inline-end: 8px;
+  pointer-events: none;
+  position: absolute;
+}
+

@@ -1,0 +1,70 @@
+.student-list {
+  display: grid;
+  gap: 11px;
+}
+
+.student-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 29px minmax(0, 1fr) 68px;
+  min-block-size: 41px;
+}
+
+.student-row__avatar {
+  color: #d0d0d0;
+  display: flex;
+  justify-content: center;
+}
+
+.student-row__avatar ion-icon {
+  font-size: 28px;
+}
+
+.student-row__name {
+  color: #2852a5;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.student-row__status {
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  text-align: center;
+}
+
+.student-row__status--present {
+  color: var(--green);
+}
+
+.student-row__status--absent {
+  color: var(--red);
+}
+
+.student-row__status--excused {
+  color: var(--orange);
+}
+
+.sr-only {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+
+@media (max-width: 350px) {
+  .attendance {
+    padding-inline: 12px;
+  }
+
+  .metrics {
+    gap: 12px 22px;
+    padding-inline: 14px;
+  }
+}
+

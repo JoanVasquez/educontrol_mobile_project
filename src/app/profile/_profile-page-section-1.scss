@@ -1,0 +1,72 @@
+:host {
+  --blue: #3158ad;
+  background: #fff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.profile-shell {
+  background: #fff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-block-size: 100dvh;
+}
+
+.profile-content {
+  --background: #fff;
+}
+
+.profile {
+  display: grid;
+  gap: 28px;
+  inline-size: min(100%, 680px);
+  margin-inline: auto;
+  padding: 8px 16px 32px;
+}
+
+.school-card,
+.user-card,
+.profile-menu {
+  background: #f7f7f7;
+  border-radius: 14px;
+}
+
+.school-card {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 38px minmax(0, 1fr);
+  min-block-size: 52px;
+  padding: 8px 14px;
+}
+
+.school-card__icon {
+  background: var(--blue);
+  block-size: 31px;
+  border-radius: 50%;
+  color: #fff;
+  display: grid;
+  inline-size: 31px;
+  place-items: center;
+}
+
+.school-card__icon ion-icon {
+  font-size: 21px;
+}
+
+.school-card > span:last-child,
+.user-card__data {
+  display: grid;
+  min-inline-size: 0;
+}
+
+.school-card strong {
+  color: var(--blue);
+  font-size: 11px;
+}
+
+.school-card small {
+  color: #8b8b8b;
+  font-size: 10px;
+}
+

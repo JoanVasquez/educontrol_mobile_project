@@ -1,0 +1,72 @@
+.metric-card {
+  align-content: center;
+  background: #fafafa;
+  border-radius: 8px;
+  color: var(--blue);
+  display: grid;
+  justify-items: center;
+  min-block-size: 98px;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.metric-card > ion-icon {
+  font-size: 31px;
+}
+
+.metric-card span {
+  color: #26334f;
+  font-size: 10px;
+  line-height: 1.25;
+}
+
+.metric-card strong {
+  font-size: 15px;
+  line-height: 1;
+}
+
+.metric-card b {
+  font-size: 15px;
+  margin-block-start: 8px;
+}
+
+.metric-card--total strong {
+  font-size: 21px;
+}
+
+.metric-card--present strong {
+  color: var(--green);
+}
+
+.metric-card--absent strong {
+  color: var(--red);
+}
+
+.metric-card--excused strong {
+  color: var(--orange);
+}
+
+.metric-card__icon {
+  align-items: center;
+  background: #aebfe2;
+  block-size: 24px;
+  border-radius: 8px;
+  color: #fff;
+  display: inline-flex;
+  inline-size: 34px;
+  justify-content: center;
+  margin-block-start: 6px;
+}
+
+.metric-card__icon ion-icon {
+  font-size: 17px;
+}
+
+.attendance__divider {
+  color: #8f5ce9;
+  font-size: 16px;
+  margin-block: -2px -8px;
+  padding-inline-start: 14px;
+}
+

@@ -3,23 +3,15 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import { cameraOutline, locationOutline, imageOutline, cloudUploadOutline } from 'ionicons/icons';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import type { Priority } from '../core/models/breakdown.model';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 import { BreakdownReportFacade } from './services/breakdown-report.facade';
-import type { BreakdownCategory, Priority } from '../core/models/breakdown.model';
+import { registerBreakdownReportIcons } from './utils/breakdown-report-icons.util';
+import { BREAKDOWN_CATEGORIES } from './utils/breakdown-report-options.util';
 
-/**
- * Breakdown Report Page Component
- * Implements Clean Code and SOLID principles:
- * - Single Responsibility: Only handles presentation logic
- * - Dependency Injection: Services injected through constructor
- * - Reactive Programming: Uses Observables and signals for state management
- * - Separation of Concerns: Business logic delegated to facade/services
- */
 @Component({
   selector: 'app-breakdown-report',
   templateUrl: './breakdown-report.page.html',
@@ -39,35 +31,22 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   private readonly facade = inject(BreakdownReportFacade);
   private readonly destroy$ = new Subject<void>();
 
-  // Form data
-  readonly categories: BreakdownCategory[] = [
-    'Electricidad',
-    'Plomería',
-    'Mobiliario',
-    'Climatización',
-    'Tecnología',
-    'Otra',
-  ];
-
+  readonly categories = BREAKDOWN_CATEGORIES;
   readonly priority = signal<Priority>('low');
   readonly photoName = signal('');
-
-  // Messages and loading states
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly isLoading = signal(false);
 
-  // Form field values
-  category: BreakdownCategory | '' = '';
+  category: (typeof BREAKDOWN_CATEGORIES)[number] | '' = '';
   description = '';
   location = '';
 
   constructor() {
-    addIcons({ cameraOutline, locationOutline, imageOutline, cloudUploadOutline });
+    registerBreakdownReportIcons();
   }
 
   ngOnInit(): void {
-    // Subscribe to facade observables
     this.facade.error$.pipe(takeUntil(this.destroy$)).subscribe((error) => {
       if (error) {
         this.errorMessage.set(error);
@@ -90,24 +69,15 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  /**
-   * Handle priority selection
-   */
   selectPriority(priority: Priority): void {
     this.priority.set(priority);
     this.clearMessages();
   }
 
-  /**
-   * Navigate to breakdown status page
-   */
   viewStatus(): void {
     this.router.navigateByUrl('/averias/estado');
   }
 
-  /**
-   * Trigger camera to take a photo
-   */
   takePhoto(): void {
     this.facade.takePhoto().pipe(takeUntil(this.destroy$)).subscribe((photo) => {
       if (photo) {
@@ -116,9 +86,6 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Pick a photo from gallery
-   */
   pickPhotoFromGallery(): void {
     this.facade.pickPhotoFromGallery().pipe(takeUntil(this.destroy$)).subscribe((photo) => {
       if (photo) {
@@ -127,9 +94,6 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     });
   }
 
-  /**
-   * Handle file input selection (fallback for web)
-   */
   selectPhoto(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (file) {
@@ -139,9 +103,6 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * Submit the breakdown report to Firebase
-   */
   submit(): void {
     if (!this.category || !this.description.trim() || !this.location.trim()) {
       this.errorMessage.set('Completa la categoría, descripción y ubicación.');
@@ -159,7 +120,6 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
       .subscribe((breakdown) => {
         if (breakdown && breakdown.id) {
           this.resetForm();
-          // Navigate after a short delay to show success message
           setTimeout(() => {
             this.router.navigateByUrl('/averias/estado');
           }, 1500);
@@ -167,9 +127,6 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
       });
   }
 
-  /**
-   * Reset the form to initial state
-   */
   private resetForm(): void {
     this.category = '';
     this.description = '';
@@ -179,9 +136,6 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     this.facade.clearPhoto();
   }
 
-  /**
-   * Clear error and success messages
-   */
   clearMessages(): void {
     this.errorMessage.set('');
     this.successMessage.set('');

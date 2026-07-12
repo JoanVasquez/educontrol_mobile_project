@@ -1,0 +1,72 @@
+.attendance__search ion-icon {
+  color: var(--blue);
+  font-size: 18px;
+}
+
+.attendance__search input {
+  background: transparent;
+  border: 0;
+  color: var(--blue);
+  flex: 1;
+  font: inherit;
+  font-size: 12px;
+  min-inline-size: 0;
+  outline: 0;
+}
+
+.attendance__search input::placeholder {
+  color: var(--blue);
+  opacity: 1;
+}
+
+.student-list {
+  display: grid;
+  gap: 11px;
+}
+
+.student-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 31px minmax(0, 1fr) auto;
+  min-block-size: 42px;
+}
+
+.student-row__avatar {
+  color: #cfcfcf;
+  display: flex;
+  justify-content: center;
+}
+
+.student-row__avatar ion-icon {
+  font-size: 29px;
+}
+
+.student-row__name {
+  color: #244d9e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.student-row__actions {
+  display: flex;
+  gap: 10px;
+}
+
+.status-button {
+  align-items: center;
+  border: 0;
+  border-radius: 9px;
+  color: #fff;
+  display: flex;
+  block-size: 28px;
+  inline-size: 34px;
+  justify-content: center;
+  opacity: .4;
+  padding: 0;
+}
+
+.status-button ion-icon {
+  font-size: 18px;
+}
+

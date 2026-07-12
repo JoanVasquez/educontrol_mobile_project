@@ -1,0 +1,74 @@
+.field input,
+.field select,
+.field textarea,
+.assignment-row select,
+.selected-value {
+  background: #fff;
+  border: 1px solid #d8d9dc;
+  border-radius: 7px;
+  box-sizing: border-box;
+  color: #222;
+  font: inherit;
+  font-size: 8px;
+  inline-size: 100%;
+  min-block-size: 25px;
+  min-inline-size: 0;
+  outline: 0;
+  padding: 6px 8px;
+}
+
+.field textarea {
+  min-block-size: 35px;
+  resize: vertical;
+}
+
+.date-field {
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.date-field input {
+  padding-inline-end: 25px;
+}
+
+.date-field ion-icon {
+  color: #777;
+  font-size: 12px;
+  inset-inline-end: 7px;
+  pointer-events: none;
+  position: absolute;
+}
+
+.assignments {
+  display: grid;
+  font-size: 9px;
+  gap: 6px;
+}
+
+.assignments > span {
+  padding-inline-start: 8px;
+}
+
+.assignment-row {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 12px minmax(0, 1fr);
+}
+
+.assignment-row > b {
+  font-size: 16px;
+  text-align: center;
+}
+
+.selected-value {
+  position: relative;
+}
+
+.selected-value sup {
+  inset-block-start: 1px;
+  inset-inline-end: 5px;
+  position: absolute;
+}
+

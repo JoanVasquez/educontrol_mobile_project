@@ -1,0 +1,73 @@
+.academic-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(18px, 3vw, 34px);
+}
+
+.selection-group {
+  min-width: 0;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+}
+
+.selection-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selection-heading button {
+  min-height: 36px;
+  border: 0;
+  background: transparent;
+  color: #2e58ac;
+  font-size: .76rem;
+  font-weight: 800;
+}
+
+.selection-row {
+  display: grid;
+  grid-template-columns: minmax(130px, 1.25fr) minmax(90px, .75fr) 38px;
+  gap: 8px;
+}
+
+.remove {
+  border: 1px solid #e0a7aa;
+  border-radius: 8px;
+  background: #fff;
+  color: #c4000b;
+  font-size: 1.25rem;
+}
+
+.cache-notice,
+.form-message {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: 9px;
+  background: #fff7dc;
+  color: #755800;
+  font-size: .8rem;
+}
+
+.form-message {
+  background: #eaf1ff;
+  color: #234b99;
+  text-align: center;
+}
+
+.actions {
+  width: min(100%, 620px);
+  margin-left: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.actions button,
+.state-card button {
+  min-height: 46px;
+  border-radius: 9px;
+  font-weight: 800;
+}
+

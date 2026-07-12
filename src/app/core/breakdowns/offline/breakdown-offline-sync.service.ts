@@ -19,6 +19,7 @@ export class BreakdownOfflineSyncService {
   readonly pendingCount$ = this.pendingCountSubject.asObservable();
 
   constructor() {
+    // Las averias pendientes se intentan enviar automaticamente al volver online.
     this.networkService.isOnline$
       .pipe(
         switchMap((isOnline) => (isOnline ? from(this.syncPending()) : EMPTY)),
@@ -28,9 +29,11 @@ export class BreakdownOfflineSyncService {
   }
 
   register(breakdown: Breakdown, documentId: string): Observable<RegisterBreakdownResult> {
+    // El documentId se crea antes de guardar para que local y remoto compartan el mismo registro.
     const payload = { ...breakdown, id: documentId };
 
     if (!this.networkService.isOnline) {
+      // Offline-first: la UI puede continuar aunque Firebase no este disponible.
       const queue = this.pendingRepository.add(documentId, payload);
       this.pendingCountSubject.next(queue.length);
 
@@ -69,6 +72,7 @@ export class BreakdownOfflineSyncService {
     const failedQueue: PendingBreakdownRegistration[] = [];
 
     try {
+      // Se reconstruye la cola solo con los reportes que no pudieron sincronizarse.
       for (const pendingBreakdown of this.pendingRepository.getAll()) {
         try {
           await firstValueFrom(

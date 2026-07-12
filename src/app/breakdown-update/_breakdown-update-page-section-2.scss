@@ -1,0 +1,71 @@
+.report-summary__state ion-icon {
+  font-size: 18px;
+}
+
+.update-form h1 {
+  font-size: 14px;
+  margin: 12px 0 2px;
+}
+
+.two-columns {
+  display: grid;
+  gap: 34px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field {
+  color: #161616;
+  display: grid;
+  font-size: 12px;
+  gap: 7px;
+  min-inline-size: 0;
+}
+
+.field > span {
+  align-items: center;
+  display: flex;
+}
+
+.field > span ion-icon {
+  font-size: 14px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  background: #fff;
+  border: 1px solid #d8d9dc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  color: #252525;
+  font: inherit;
+  inline-size: 100%;
+  outline: 0;
+  padding: 8px 10px;
+}
+
+.field input,
+.field select {
+  min-block-size: 28px;
+}
+
+.field textarea {
+  min-block-size: 50px;
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px #c5060b18;
+}
+
+.priority-select {
+  color: #d51d27 !important;
+}
+
+.field--state {
+  inline-size: min(100%, 124px);
+}
+

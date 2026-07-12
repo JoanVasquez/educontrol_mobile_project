@@ -5,22 +5,8 @@ import { of, throwError } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
-import type { Breakdown, BreakdownDTO } from '../models/breakdown.model';
-
-interface FirestoreValue {
-  stringValue?: string;
-  timestampValue?: string;
-  nullValue?: 'NULL_VALUE';
-}
-
-interface FirestoreBreakdownPayload {
-  fields: Record<keyof BreakdownDTO, FirestoreValue>;
-}
-
-interface FirestoreDocumentResponse {
-  name: string;
-  fields?: Partial<Record<keyof BreakdownDTO, FirestoreValue>>;
-}
+import type { Breakdown } from '../models/breakdown.model';
+import { FirestoreBreakdownMapper, type FirestoreDocumentResponse } from './firestore-breakdown.mapper';
 
 @Injectable({
   providedIn: 'root',
@@ -30,11 +16,12 @@ export class BreakdownService {
   private readonly authSession = inject(ValidAuthSessionService);
   private readonly projectId = environment.firebase.projectId;
   private readonly collectionName = 'breakdowns';
+  private readonly mapper = new FirestoreBreakdownMapper();
 
   createBreakdown(breakdown: Breakdown, documentId: string = this.createDocumentId()): Observable<Breakdown> {
     return this.withIdToken().pipe(
       switchMap((idToken) =>
-        this.http.patch<FirestoreDocumentResponse>(this.documentUrl(documentId), this.mapToPayload(breakdown), {
+        this.http.patch<FirestoreDocumentResponse>(this.documentUrl(documentId), this.mapper.toPayload(breakdown), {
           headers: this.authHeaders(idToken),
         }),
       ),
@@ -55,7 +42,7 @@ export class BreakdownService {
           headers: this.authHeaders(idToken),
         }),
       ),
-      map((document) => this.mapFromDocument(document)),
+      map((document) => this.mapper.fromDocument(document)),
     );
   }
 
@@ -66,7 +53,7 @@ export class BreakdownService {
           headers: this.authHeaders(idToken),
         }),
       ),
-      map((response) => (response.documents || []).map((document) => this.mapFromDocument(document))),
+      map((response) => (response.documents || []).map((document) => this.mapper.fromDocument(document))),
     );
   }
 
@@ -81,7 +68,7 @@ export class BreakdownService {
       switchMap((updatedBreakdown) =>
         this.withIdToken().pipe(
           switchMap((token) =>
-            this.http.patch<unknown>(this.documentUrl(id), this.mapToPayload(updatedBreakdown), {
+            this.http.patch<unknown>(this.documentUrl(id), this.mapper.toPayload(updatedBreakdown), {
               headers: this.authHeaders(token),
             }),
           ),
@@ -139,67 +126,4 @@ export class BreakdownService {
     return new HttpHeaders({ Authorization: 'Bearer ' + idToken });
   }
 
-  private mapFromDocument(document: FirestoreDocumentResponse): Breakdown {
-    const fields = document.fields || {};
-
-    return {
-      id: document.name.split('/').pop(),
-      category: String(fields.category?.stringValue || 'Otra') as Breakdown['category'],
-      description: String(fields.description?.stringValue || ''),
-      priority: String(fields.priority?.stringValue || 'low') as Breakdown['priority'],
-      location: String(fields.location?.stringValue || ''),
-      photoUrl: fields.photoUrl?.stringValue || null,
-      photoDataUrl: fields.photoDataUrl?.stringValue || null,
-      photoName: fields.photoName?.stringValue || null,
-      photoContentType: fields.photoContentType?.stringValue || null,
-      status: String(fields.status?.stringValue || 'pending') as Breakdown['status'],
-      notes: fields.notes?.stringValue || null,
-      createdAt: String(fields.createdAt?.timestampValue || new Date().toISOString()),
-      updatedAt: fields.updatedAt?.timestampValue,
-    };
-  }
-
-  private mapToPayload(breakdown: Breakdown): FirestoreBreakdownPayload {
-    return {
-      fields: {
-        category: { stringValue: breakdown.category },
-        description: { stringValue: breakdown.description },
-        priority: { stringValue: breakdown.priority },
-        location: { stringValue: breakdown.location },
-        photoUrl: this.nullableString(breakdown.photoUrl),
-        photoDataUrl: this.nullableString(breakdown.photoDataUrl),
-        photoName: this.nullableString(breakdown.photoName),
-        photoContentType: this.nullableString(breakdown.photoContentType),
-        status: { stringValue: breakdown.status },
-        notes: this.nullableString(breakdown.notes),
-        createdAt: { timestampValue: breakdown.createdAt },
-        updatedAt: { timestampValue: breakdown.updatedAt || breakdown.createdAt },
-      },
-    };
-  }
-
-  private mapPartialToPayload(breakdown: Partial<Breakdown>): { fields: Record<string, FirestoreValue> } {
-    const fields: Record<string, FirestoreValue> = {};
-
-    if (breakdown.category) fields['category'] = { stringValue: breakdown.category };
-    if (breakdown.description) fields['description'] = { stringValue: breakdown.description };
-    if (breakdown.priority) fields['priority'] = { stringValue: breakdown.priority };
-    if (breakdown.location) fields['location'] = { stringValue: breakdown.location };
-    if (breakdown.status) fields['status'] = { stringValue: breakdown.status };
-    if (breakdown.photoUrl !== undefined) fields['photoUrl'] = this.nullableString(breakdown.photoUrl);
-    if (breakdown.photoDataUrl !== undefined) fields['photoDataUrl'] = this.nullableString(breakdown.photoDataUrl);
-    if (breakdown.photoName !== undefined) fields['photoName'] = this.nullableString(breakdown.photoName);
-    if (breakdown.photoContentType !== undefined) {
-      fields['photoContentType'] = this.nullableString(breakdown.photoContentType);
-    }
-    if (breakdown.notes !== undefined) fields['notes'] = this.nullableString(breakdown.notes);
-    if (breakdown.createdAt) fields['createdAt'] = { timestampValue: breakdown.createdAt };
-    if (breakdown.updatedAt) fields['updatedAt'] = { timestampValue: breakdown.updatedAt };
-
-    return { fields };
-  }
-
-  private nullableString(value: string | null | undefined): FirestoreValue {
-    return value ? { stringValue: value } : { nullValue: 'NULL_VALUE' };
-  }
 }

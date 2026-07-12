@@ -1,0 +1,72 @@
+.status-button--present {
+  background: var(--green);
+}
+
+.status-button--absent {
+  background: var(--red);
+}
+
+.status-button--excused {
+  background: var(--orange);
+}
+
+.status-button.is-selected {
+  box-shadow: 0 2px 6px #0002;
+  opacity: 1;
+}
+
+.attendance__footer {
+  display: grid;
+  gap: 17px;
+}
+
+.attendance__save {
+  background: var(--blue);
+  border: 0;
+  border-radius: 7px;
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  min-block-size: 36px;
+}
+
+.attendance__legend {
+  display: flex;
+  font-size: 12px;
+  justify-content: space-around;
+}
+
+.attendance__legend span {
+  align-items: center;
+  display: flex;
+  gap: 7px;
+}
+
+.dot {
+  block-size: 11px;
+  border-radius: 50%;
+  inline-size: 11px;
+}
+
+.dot--present {
+  background: var(--green);
+}
+
+.dot--absent {
+  background: var(--red);
+}
+
+.dot--excused {
+  background: var(--orange);
+}
+
+.sr-only {
+  block-size: 1px;
+  clip-path: inset(50%);
+  inline-size: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+}
+

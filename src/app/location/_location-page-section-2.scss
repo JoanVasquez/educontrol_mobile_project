@@ -1,0 +1,82 @@
+.live-indicator i {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: #00a45a;
+}
+
+.coordinates {
+  margin-block: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.coordinates div {
+  padding: 14px;
+  border-radius: 9px;
+  background: #eef4ff;
+  border: 1px solid #d8e3f7;
+  display: grid;
+  gap: 6px;
+}
+
+.coordinates span {
+  color: #334155;
+  display: block;
+  font-size: .78rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.coordinates strong {
+  color: #0f172a;
+  display: block;
+  overflow: hidden;
+  font-size: .95rem;
+  font-weight: 900;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+}
+
+.quality--high { color: #008c4c; }
+.quality--medium { color: #ad6b00; }
+.quality--low { color: #c11824; }
+
+.location-card__empty {
+  margin: 22px 0;
+  color: #69758b;
+  text-align: center;
+}
+
+.location-actions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.location-actions button,
+.place-filters button {
+  min-height: 42px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 800;
+}
+
+.location-actions button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.location-actions .secondary {
+  border: 1px solid #cbd5e6;
+  background: #fff;
+  color: var(--blue);
+}
+

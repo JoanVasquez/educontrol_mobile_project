@@ -2,28 +2,17 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { IonButton, IonContent, IonDatetime, IonIcon, IonInput, IonModal, IonSelect, IonSelectOption, IonTextarea } from '@ionic/angular/standalone';
-import { addIcons } from 'ionicons';
-import {
-  calendarOutline,
-  callOutline,
-  cardOutline,
-  earthOutline,
-  homeOutline,
-  peopleOutline,
-  personOutline,
-  schoolOutline,
-  maleFemaleOutline,
-} from 'ionicons/icons';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
-import { ACADEMIC_COURSES, getAcademicSubjectsByCourse, normalizeAcademicCourse } from '../core/academic/academic-course.catalog';
+import { ACADEMIC_COURSES, getAcademicSubjectsByCourse } from '../core/academic/academic-course.catalog';
 import { NetworkStatusComponent } from '../detector_red/network-status.component';
 import { StudentOfflineSyncService } from '../modo_offline/student-offline-sync.service';
-import type { StudentRegistrationDraft } from '../modo_offline/student-registration.model';
 import { StudentFormSectionComponent } from './components/student-form-section/student-form-section.component';
 import { StudentPhotoPickerComponent } from './components/student-photo-picker/student-photo-picker.component';
-import { WifiDirectService } from '../core/wifi-direct.service';
-import type { WifiDirectDevice } from '../core/wifi-direct.plugin';
+import { StudentWifiShareComponent } from './components/student-wifi-share/student-wifi-share.component';
+import { StudentRegistrationDraftFactory } from './services/student-registration-draft.factory';
+import { extractBirthDateValue, formatBirthDateLabel } from './utils/student-birth-date.util';
+import { registerStudentRegistrationIcons } from './utils/student-registration-icons.util';
 
 @Component({
   selector: 'app-student-registration',
@@ -45,6 +34,7 @@ import type { WifiDirectDevice } from '../core/wifi-direct.plugin';
     ReactiveFormsModule,
     StudentFormSectionComponent,
     StudentPhotoPickerComponent,
+    StudentWifiShareComponent,
   ],
 })
 export class StudentRegistrationPage {
@@ -52,18 +42,13 @@ export class StudentRegistrationPage {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly offlineSyncService = inject(StudentOfflineSyncService);
-  private readonly wifiDirectService = inject(WifiDirectService);
+  private readonly draftFactory = inject(StudentRegistrationDraftFactory);
 
   photoPreviewUrl: string | null = null;
   selectedPhoto: File | null = null;
   readonly birthDatePickerOpen = signal(false);
   readonly saveMessage = signal<string | null>(null);
   readonly saving = signal(false);
-  readonly pendingCount$ = this.offlineSyncService.pendingCount$;
-  readonly peerDevices = signal<WifiDirectDevice[]>([]);
-  readonly wifiDirectMessage = signal<string | null>(null);
-  readonly isScanningPeers = signal(false);
-  readonly shareLoading = signal(false);
 
   readonly form = this.formBuilder.nonNullable.group({
     firstName: ['', Validators.required],
@@ -83,24 +68,12 @@ export class StudentRegistrationPage {
   readonly nationalities = ['Dominicana', 'Haitiana', 'Venezolana', 'Colombiana', 'Otra'];
   readonly genders = ['Masculino', 'Femenino'];
   readonly courses = ACADEMIC_COURSES;
-
   selectedSubjects(): string[] {
     return getAcademicSubjectsByCourse(this.form.controls.course.value);
   }
 
   constructor() {
-    addIcons({
-      calendarOutline,
-      callOutline,
-      cardOutline,
-      earthOutline,
-      homeOutline,
-      maleFemaleOutline,
-      peopleOutline,
-      personOutline,
-      schoolOutline,
-    });
-
+    registerStudentRegistrationIcons();
     this.destroyRef.onDestroy(() => this.revokePhotoPreviewUrl());
   }
 
@@ -117,70 +90,6 @@ export class StudentRegistrationPage {
     }
   }
 
-  async scanPeers(): Promise<void> {
-    this.isScanningPeers.set(true);
-    this.wifiDirectMessage.set(null);
-
-    try {
-      await this.wifiDirectService.requestPermissions();
-      const peers = await this.wifiDirectService.discoverPeers();
-      this.peerDevices.set(peers);
-      this.wifiDirectMessage.set(peers.length > 0 ? `${peers.length} peer(s) encontrados` : 'No se encontraron peers Wi-Fi Direct');
-    } catch (error) {
-      this.wifiDirectMessage.set(error instanceof Error ? error.message : String(error));
-    } finally {
-      this.isScanningPeers.set(false);
-    }
-  }
-
-  async connectPeer(deviceAddress: string): Promise<void> {
-    this.wifiDirectMessage.set(null);
-
-    try {
-      const result = await this.wifiDirectService.connect(deviceAddress);
-      this.wifiDirectMessage.set(result.message);
-    } catch (error) {
-      this.wifiDirectMessage.set(error instanceof Error ? error.message : String(error));
-    }
-  }
-
-  async sharePhoto(): Promise<void> {
-    if (!this.selectedPhoto) {
-      this.wifiDirectMessage.set('Selecciona primero una foto para compartir.');
-      return;
-    }
-
-    this.shareLoading.set(true);
-    this.wifiDirectMessage.set(null);
-
-    try {
-      const base64 = await this.readFileAsBase64(this.selectedPhoto);
-      const result = await this.wifiDirectService.sendPhoto(base64, this.selectedPhoto.name || 'photo.jpg');
-      this.wifiDirectMessage.set(result.message);
-    } catch (error) {
-      this.wifiDirectMessage.set(error instanceof Error ? error.message : String(error));
-    } finally {
-      this.shareLoading.set(false);
-    }
-  }
-
-  private readFileAsBase64(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result;
-        if (typeof result === 'string') {
-          const commaIndex = result.indexOf(',');
-          resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
-        } else {
-          reject(new Error('No se pudo leer la imagen'));
-        }
-      };
-      reader.onerror = () => reject(new Error('Error leyendo la imagen'));
-      reader.readAsDataURL(file);
-    });
-  }
-
   openBirthDatePicker(): void {
     this.birthDatePickerOpen.set(true);
   }
@@ -190,11 +99,10 @@ export class StudentRegistrationPage {
   }
 
   updateBirthDate(event: CustomEvent<{ value?: string | string[] | null }>): void {
-    const value = event.detail.value;
-    const selectedDate = Array.isArray(value) ? value[0] : value;
+    const selectedDate = extractBirthDateValue(event.detail.value);
 
     if (selectedDate) {
-      this.form.controls.birthDate.setValue(selectedDate.slice(0, 10));
+      this.form.controls.birthDate.setValue(selectedDate);
       this.form.controls.birthDate.markAsTouched();
     }
 
@@ -202,15 +110,7 @@ export class StudentRegistrationPage {
   }
 
   birthDateLabel(): string {
-    const value = this.form.controls.birthDate.value;
-
-    if (!value) {
-      return 'Seleccione fecha';
-    }
-
-    const [year, month, day] = value.slice(0, 10).split('-');
-
-    return day && month && year ? `${day}/${month}/${year}` : value;
+    return formatBirthDateLabel(this.form.controls.birthDate.value);
   }
 
   cancel(): void {
@@ -227,9 +127,9 @@ export class StudentRegistrationPage {
 
     this.saving.set(true);
 
-    this.offlineSyncService.register(this.toStudentDraft()).subscribe({
+    this.offlineSyncService.register(this.draftFactory.create(this.form.getRawValue())).subscribe({
       next: () => {
-        this.saveMessage.set(this.getSaveMessage());
+        this.saveMessage.set('Estudiante registrado correctamente.');
         this.form.reset();
         this.selectedPhoto = null;
         this.revokePhotoPreviewUrl();
@@ -241,39 +141,7 @@ export class StudentRegistrationPage {
     });
   }
 
-  private getSaveMessage(): string {
-    return 'Estudiante registrado correctamente.';
-  }
-
   isInvalid(controlName: keyof typeof this.form.controls): boolean {
-    const control = this.form.controls[controlName];
-
-    return control.invalid && (control.touched || control.dirty);
-  }
-
-  private toStudentDraft(): StudentRegistrationDraft {
-    const value = this.form.getRawValue();
-    const now = new Date().toISOString();
-    const course = normalizeAcademicCourse(value.course);
-
-    return {
-      nombres: value.firstName.trim(),
-      apellidos: value.lastName.trim(),
-      fechaNacimiento: value.birthDate,
-      nacionalidad: value.nationality,
-      genero: value.gender,
-      curso: course,
-      asignaturas: getAcademicSubjectsByCourse(course),
-      nombreMadre: value.motherName.trim(),
-      cedulaMadre: value.motherId.trim(),
-      nombrePadre: value.fatherName.trim(),
-      cedulaPadre: value.fatherId.trim(),
-      direccion: value.address.trim(),
-      telefonoContacto: value.contactPhone.trim(),
-      fotoUrl: '',
-      estado: 'activo',
-      createdAt: now,
-      updatedAt: now,
-    };
+    return this.form.controls[controlName].invalid && (this.form.controls[controlName].touched || this.form.controls[controlName].dirty);
   }
 }

@@ -22,6 +22,7 @@ export class LocationService {
   private readonly network = inject(NetworkService);
 
   current(): Promise<GeoPoint> {
+    // Normaliza errores nativos del GPS a mensajes entendibles para la UI.
     return this.geolocation.current().catch((error: unknown) => {
       throw new Error(LocationErrorMapper.message(error));
     });
@@ -48,12 +49,14 @@ export class LocationService {
   nearby(search: NearbySearch): Observable<NearbyPlaceResult> {
     const cached = this.cacheRepository.find(search);
     if (!this.network.isOnline) {
+      // Si no hay red, solo se muestran lugares guardados previamente para esa busqueda.
       return cached.length
         ? of({ places: cached, source: 'cache' })
         : throwError(() => new Error('No hay conexión ni lugares cercanos guardados.'));
     }
 
     return this.placesRepository.search(search).pipe(
+      // OpenStreetMap es la fuente remota; la respuesta se guarda para uso offline.
       tap((places) => this.cacheRepository.save(search, places)),
       map((places) => ({ places, source: 'remote' as const })),
       catchError(() =>

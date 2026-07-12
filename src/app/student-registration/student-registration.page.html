@@ -1,26 +1,14 @@
 <div class="student-shell">
   <app-page-header title="Registrar estudiante" backUrl="/home" />
-
   <ion-content class="student-content" [fullscreen]="false">
     <form class="student-form" [formGroup]="form" (ngSubmit)="registerStudent()">
       <app-network-status />
-
       @if (saveMessage()) {
         <div class="student-form__status-message" aria-live="polite">{{ saveMessage() }}</div>
       }
-
-      <!-- @if ((pendingCount$ | async) ?? 0; as pendingCount) {
-        @if (pendingCount > 0) {
-          <div class="student-form__pending-message" aria-live="polite">
-            {{ pendingCount }} registro(s) en espera.
-          </div>
-        }
-      } -->
-
       <app-student-form-section title="Informacion del estudiante">
         <div class="student-form__identity-grid">
           <app-student-photo-picker [previewUrl]="photoPreviewUrl" (photoSelected)="onPhotoSelected($event)" />
-
           <div class="student-form__name-fields">
             <label class="field">
               <span>Nombres<b>*</b></span>
@@ -29,7 +17,6 @@
                 <ion-input formControlName="firstName" placeholder="Ingrese el/los nombres" />
               </span>
             </label>
-
             <label class="field">
               <span>Apellidos<b>*</b></span>
               <span class="field__control" [class.field__control--invalid]="isInvalid('lastName')">
@@ -39,40 +26,7 @@
             </label>
           </div>
         </div>
-
-        <section class="student-form__wifi-share" aria-label="Compartir foto por Wi-Fi Direct">
-          <div class="student-form__wifi-actions">
-            <ion-button type="button" fill="outline" size="small" (click)="scanPeers()" [disabled]="isScanningPeers()">
-              {{ isScanningPeers() ? 'Buscando...' : 'Buscar Wi-Fi Direct' }}
-            </ion-button>
-            <ion-button
-              type="button"
-              size="small"
-              [disabled]="!selectedPhoto || shareLoading() || peerDevices().length === 0"
-              (click)="sharePhoto()"
-            >
-              {{ shareLoading() ? 'Compartiendo...' : 'Compartir foto' }}
-            </ion-button>
-          </div>
-
-          @if (peerDevices().length > 0) {
-            <div class="peer-list">
-              <span>Dispositivos encontrados:</span>
-              <div class="peer-list__items">
-                @for (peer of peerDevices(); track peer.deviceAddress) {
-                  <button type="button" class="peer-link" (click)="connectPeer(peer.deviceAddress)">
-                    {{ peer.deviceName || peer.deviceAddress }}
-                  </button>
-                }
-              </div>
-            </div>
-          }
-
-          @if (wifiDirectMessage()) {
-            <div class="student-form__wifi-message" aria-live="polite">{{ wifiDirectMessage() }}</div>
-          }
-        </section>
-
+        <app-student-wifi-share [selectedPhoto]="selectedPhoto" />
         <div class="student-form__two-columns">
           <label class="field">
             <span>Fecha de nacimiento<b>*</b></span>
@@ -83,7 +37,6 @@
               </button>
             </span>
           </label>
-
           <label class="field">
             <span>Nacionalidad<b>*</b></span>
             <span class="field__control" [class.field__control--invalid]="isInvalid('nationality')">
@@ -95,7 +48,6 @@
               </ion-select>
             </span>
           </label>
-
           <label class="field">
             <span>Genero<b>*</b></span>
             <span class="field__control" [class.field__control--invalid]="isInvalid('gender')">
@@ -107,7 +59,6 @@
               </ion-select>
             </span>
           </label>
-
           <label class="field">
             <span>Curso<b>*</b></span>
             <span class="field__control" [class.field__control--invalid]="isInvalid('course')">
@@ -120,16 +71,12 @@
             </span>
           </label>
         </div>
-
         @if (selectedSubjects().length > 0) {
           <div class="student-form__subjects" aria-label="Asignaturas del curso seleccionado">
-            @for (subject of selectedSubjects(); track subject) {
-              <span>{{ subject }}</span>
-            }
+            @for (subject of selectedSubjects(); track subject) { <span>{{ subject }}</span> }
           </div>
         }
       </app-student-form-section>
-
       <app-student-form-section title="Informacion Padres/tutor">
         <div class="student-form__two-columns">
           <label class="field">
@@ -139,7 +86,6 @@
               <ion-input formControlName="motherName" placeholder="Ingrese nombre completo de la madre" />
             </span>
           </label>
-
           <label class="field">
             <span>Cedula<b>*</b></span>
             <span class="field__control" [class.field__control--invalid]="isInvalid('motherId')">
@@ -147,7 +93,6 @@
               <ion-input formControlName="motherId" inputmode="numeric" placeholder="Ingrese numero" />
             </span>
           </label>
-
           <label class="field">
             <span>Nombre Padre<b>*</b></span>
             <span class="field__control" [class.field__control--invalid]="isInvalid('fatherName')">
@@ -155,7 +100,6 @@
               <ion-input formControlName="fatherName" placeholder="Ingrese nombre completo del padre" />
             </span>
           </label>
-
           <label class="field">
             <span>Cedula<b>*</b></span>
             <span class="field__control" [class.field__control--invalid]="isInvalid('fatherId')">
@@ -165,16 +109,13 @@
           </label>
         </div>
       </app-student-form-section>
-
       <app-student-form-section title="Informacion de contacto">
         <label class="field">
           <span>Direccion<b>*</b></span>
           <span class="field__control field__control--textarea" [class.field__control--invalid]="isInvalid('address')">
-            <!-- <ion-icon name="home-outline" aria-hidden="true" /> -->
             <ion-textarea formControlName="address" placeholder="Ingrese direccion" rows="3" />
           </span>
         </label>
-
         <label class="field">
           <span>Telefono de contacto<b>*</b></span>
           <span class="field__control" [class.field__control--invalid]="isInvalid('contactPhone')">
@@ -183,29 +124,16 @@
           </span>
         </label>
       </app-student-form-section>
-
       <div class="student-form__actions">
         <ion-button class="student-form__cancel" type="button" fill="outline" (click)="cancel()">Cancelar</ion-button>
-        <ion-button class="student-form__submit" type="submit" [disabled]="saving()">
-          {{ saving() ? 'Guardando...' : 'Registrar estudiante' }}
-        </ion-button>
+        <ion-button class="student-form__submit" type="submit" [disabled]="saving()">{{ saving() ? 'Guardando...' : 'Registrar estudiante' }}</ion-button>
       </div>
     </form>
   </ion-content>
-
   <app-bottom-navigation activePath="/registrar-estudiante" />
 </div>
-
 <ion-modal [isOpen]="birthDatePickerOpen()" (didDismiss)="closeBirthDatePicker()">
   <ng-template>
-    <ion-datetime
-      presentation="date"
-      [value]="form.controls.birthDate.value"
-      [showDefaultButtons]="true"
-      doneText="Aceptar"
-      cancelText="Cancelar"
-      (ionCancel)="closeBirthDatePicker()"
-      (ionChange)="updateBirthDate($event)"
-    />
+    <ion-datetime presentation="date" [value]="form.controls.birthDate.value" [showDefaultButtons]="true" doneText="Aceptar" cancelText="Cancelar" (ionCancel)="closeBirthDatePicker()" (ionChange)="updateBirthDate($event)" />
   </ng-template>
 </ion-modal>

@@ -1,0 +1,62 @@
+.teacher-update__message {
+  background: #edf4ff;
+  border-radius: 6px;
+  color: #244d9e;
+  font-size: 9px;
+  margin: 0;
+  padding: 7px;
+  text-align: center;
+}
+
+.teacher-update__actions {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-block-start: 2px;
+}
+
+.teacher-update__actions button {
+  border-radius: 6px;
+  color: #fff;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 800;
+  min-block-size: 29px;
+}
+
+.cancel {
+  background: #d7d7d7;
+  border: 1px solid #d51b25;
+}
+
+.update {
+  background: var(--blue);
+  border: 1px solid var(--blue);
+}
+
+.delete {
+  background: #c5060b;
+  border: 1px solid #c5060b;
+}
+
+@media (max-width: 340px) {
+  .teacher-update {
+    padding-inline: 9px;
+  }
+
+  .teacher-update__actions {
+    gap: 8px;
+  }
+}
+
+@media (min-width: 700px) {
+  .teacher-update {
+    gap: 16px;
+    padding: 24px 40px 40px;
+  }
+
+  .field,
+  .assignments {
+    font-size: 11px;
+  }
+}

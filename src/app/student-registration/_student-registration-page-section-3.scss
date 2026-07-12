@@ -1,0 +1,83 @@
+
+ion-modal {
+  --height: auto;
+  --max-width: 420px;
+  --width: min(92vw, 420px);
+}
+
+ion-datetime {
+  inline-size: 100%;
+}
+
+.student-form__actions {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  inline-size: 100%;
+  padding-block-start: 6px;
+}
+
+ion-button {
+  --border-radius: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  min-block-size: 34px;
+  text-transform: none;
+}
+
+.student-form__cancel {
+  --background: #e5e5e5;
+  --border-color: #df2020;
+  --border-width: 1px;
+  --color: #ffffff;
+}
+
+.student-form__submit {
+  --background: #3158ad;
+  --color: #ffffff;
+}
+
+@media (max-width: 380px) {
+  .student-form {
+    padding-inline: 12px;
+  }
+
+  .student-form__identity-grid {
+    gap: 10px;
+    grid-template-columns: 72px minmax(0, 1fr);
+  }
+
+  .student-form__two-columns {
+    column-gap: 10px;
+  }
+
+  .student-form__actions {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 320px) {
+  .student-form__two-columns,
+  .student-form__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .student-form__identity-grid {
+    grid-template-columns: 68px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 720px) {
+  .student-form {
+    inline-size: min(100%, 720px);
+  }
+
+  .student-form__identity-grid {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+
+  .student-form__actions {
+    justify-self: end;
+    inline-size: min(100%, 430px);
+  }
+}

@@ -1,0 +1,16 @@
+@media (min-width: 700px) {
+  .attendance {
+    padding: 28px 38px 40px;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    padding-inline: 0;
+  }
+
+  .student-row {
+    border-bottom: 1px solid #edf0f5;
+    min-block-size: 54px;
+    padding-inline: 8px;
+  }
+}

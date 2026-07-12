@@ -1,0 +1,70 @@
+:host {
+  background: #ffffff;
+  display: block;
+  min-block-size: 100%;
+}
+
+.student-shell {
+  background: #ffffff;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  inline-size: 100%;
+  min-block-size: 100dvh;
+}
+
+.student-content {
+  --background: #ffffff;
+}
+
+.student-form {
+  display: grid;
+  gap: 12px;
+  inline-size: min(100%, 430px);
+  margin-inline: auto;
+  padding: 8px 14px 18px;
+  padding-block-end: calc(24px + env(safe-area-inset-bottom));
+}
+
+.student-form__identity-grid {
+  align-items: start;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 76px minmax(0, 1fr);
+}
+
+.student-form__identity-grid > app-student-photo-picker {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.student-form__name-fields {
+  grid-column: 2;
+  min-inline-size: 0;
+}
+
+.student-form__name-fields,
+.student-form__two-columns {
+  display: grid;
+  gap: 7px;
+}
+
+.student-form__two-columns {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 8px;
+}
+
+.student-form__status-message,
+.student-form__pending-message {
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.35;
+  padding: 10px 12px;
+}
+
+.student-form__status-message {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+

@@ -13,6 +13,7 @@ import type { Breakdown } from '../models/breakdown.model';
 import { TeacherCacheRepository } from '../teachers/teacher-cache.repository';
 import { TeacherQueryRepository } from '../teachers/teacher-query.repository';
 import { DashboardCacheRepository } from './dashboard-cache.repository';
+import { DashboardDateUtil } from './dashboard-date.util';
 import type { DashboardData, DashboardSnapshot } from './dashboard.model';
 import { DashboardPresenter } from './dashboard.presenter';
 
@@ -84,7 +85,7 @@ export class DashboardService {
     const documentIds = courses.reduce<string[]>(
       (ids, course) => [
         ...ids,
-        ...this.lastDays(AttendanceDateUtil.today(), 6).map((date) => AttendanceDateUtil.documentId(course, date)),
+        ...DashboardDateUtil.lastDays(AttendanceDateUtil.today(), 6).map((date) => AttendanceDateUtil.documentId(course, date)),
       ],
       [],
     );
@@ -111,10 +112,8 @@ export class DashboardService {
     const hasDomainCache =
       snapshot.students.length || snapshot.sheets.length || snapshot.teachers.length || snapshot.breakdowns.length;
 
-    if (!hasDomainCache) {
-      if (cachedDashboard) {
-        return { ...cachedDashboard, source: 'cache' };
-      }
+    if (!hasDomainCache && cachedDashboard) {
+      return { ...cachedDashboard, source: 'cache' };
     }
 
     const dashboard = this.presenter.present(snapshot, 'cache');
@@ -152,20 +151,5 @@ export class DashboardService {
       }),
     );
     return [...byId.values()];
-  }
-
-  private lastDays(today: string, amount: number): string[] {
-    const [year, month, day] = today.split('-').map(Number);
-    const baseDate = new Date(year, month - 1, day);
-
-    return Array.from({ length: amount }, (_, index) => {
-      const date = new Date(baseDate);
-      date.setDate(baseDate.getDate() - (amount - 1 - index));
-      return [
-        date.getFullYear(),
-        String(date.getMonth() + 1).padStart(2, '0'),
-        String(date.getDate()).padStart(2, '0'),
-      ].join('-');
-    });
   }
 }
