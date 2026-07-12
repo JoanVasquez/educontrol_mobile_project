@@ -8,6 +8,8 @@ describe('PendingTeacherRepository', () => {
   const command: TeacherRegistrationCommand = {
     registrationId: 'teacher-id',
     teacher: {
+      email: 'ana@example.com',
+      authUid: '',
       firstName: 'Ana',
       lastName: 'Pérez',
       birthDate: '1990-01-01',
@@ -23,6 +25,11 @@ describe('PendingTeacherRepository', () => {
       status: 'active',
       createdAt: '2026-06-24T00:00:00.000Z',
       updatedAt: '2026-06-24T00:00:00.000Z',
+    },
+    userProfile: {
+      codigo: 'DOC-001',
+      institucion: 'Centro Educativo Demo',
+      distrito: '10-02',
     },
     photo: null,
   };

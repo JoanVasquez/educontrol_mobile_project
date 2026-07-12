@@ -8,6 +8,8 @@ export interface TeacherUserProfileDraft {
   email: string;
   fullName: string;
   codigo: string;
+  institucion: string;
+  distrito: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -41,8 +43,8 @@ export class TeacherAccessRepository {
       fullName: { stringValue: profile.fullName },
       role: { stringValue: 'docente' },
       codigo: { stringValue: profile.codigo },
-      institucion: { stringValue: '' },
-      distrito: { stringValue: '' },
+      institucion: { stringValue: profile.institucion },
+      distrito: { stringValue: profile.distrito },
       status: { stringValue: 'active' },
       createdAt: { timestampValue: profile.createdAt },
       updatedAt: { timestampValue: profile.updatedAt },

@@ -5,6 +5,7 @@ import type { AuthSession } from '../auth/auth-session.model';
 import { SessionStorageService } from '../auth/session-storage.service';
 import { NetworkService } from '../../detector_red/network.service';
 import { PendingTeacherRepository } from './pending-teacher.repository';
+import { TeacherAccessRepository } from './teacher-access.repository';
 import { TeacherPhotoRepository } from './teacher-photo.repository';
 import type { TeacherRegistrationCommand } from './teacher-registration.model';
 import { TeacherRegistrationService } from './teacher-registration.service';
@@ -26,6 +27,8 @@ describe('TeacherRegistrationService', () => {
   const command: TeacherRegistrationCommand = {
     registrationId: 'teacher-id',
     teacher: {
+      email: 'ana@example.com',
+      authUid: '',
       firstName: 'Ana',
       lastName: 'Pérez',
       birthDate: '1990-01-01',
@@ -42,6 +45,11 @@ describe('TeacherRegistrationService', () => {
       createdAt: '2026-06-24T00:00:00.000Z',
       updatedAt: '2026-06-24T00:00:00.000Z',
     },
+    userProfile: {
+      codigo: 'DOC-001',
+      institucion: 'Centro Educativo Demo',
+      distrito: '10-02',
+    },
     photo: null,
   };
 
@@ -49,7 +57,8 @@ describe('TeacherRegistrationService', () => {
     remoteRepository = jasmine.createSpyObj<TeacherRemoteRepository>('TeacherRemoteRepository', ['save']);
     pendingRepository = jasmine.createSpyObj<PendingTeacherRepository>('PendingTeacherRepository', ['add', 'count', 'getAll', 'replaceAll']);
     const photoRepository = jasmine.createSpyObj<TeacherPhotoRepository>('TeacherPhotoRepository', ['upload']);
-    const authApi = jasmine.createSpyObj<FirebaseAuthApiService>('FirebaseAuthApiService', ['refreshSession']);
+    const accessRepository = jasmine.createSpyObj<TeacherAccessRepository>('TeacherAccessRepository', ['saveUserProfile']);
+    const authApi = jasmine.createSpyObj<FirebaseAuthApiService>('FirebaseAuthApiService', ['createUserWithEmailAndPassword', 'refreshSession']);
     const sessionStorage = jasmine.createSpyObj<SessionStorageService>('SessionStorageService', ['getSession', 'setSession']);
     const onlineSubject = new BehaviorSubject(true);
     const networkService = { isOnline: true, isOnline$: onlineSubject.asObservable() };
@@ -57,12 +66,21 @@ describe('TeacherRegistrationService', () => {
     pendingRepository.count.and.returnValue(0);
     pendingRepository.getAll.and.returnValue([]);
     remoteRepository.save.and.returnValue(of({}));
+    accessRepository.saveUserProfile.and.returnValue(of({}));
+    authApi.createUserWithEmailAndPassword.and.returnValue(of({
+      uid: 'teacher-auth-uid',
+      email: 'ana@example.com',
+      idToken: 'teacher-id-token',
+      refreshToken: 'teacher-refresh-token',
+      expiresAt: Date.now() + 3_600_000,
+    }));
     sessionStorage.getSession.and.returnValue(session);
 
     TestBed.configureTestingModule({
       providers: [
         TeacherRegistrationService,
         { provide: TeacherRemoteRepository, useValue: remoteRepository },
+        { provide: TeacherAccessRepository, useValue: accessRepository },
         { provide: TeacherPhotoRepository, useValue: photoRepository },
         { provide: PendingTeacherRepository, useValue: pendingRepository },
         { provide: FirebaseAuthApiService, useValue: authApi },
@@ -78,7 +96,7 @@ describe('TeacherRegistrationService', () => {
     service.register(command).subscribe((result) => {
       expect(result.mode).toBe('online');
       expect(result.synced).toBeTrue();
-      expect(remoteRepository.save).toHaveBeenCalledWith('teacher-id', command.teacher, 'id-token');
+      expect(remoteRepository.save).toHaveBeenCalledWith('teacher-id', { ...command.teacher, authUid: 'teacher-auth-uid' }, 'id-token');
       expect(pendingRepository.add).not.toHaveBeenCalled();
       done();
     });

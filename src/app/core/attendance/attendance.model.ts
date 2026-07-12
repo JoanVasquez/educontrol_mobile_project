@@ -17,6 +17,7 @@ export interface AttendanceRecord {
 export interface AttendanceSheet {
   id: string;
   course: string;
+  subject: string;
   date: string;
   records: AttendanceRecord[];
   createdBy: string;
@@ -26,6 +27,7 @@ export interface AttendanceSheet {
 
 export interface AttendanceRoster {
   courses: string[];
+  subjects: string[];
   students: AttendanceStudent[];
   source: 'remote' | 'cache';
 }

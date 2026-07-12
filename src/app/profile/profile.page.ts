@@ -37,6 +37,7 @@ export class ProfilePage {
 
   readonly profile$ = this.authService.profile$;
   readonly options: ProfileOption[] = [
+    { icon: 'school-outline', label: 'Estudiantes', path: '/estudiantes' },
     { icon: 'person-add-outline', label: 'Registro de estudiantes', path: '/registrar-estudiante' },
     { icon: 'settings-outline', label: 'Configuración' },
     { icon: 'people-outline', label: 'Usuarios' },

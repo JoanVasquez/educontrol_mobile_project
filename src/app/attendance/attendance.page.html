@@ -10,6 +10,12 @@
           </select>
         </label>
         <label class="filter-field">
+          <span class="sr-only">Asignatura</span>
+          <select [value]="selectedSubject()" [disabled]="loading() || !subjects().length" (change)="setSubject($event)">
+            @for (subject of subjects(); track subject) { <option [value]="subject">{{ subject }}</option> }
+          </select>
+        </label>
+        <label class="filter-field">
           <ion-icon name="calendar-outline" aria-hidden="true" />
           <span class="sr-only">Fecha</span>
           <input type="date" [value]="selectedDate()" [disabled]="loading()" (change)="setDate($event)" />
@@ -65,7 +71,7 @@
 
         <div class="attendance__footer">
           @if (message()) { <p class="attendance__message" aria-live="polite">{{ message() }}</p> }
-          <button class="attendance__save" type="button" [disabled]="saving() || !students().length" (click)="saveAttendance()">
+          <button class="attendance__save" type="button" [disabled]="saving() || !selectedSubject() || !students().length" (click)="saveAttendance()">
             {{ saving() ? 'Guardando...' : 'Guardar asistencia' }}
           </button>
           <div class="attendance__legend">

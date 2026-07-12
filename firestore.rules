@@ -27,6 +27,18 @@ service cloud.firestore {
         ];
     }
 
+    function canChangeStudentCourse() {
+      return isActiveUser()
+        && currentUserProfile().role in [
+          'admin',
+          'director',
+          'Admin',
+          'Director',
+          'ADMIN',
+          'DIRECTOR',
+        ];
+    }
+
     function canManageAttendance() {
       return isActiveUser()
         && currentUserProfile().role in [
@@ -126,6 +138,11 @@ service cloud.firestore {
         && request.resource.data.fullName.size() > 0
         && request.resource.data.role == 'docente'
         && request.resource.data.codigo is string
+        && request.resource.data.codigo.size() > 0
+        && request.resource.data.institucion is string
+        && request.resource.data.institucion.size() > 0
+        && request.resource.data.distrito is string
+        && request.resource.data.distrito.size() > 0
         && request.resource.data.status == 'active'
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
@@ -134,6 +151,7 @@ service cloud.firestore {
     function validAttendance() {
       return request.resource.data.keys().hasAll([
           'course',
+          'subject',
           'date',
           'records',
           'createdBy',
@@ -142,6 +160,7 @@ service cloud.firestore {
         ])
         && request.resource.data.keys().hasOnly([
           'course',
+          'subject',
           'date',
           'records',
           'createdBy',
@@ -150,12 +169,94 @@ service cloud.firestore {
         ])
         && request.resource.data.course is string
         && request.resource.data.course.size() > 0
+        && request.resource.data.subject is string
+        && request.resource.data.subject.size() > 0
         && request.resource.data.date is string
         && request.resource.data.date.size() == 10
         && request.resource.data.records is list
         && request.resource.data.records.size() > 0
         && request.resource.data.createdBy is string
         && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function validStudent() {
+      return request.resource.data.keys().hasAll([
+          'nombres',
+          'apellidos',
+          'fechaNacimiento',
+          'nacionalidad',
+          'genero',
+          'curso',
+          'asignaturas',
+          'nombreMadre',
+          'cedulaMadre',
+          'nombrePadre',
+          'cedulaPadre',
+          'direccion',
+          'telefonoContacto',
+          'fotoUrl',
+          'estado',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.keys().hasOnly([
+          'nombres',
+          'apellidos',
+          'fechaNacimiento',
+          'nacionalidad',
+          'genero',
+          'curso',
+          'asignaturas',
+          'nombreMadre',
+          'cedulaMadre',
+          'nombrePadre',
+          'cedulaPadre',
+          'direccion',
+          'telefonoContacto',
+          'fotoUrl',
+          'estado',
+          'createdAt',
+          'updatedAt',
+        ])
+        && request.resource.data.nombres is string
+        && request.resource.data.nombres.size() > 0
+        && request.resource.data.apellidos is string
+        && request.resource.data.apellidos.size() > 0
+        && request.resource.data.fechaNacimiento is string
+        && request.resource.data.fechaNacimiento.size() == 10
+        && request.resource.data.nacionalidad is string
+        && request.resource.data.genero is string
+        && request.resource.data.curso is string
+        && request.resource.data.curso.size() > 0
+        && request.resource.data.asignaturas is list
+        && request.resource.data.asignaturas.size() > 0
+        && request.resource.data.nombreMadre is string
+        && request.resource.data.cedulaMadre is string
+        && request.resource.data.nombrePadre is string
+        && request.resource.data.cedulaPadre is string
+        && request.resource.data.direccion is string
+        && request.resource.data.telefonoContacto is string
+        && request.resource.data.fotoUrl is string
+        && request.resource.data.estado in ['activo', 'active']
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+    }
+
+    function studentCourseUnchanged() {
+      return request.resource.data.curso == resource.data.curso;
+    }
+
+    function validStudentCourseUpdate() {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'curso',
+          'asignaturas',
+          'updatedAt',
+        ])
+        && request.resource.data.curso is string
+        && request.resource.data.curso.size() > 0
+        && request.resource.data.asignaturas is list
+        && request.resource.data.asignaturas.size() > 0
         && request.resource.data.updatedAt is timestamp;
     }
 
@@ -213,7 +314,10 @@ service cloud.firestore {
     }
 
     match /estudiantes/{studentId} {
-      allow create, update, delete: if isActiveStaff();
+      allow create: if isActiveStaff() && validStudent();
+      allow update: if (canChangeStudentCourse() && validStudentCourseUpdate())
+        || (isActiveStaff() && studentCourseUnchanged() && validStudent());
+      allow delete: if isActiveStaff();
       allow read: if canManageAttendance();
     }
 

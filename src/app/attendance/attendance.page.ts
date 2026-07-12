@@ -19,7 +19,9 @@ export class AttendancePage {
   private readonly attendanceService = inject(AttendanceService);
 
   readonly courses = signal<string[]>([]);
+  readonly subjects = signal<string[]>([]);
   readonly selectedCourse = signal('');
+  readonly selectedSubject = signal('');
   readonly selectedDate = signal(AttendanceDateUtil.today());
   readonly searchTerm = signal('');
   readonly students = signal<AttendanceStudent[]>([]);
@@ -42,6 +44,13 @@ export class AttendancePage {
 
   async setCourse(event: Event): Promise<void> {
     this.selectedCourse.set((event.target as HTMLSelectElement).value);
+    this.selectedSubject.set('');
+    this.students.set([]);
+    await this.loadRoster();
+  }
+
+  async setSubject(event: Event): Promise<void> {
+    this.selectedSubject.set((event.target as HTMLSelectElement).value);
     await this.loadRoster();
   }
 
@@ -62,13 +71,18 @@ export class AttendancePage {
   }
 
   async saveAttendance(): Promise<void> {
-    if (this.saving() || !this.selectedCourse() || !this.students().length) return;
+    if (this.saving() || !this.selectedCourse() || !this.selectedSubject() || !this.students().length) return;
     this.saving.set(true);
     this.message.set('');
 
     try {
       const result = await firstValueFrom(
-        this.attendanceService.save(this.selectedCourse(), this.selectedDate(), this.students()),
+        this.attendanceService.save(
+          this.selectedCourse(),
+          this.selectedDate(),
+          this.students(),
+          this.selectedSubject(),
+        ),
       );
       this.showingCache.set(result.mode !== 'online');
       this.message.set(this.saveMessage(result.mode, result.pendingCount, result.reason));
@@ -91,15 +105,18 @@ export class AttendancePage {
     try {
       const roster = await firstValueFrom(this.attendanceService.load('', this.selectedDate()));
       this.courses.set(roster.courses);
+      this.subjects.set(roster.subjects);
       this.showingCache.set(roster.source === 'cache');
 
       if (!roster.courses.length) {
         this.students.set([]);
-        this.errorMessage.set('No hay estudiantes activos con un curso asignado.');
+        this.subjects.set([]);
+        this.errorMessage.set('No hay cursos disponibles para tu usuario.');
         return;
       }
 
       this.selectedCourse.set(roster.courses[0]);
+      this.selectedSubject.set(roster.subjects[0] ?? '');
       await this.loadRoster(false);
     } catch (error: unknown) {
       this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo cargar el pase de lista.');
@@ -113,10 +130,22 @@ export class AttendancePage {
     if (showLoader) this.loading.set(true);
     this.errorMessage.set('');
     this.message.set('');
+    const requestedSubject = this.selectedSubject();
 
     try {
-      const roster = await firstValueFrom(this.attendanceService.load(this.selectedCourse(), this.selectedDate()));
+      const roster = await firstValueFrom(
+        this.attendanceService.load(this.selectedCourse(), this.selectedDate(), requestedSubject),
+      );
       this.courses.set(roster.courses);
+      this.subjects.set(roster.subjects);
+      if (!requestedSubject || !roster.subjects.includes(requestedSubject)) {
+        this.selectedSubject.set(roster.subjects[0] ?? '');
+
+        if (this.selectedSubject()) {
+          await this.loadRoster(false);
+          return;
+        }
+      }
       this.students.set(roster.students);
       this.showingCache.set(roster.source === 'cache');
     } catch (error: unknown) {

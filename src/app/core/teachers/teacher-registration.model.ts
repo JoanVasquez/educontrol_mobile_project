@@ -34,9 +34,16 @@ export interface SerializedTeacherPhoto {
   dataUrl: string;
 }
 
+export interface TeacherAccessProfileDraft {
+  codigo: string;
+  institucion: string;
+  distrito: string;
+}
+
 export interface TeacherRegistrationCommand {
   registrationId: string;
   teacher: TeacherRegistrationDraft;
+  userProfile: TeacherAccessProfileDraft;
   photo: SerializedTeacherPhoto | null;
 }
 

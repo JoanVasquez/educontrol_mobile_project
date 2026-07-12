@@ -5,6 +5,7 @@ export interface StudentRegistrationDraft {
   nacionalidad: string;
   genero: string;
   curso: string;
+  asignaturas: string[];
   nombreMadre: string;
   cedulaMadre: string;
   nombrePadre: string;

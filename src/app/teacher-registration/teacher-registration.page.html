@@ -48,6 +48,22 @@
         </div>
       </section>
 
+      <h1>Perfil de usuario</h1>
+      <section class="two-columns">
+        <label class="field">
+          <span>Código<b>*</b></span>
+          <input [(ngModel)]="accessCode" placeholder="Código institucional" />
+        </label>
+        <label class="field">
+          <span>Distrito<b>*</b></span>
+          <input [(ngModel)]="district" placeholder="Ej. 10-02" />
+        </label>
+        <label class="field field--wide">
+          <span>Institución<b>*</b></span>
+          <input [(ngModel)]="institution" placeholder="Nombre del centro educativo" />
+        </label>
+      </section>
+
       <section class="access-note" aria-label="Acceso inicial del docente">
         <span>Contraseña inicial</span>
         <strong>{{ defaultPassword }}</strong>

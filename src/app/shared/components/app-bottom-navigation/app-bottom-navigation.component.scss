@@ -13,8 +13,9 @@
 
 .bottom-nav__bar {
   align-items: stretch;
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  display: flex;
+  gap: clamp(2px, 1.6vw, 12px);
+  justify-content: center;
   min-block-size: 62px;
   padding: 4px 6px calc(4px + env(safe-area-inset-bottom));
 }
@@ -25,12 +26,14 @@
   border: 0;
   color: #111827;
   display: grid;
+  flex: 0 1 clamp(64px, 18vw, 96px);
   font: inherit;
   font-size: 10px;
   font-weight: 700;
   gap: 3px;
   justify-items: center;
   line-height: 1.1;
+  max-inline-size: 96px;
   min-inline-size: 0;
   padding: 4px 2px;
   text-decoration: none;

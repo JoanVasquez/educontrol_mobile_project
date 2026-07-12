@@ -2,7 +2,8 @@ import type { StudentRegistrationDraft } from './student-registration.model';
 
 type FirestoreStringField = { stringValue: string };
 type FirestoreTimestampField = { timestampValue: string };
-type FirestoreField = FirestoreStringField | FirestoreTimestampField;
+type FirestoreArrayField = { arrayValue: { values: FirestoreStringField[] } };
+type FirestoreField = FirestoreStringField | FirestoreTimestampField | FirestoreArrayField;
 
 interface FirestoreCreateStudentPayload {
   fields: Record<keyof StudentRegistrationDraft, FirestoreField>;
@@ -18,6 +19,11 @@ export class StudentFirestoreMapper {
         cedulaPadre: { stringValue: student.cedulaPadre },
         createdAt: { timestampValue: student.createdAt },
         curso: { stringValue: student.curso },
+        asignaturas: {
+          arrayValue: {
+            values: student.asignaturas.map((subject) => ({ stringValue: subject })),
+          },
+        },
         direccion: { stringValue: student.direccion },
         estado: { stringValue: student.estado },
         fechaNacimiento: { stringValue: student.fechaNacimiento },

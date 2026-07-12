@@ -25,19 +25,23 @@ interface NavigationItem {
   roles?: UserRole[];
 }
 
+const ADMIN_DIRECTOR_ROLES: UserRole[] = ['admin', 'director'];
+const AUTHENTICATED_ROLES: UserRole[] = ['admin', 'director', 'docente'];
+
 const PRIMARY_ITEMS: NavigationItem[] = [
-  { icon: 'home-outline', label: 'Inicio', path: '/home' },
-  { icon: 'calendar-outline', label: 'Asistencia', path: '/asistencia' },
-  { icon: 'build-outline', label: 'Averias', path: '/averias' },
-  { icon: 'people-outline', label: 'Docentes', path: '/docentes' },
+  { icon: 'home-outline', label: 'Inicio', path: '/home', roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'calendar-outline', label: 'Asistencia', path: '/asistencia', roles: AUTHENTICATED_ROLES },
+  { icon: 'build-outline', label: 'Averias', path: '/averias', roles: AUTHENTICATED_ROLES },
+  { icon: 'people-outline', label: 'Docentes', path: '/docentes', roles: ADMIN_DIRECTOR_ROLES },
 ];
 
 const MORE_ITEMS: NavigationItem[] = [
   { icon: 'person-circle-outline', label: 'Mi perfil', path: '/perfil' },
   { icon: 'radio-outline', label: 'Sincronizacion local', path: '/sincronizacion-local' },
   { icon: 'location-outline', label: 'Ubicación y lugares', path: '/ubicacion' },
-  { icon: 'person-add-outline', label: 'Registrar estudiante', path: '/registrar-estudiante', roles: ['admin', 'director'] },
-  { icon: 'build-outline', label: 'Reportar averia', path: '/averias', roles: ['admin', 'director', 'docente'] },
+  { icon: 'school-outline', label: 'Estudiantes', path: '/estudiantes', roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'person-add-outline', label: 'Registrar estudiante', path: '/registrar-estudiante', roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'build-outline', label: 'Reportar averia', path: '/averias', roles: AUTHENTICATED_ROLES },
 ];
 
 @Component({
@@ -52,7 +56,6 @@ export class AppBottomNavigationComponent {
   readonly activePath = input<string>('/home');
   readonly color = input<'blue' | 'red'>('blue');
   readonly profile$ = this.authService.profile$;
-  readonly primaryItems = PRIMARY_ITEMS;
   readonly moreOpen = signal(false);
   readonly attendanceOpen = signal(false);
   readonly breakdownOpen = signal(false);
@@ -74,7 +77,11 @@ export class AppBottomNavigationComponent {
   }
 
   moreItemsForRole(role: UserRole): NavigationItem[] {
-    return MORE_ITEMS.filter((item) => !item.roles || item.roles.includes(role));
+    return this.itemsForRole(MORE_ITEMS, role);
+  }
+
+  primaryItemsForRole(role: UserRole): NavigationItem[] {
+    return this.itemsForRole(PRIMARY_ITEMS, role);
   }
 
   toggleMore(): void {
@@ -117,5 +124,9 @@ export class AppBottomNavigationComponent {
       return this.activePath().startsWith(path);
     }
     return this.activePath() === path;
+  }
+
+  private itemsForRole(items: NavigationItem[], role: UserRole): NavigationItem[] {
+    return items.filter((item) => !item.roles || item.roles.includes(role));
   }
 }

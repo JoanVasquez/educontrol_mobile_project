@@ -8,6 +8,7 @@ export class AttendanceSheetMapper {
     return {
       id: document.name.split('/').pop() ?? '',
       course: this.string(fields, 'course'),
+      subject: this.string(fields, 'subject'),
       date: this.string(fields, 'date'),
       records: (fields['records']?.arrayValue?.values ?? []).map((value) => this.record(value)),
       createdBy: this.string(fields, 'createdBy'),
@@ -20,6 +21,7 @@ export class AttendanceSheetMapper {
     return {
       fields: {
         course: { stringValue: sheet.course },
+        subject: { stringValue: sheet.subject },
         date: { stringValue: sheet.date },
         records: {
           arrayValue: {

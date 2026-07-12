@@ -2,6 +2,8 @@ import type { TeacherAssignment, TeacherCourseAssignment } from './teacher-regis
 
 export interface Teacher {
   id: string;
+  email: string;
+  authUid: string;
   firstName: string;
   lastName: string;
   birthDate: string;

@@ -120,6 +120,14 @@
             </span>
           </label>
         </div>
+
+        @if (selectedSubjects().length > 0) {
+          <div class="student-form__subjects" aria-label="Asignaturas del curso seleccionado">
+            @for (subject of selectedSubjects(); track subject) {
+              <span>{{ subject }}</span>
+            }
+          </div>
+        }
       </app-student-form-section>
 
       <app-student-form-section title="Informacion Padres/tutor">

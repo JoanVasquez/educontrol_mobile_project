@@ -1,0 +1,77 @@
+<div class="student-academic-shell">
+  <app-page-header title="Estudiantes" backUrl="/home" />
+
+  <ion-content class="student-academic-content" [fullscreen]="false">
+    <main class="student-academic">
+      <section class="student-academic__toolbar">
+        <label class="student-academic__search">
+          <ion-icon name="search-outline" aria-hidden="true" />
+          <input type="search" placeholder="Buscar estudiante" [value]="searchTerm()" (input)="search($event)" />
+        </label>
+
+        <ion-button type="button" fill="outline" size="small" (click)="loadStudents()" [disabled]="loading()">
+          <ion-icon name="refresh-outline" slot="start" aria-hidden="true" />
+          {{ loading() ? 'Cargando' : 'Actualizar' }}
+        </ion-button>
+      </section>
+
+      @if (errorMessage()) {
+        <p class="student-academic__message student-academic__message--error">{{ errorMessage() }}</p>
+      }
+
+      @if (successMessage()) {
+        <p class="student-academic__message student-academic__message--success">{{ successMessage() }}</p>
+      }
+
+      @if (profile$ | async; as profile) {
+        @if (profile.role !== 'admin' && profile.role !== 'director') {
+          <p class="student-academic__note">Solo el admin o director puede cambiar el curso. Las asignaturas se actualizan automaticamente segun el curso.</p>
+        }
+
+        <section class="student-academic__list" aria-label="Listado de estudiantes">
+          @if (loading()) {
+            <p class="student-academic__empty">Cargando estudiantes...</p>
+          } @else {
+            @for (student of visibleStudents(); track student.id) {
+              <article class="student-card">
+                <div class="student-card__header">
+                  <span class="student-card__avatar"><ion-icon name="school-outline" aria-hidden="true" /></span>
+                  <span>
+                    <strong>{{ student.fullName }}</strong>
+                    <small>{{ student.course || 'Sin curso' }}</small>
+                  </span>
+                </div>
+
+                <label class="student-card__course">
+                  <span>Curso</span>
+                  <ion-select
+                    [ngModel]="student.course"
+                    interface="popover"
+                    [disabled]="(profile.role !== 'admin' && profile.role !== 'director') || savingId() === student.id"
+                    (ngModelChange)="changeCourse(student, $event)"
+                  >
+                    @for (course of courses; track course) {
+                      <ion-select-option [value]="course">{{ course }}</ion-select-option>
+                    }
+                  </ion-select>
+                </label>
+
+                <div class="student-card__subjects">
+                  @for (subject of student.subjects; track subject) {
+                    <span>{{ subject }}</span>
+                  } @empty {
+                    <span>Sin asignaturas</span>
+                  }
+                </div>
+              </article>
+            } @empty {
+              <p class="student-academic__empty">No se encontraron estudiantes.</p>
+            }
+          }
+        </section>
+      }
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/estudiantes" />
+</div>

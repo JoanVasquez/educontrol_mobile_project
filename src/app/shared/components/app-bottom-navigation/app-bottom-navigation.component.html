@@ -49,64 +49,64 @@
         }
       </div>
     }
-  }
 
-  <div class="bottom-nav__bar">
-    @for (item of primaryItems; track item.label) {
-      @if (item.path === '/asistencia') {
-        <button
-          class="bottom-nav__item bottom-nav__item--button"
-          [class.bottom-nav__item--active]="isActive(item.path) || attendanceOpen()"
-          type="button"
-          (click)="toggleAttendance()"
-          aria-label="Opciones de asistencia"
-          [attr.aria-expanded]="attendanceOpen()"
-        >
-          <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
-          <span>{{ item.label }}</span>
-        </button>
-      } @else if (item.path === '/averias') {
-        <button
-          class="bottom-nav__item bottom-nav__item--button"
-          [class.bottom-nav__item--active]="isActive(item.path) || breakdownOpen()"
-          type="button"
-          (click)="toggleBreakdown()"
-          aria-label="Opciones de averías"
-          [attr.aria-expanded]="breakdownOpen()"
-        >
-          <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
-          <span>{{ item.label }}</span>
-        </button>
-      } @else if (item.path === '/docentes') {
-        <button
-          class="bottom-nav__item bottom-nav__item--button"
-          [class.bottom-nav__item--active]="isActive(item.path) || teachersOpen()"
-          type="button"
-          (click)="toggleTeachers()"
-          aria-label="Opciones de docentes"
-          [attr.aria-expanded]="teachersOpen()"
-        >
-          <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
-          <span>{{ item.label }}</span>
-        </button>
-      } @else {
-        <a class="bottom-nav__item" [class.bottom-nav__item--active]="isActive(item.path)" [routerLink]="item.path" (click)="closeMore()">
-          <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
-          <span>{{ item.label }}</span>
-        </a>
+    <div class="bottom-nav__bar">
+      @for (item of primaryItemsForRole(profile.role); track item.label) {
+        @if (item.path === '/asistencia') {
+          <button
+            class="bottom-nav__item bottom-nav__item--button"
+            [class.bottom-nav__item--active]="isActive(item.path) || attendanceOpen()"
+            type="button"
+            (click)="toggleAttendance()"
+            aria-label="Opciones de asistencia"
+            [attr.aria-expanded]="attendanceOpen()"
+          >
+            <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+            <span>{{ item.label }}</span>
+          </button>
+        } @else if (item.path === '/averias') {
+          <button
+            class="bottom-nav__item bottom-nav__item--button"
+            [class.bottom-nav__item--active]="isActive(item.path) || breakdownOpen()"
+            type="button"
+            (click)="toggleBreakdown()"
+            aria-label="Opciones de averías"
+            [attr.aria-expanded]="breakdownOpen()"
+          >
+            <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+            <span>{{ item.label }}</span>
+          </button>
+        } @else if (item.path === '/docentes') {
+          <button
+            class="bottom-nav__item bottom-nav__item--button"
+            [class.bottom-nav__item--active]="isActive(item.path) || teachersOpen()"
+            type="button"
+            (click)="toggleTeachers()"
+            aria-label="Opciones de docentes"
+            [attr.aria-expanded]="teachersOpen()"
+          >
+            <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+            <span>{{ item.label }}</span>
+          </button>
+        } @else {
+          <a class="bottom-nav__item" [class.bottom-nav__item--active]="isActive(item.path)" [routerLink]="item.path" (click)="closeMore()">
+            <ion-icon [name]="item.icon" aria-hidden="true"></ion-icon>
+            <span>{{ item.label }}</span>
+          </a>
+        }
       }
-    }
 
-    <button
-      class="bottom-nav__item bottom-nav__item--button"
-      [class.bottom-nav__item--active]="moreOpen() || activePath() === '/registrar-estudiante' || activePath() === '/perfil'"
-      type="button"
-      (click)="toggleMore()"
-      aria-label="Mas opciones"
-      [attr.aria-expanded]="moreOpen()"
-    >
-      <ion-icon name="ellipsis-horizontal" aria-hidden="true"></ion-icon>
-      <span>Mas</span>
-    </button>
-  </div>
+      <button
+        class="bottom-nav__item bottom-nav__item--button"
+        [class.bottom-nav__item--active]="moreOpen() || activePath() === '/registrar-estudiante' || activePath() === '/perfil'"
+        type="button"
+        (click)="toggleMore()"
+        aria-label="Mas opciones"
+        [attr.aria-expanded]="moreOpen()"
+      >
+        <ion-icon name="ellipsis-horizontal" aria-hidden="true"></ion-icon>
+        <span>Mas</span>
+      </button>
+    </div>
+  }
 </nav>

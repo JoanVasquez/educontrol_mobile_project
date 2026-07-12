@@ -5,6 +5,7 @@ import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { calendarOutline, cameraOutline, imageOutline } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
+import { ACADEMIC_COURSES, normalizeCourseAssignments } from '../core/academic/academic-course.catalog';
 import { CameraService } from '../core/camera/camera.service';
 import { DEFAULT_TEACHER_PASSWORD } from '../core/teachers/teacher-access.constants';
 import type {
@@ -43,6 +44,9 @@ export class TeacherRegistrationPage implements OnDestroy {
   firstName = '';
   lastName = '';
   email = '';
+  accessCode = '';
+  institution = '';
+  district = '';
   birthDate = '';
   nationality = '';
   gender = '';
@@ -55,7 +59,7 @@ export class TeacherRegistrationPage implements OnDestroy {
   readonly nationalities = ['Dominicana', 'Haitiana', 'Venezolana', 'Colombiana', 'Otra'];
   readonly genders = ['Masculino', 'Femenino'];
   readonly subjects = ['Matemáticas', 'Lengua Española', 'Ciencias Sociales', 'Ciencias Naturales', 'Inglés'];
-  readonly courses = ['1ro', '2do', '3ro', '4to', '5to', '6to'];
+  readonly courses = ACADEMIC_COURSES;
   readonly defaultPassword = DEFAULT_TEACHER_PASSWORD;
 
   constructor() {
@@ -137,6 +141,9 @@ export class TeacherRegistrationPage implements OnDestroy {
       !this.firstName.trim() ||
       !this.lastName.trim() ||
       !this.email.trim() ||
+      !this.accessCode.trim() ||
+      !this.institution.trim() ||
+      !this.district.trim() ||
       !this.birthDate ||
       !this.nationality ||
       !this.gender ||
@@ -186,7 +193,7 @@ export class TeacherRegistrationPage implements OnDestroy {
       address: this.address.trim(),
       phone: this.phone.trim(),
       assignments: this.assignments.filter((item) => item.subject),
-      courses: this.courseAssignments.filter((item) => item.course),
+      courses: normalizeCourseAssignments(this.courseAssignments),
       photoUrl: '',
       photoPath: '',
       status: 'active',
@@ -197,6 +204,11 @@ export class TeacherRegistrationPage implements OnDestroy {
     return {
       registrationId: crypto.randomUUID(),
       teacher,
+      userProfile: {
+        codigo: this.accessCode.trim(),
+        institucion: this.institution.trim(),
+        distrito: this.district.trim(),
+      },
       photo: this.selectedPhoto ? await this.fileSerializer.fromFile(this.selectedPhoto) : null,
     };
   }
@@ -231,6 +243,9 @@ export class TeacherRegistrationPage implements OnDestroy {
     this.firstName = '';
     this.lastName = '';
     this.email = '';
+    this.accessCode = '';
+    this.institution = '';
+    this.district = '';
     this.birthDate = '';
     this.nationality = '';
     this.gender = '';

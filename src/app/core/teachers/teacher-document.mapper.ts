@@ -19,6 +19,8 @@ export class TeacherDocumentMapper {
 
     return {
       id: document.name.split('/').pop() ?? '',
+      email: this.string(fields, 'email'),
+      authUid: this.string(fields, 'authUid'),
       firstName: this.string(fields, 'firstName'),
       lastName: this.string(fields, 'lastName'),
       birthDate: this.string(fields, 'birthDate'),

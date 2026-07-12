@@ -68,6 +68,11 @@ export const routes: Routes = [
     loadComponent: () => import('./student-registration/student-registration.page').then((m) => m.StudentRegistrationPage),
   },
   {
+    path: 'estudiantes',
+    canActivate: [roleGuard(['admin', 'director'])],
+    loadComponent: () => import('./student-academic/student-academic.page').then((m) => m.StudentAcademicPage),
+  },
+  {
     path: '',
     redirectTo: 'home',
     pathMatch: 'full',

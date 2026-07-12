@@ -6,6 +6,7 @@ import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { cameraOutline, person } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
+import { ACADEMIC_COURSES, normalizeCourseAssignments } from '../core/academic/academic-course.catalog';
 import type { EditableTeacher } from '../core/teachers/editor/teacher-editor.model';
 import { TeacherEditorService } from '../core/teachers/editor/teacher-editor.service';
 import type { TeacherAssignment, TeacherCourseAssignment } from '../core/teachers/teacher-registration.model';
@@ -39,7 +40,7 @@ export class TeacherEditorPage implements OnDestroy {
   readonly nationalities = ['Dominicana', 'Haitiana', 'Venezolana', 'Colombiana', 'Otra'];
   readonly genders = ['Masculino', 'Femenino'];
   readonly subjects = ['Matemáticas', 'Lengua Española', 'Ciencias Sociales', 'Ciencias Naturales', 'Inglés'];
-  readonly courses = ['1ro', '2do', '3ro', '4to', '5to', '6to'];
+  readonly courses = ACADEMIC_COURSES;
 
   constructor() {
     addIcons({ cameraOutline, person });
@@ -69,7 +70,7 @@ export class TeacherEditorPage implements OnDestroy {
           ? result.teacher.assignments.map((item) => ({ ...item }))
           : [{ subject: '', detail: '' }],
         courses: result.teacher.courses.length
-          ? result.teacher.courses.map((item) => ({ ...item }))
+          ? normalizeCourseAssignments(result.teacher.courses).map((item) => ({ ...item }))
           : [{ course: '', section: '' }],
       };
       this.photoPreviewUrl.set(this.teacher.photoUrl);
@@ -220,10 +221,7 @@ export class TeacherEditorPage implements OnDestroy {
         subject: item.subject.trim(),
         detail: item.detail.trim(),
       })),
-      courses: teacher.courses.map((item) => ({
-        course: item.course.trim(),
-        section: item.section.trim(),
-      })),
+      courses: normalizeCourseAssignments(teacher.courses),
     };
   }
 

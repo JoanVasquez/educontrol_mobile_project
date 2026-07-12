@@ -74,6 +74,24 @@
   color: #9a3412;
 }
 
+.student-form__subjects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.student-form__subjects span {
+  background: #f8fafc;
+  border: 1px solid #d6e0ee;
+  border-radius: 999px;
+  color: #475569;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 5px 8px;
+}
+
 .field {
   color: #111827;
   display: grid;

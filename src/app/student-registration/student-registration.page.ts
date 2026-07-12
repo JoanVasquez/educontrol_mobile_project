@@ -16,6 +16,7 @@ import {
 } from 'ionicons/icons';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
+import { ACADEMIC_COURSES, getAcademicSubjectsByCourse, normalizeAcademicCourse } from '../core/academic/academic-course.catalog';
 import { NetworkStatusComponent } from '../detector_red/network-status.component';
 import { StudentOfflineSyncService } from '../modo_offline/student-offline-sync.service';
 import type { StudentRegistrationDraft } from '../modo_offline/student-registration.model';
@@ -81,7 +82,11 @@ export class StudentRegistrationPage {
 
   readonly nationalities = ['Dominicana', 'Haitiana', 'Venezolana', 'Colombiana', 'Otra'];
   readonly genders = ['Masculino', 'Femenino'];
-  readonly courses = ['Inicial', 'Primero', 'Segundo', 'Tercero', 'Cuarto', 'Quinto', 'Sexto'];
+  readonly courses = ACADEMIC_COURSES;
+
+  selectedSubjects(): string[] {
+    return getAcademicSubjectsByCourse(this.form.controls.course.value);
+  }
 
   constructor() {
     addIcons({
@@ -264,6 +269,7 @@ export class StudentRegistrationPage {
   private toStudentDraft(): StudentRegistrationDraft {
     const value = this.form.getRawValue();
     const now = new Date().toISOString();
+    const course = normalizeAcademicCourse(value.course);
 
     return {
       nombres: value.firstName.trim(),
@@ -271,7 +277,8 @@ export class StudentRegistrationPage {
       fechaNacimiento: value.birthDate,
       nacionalidad: value.nationality,
       genero: value.gender,
-      curso: value.course,
+      curso: course,
+      asignaturas: getAcademicSubjectsByCourse(course),
       nombreMadre: value.motherName.trim(),
       cedulaMadre: value.motherId.trim(),
       nombrePadre: value.fatherName.trim(),
