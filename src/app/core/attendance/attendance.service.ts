@@ -2,12 +2,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { catchError, forkJoin, map, of, switchMap, throwError } from 'rxjs';
+import { normalizeAcademicCourse } from '../academic/academic-course.catalog';
 import { SessionStorageService } from '../auth/session-storage.service';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
 import { AttendanceAccessService } from './attendance-access.service';
 import type { AttendanceAccessContext } from './attendance-access.model';
 import { AttendanceOfflineSyncService } from './attendance-offline-sync.service';
 import { AttendanceCacheRepository } from './attendance-cache.repository';
+import { AttendanceDailyStatusUtil } from './attendance-daily-status.util';
 import { AttendanceDateUtil } from './attendance-date.util';
 import type { AttendanceRoster, AttendanceSheet, AttendanceStudent, SaveAttendanceResult } from './attendance.model';
 import { AttendanceRepository } from './attendance.repository';
@@ -67,7 +69,10 @@ export class AttendanceService {
           return throwError(() => new Error('No hay una sesión válida para guardar la asistencia.'));
         }
 
-        return this.accessService.load((session ?? fallbackSession)!.idToken).pipe(
+        const authSession = (session ?? fallbackSession)!;
+
+        return this.accessService.load(authSession.idToken).pipe(
+          catchError(() => of(this.unverifiedAccess())),
           switchMap((access) => {
             if (!this.accessService.canAccess(course, subject, access)) {
               return throwError(() => new Error('No tienes permisos para pasar lista en este curso y asignatura.'));
@@ -86,7 +91,7 @@ export class AttendanceService {
                 studentName: student.fullName,
                 status: student.status!,
               })),
-              createdBy: previous?.createdBy || session?.uid || fallbackSession?.uid || 'offline',
+              createdBy: previous?.createdBy || authSession.uid,
               createdAt: previous?.createdAt || now,
               updatedAt: now,
             };
@@ -98,6 +103,28 @@ export class AttendanceService {
               }),
             );
           }),
+        );
+      }),
+    );
+  }
+
+  loadDailySummary(course: string, date: string): Observable<AttendanceRoster> {
+    return this.sessionService.get().pipe(
+      switchMap((session) => {
+        if (!session) return this.dailySummaryFromCache(course, date, 'No hay una sesión válida para consultar asistencia.');
+
+        return forkJoin({
+          access: this.accessService.load(session.idToken),
+          students: this.repository.findStudents(session.idToken),
+          sheets: this.repository.findSheets(session.idToken),
+        }).pipe(
+          map(({ access, students, sheets }) => {
+            this.cache.saveStudents(students);
+            sheets.forEach((sheet) => this.cache.saveSheet(sheet));
+
+            return this.toDailySummaryRoster(students, sheets, course, date, access, 'remote');
+          }),
+          catchError(() => this.dailySummaryFromCache(course, date, 'No se pudo consultar la asistencia desde Firebase.')),
         );
       }),
     );
@@ -119,6 +146,13 @@ export class AttendanceService {
         .sort((a, b) => a.fullName.localeCompare(b.fullName, 'es')),
       source: 'cache',
     });
+  }
+
+  private dailySummaryFromCache(course: string, date: string, message: string): Observable<AttendanceRoster> {
+    const students = this.cache.getStudents();
+    if (!students.length) return throwError(() => new Error(message));
+
+    return of(this.toDailySummaryRoster(students, this.cache.getSheets(), course, date, this.unverifiedAccess(), 'cache'));
   }
 
   private toRoster(
@@ -144,6 +178,42 @@ export class AttendanceService {
         .map((student) => ({ ...student, status: statuses.get(student.id) ?? null }))
         .sort((a, b) => a.fullName.localeCompare(b.fullName, 'es')),
       source,
+    };
+  }
+
+  private toDailySummaryRoster(
+    students: AttendanceStudent[],
+    sheets: AttendanceSheet[],
+    course: string,
+    date: string,
+    access: AttendanceAccessContext,
+    source: 'remote' | 'cache',
+  ): AttendanceRoster {
+    const courses = this.accessService.coursesForStudents([...new Set(students.map((student) => student.course))], access);
+    const selectedCourse = course || courses[0] || '';
+    const selectedCourseKey = normalizeAcademicCourse(selectedCourse);
+    const dailySheets = sheets.filter(
+      (sheet) => sheet.date === date && (!selectedCourseKey || normalizeAcademicCourse(sheet.course) === selectedCourseKey),
+    );
+    const statuses = AttendanceDailyStatusUtil.latestByStudent(dailySheets);
+
+    return {
+      courses,
+      subjects: selectedCourse ? this.accessService.subjectsForCourse(selectedCourse, access) : [],
+      students: students
+        .filter((student) => !selectedCourseKey || normalizeAcademicCourse(student.course) === selectedCourseKey)
+        .filter((student) => access.unrestricted || access.courses.includes(normalizeAcademicCourse(student.course)))
+        .map((student) => ({ ...student, status: statuses.get(student.id)?.status ?? null }))
+        .sort((a, b) => a.fullName.localeCompare(b.fullName, 'es')),
+      source,
+    };
+  }
+
+  private unverifiedAccess(): AttendanceAccessContext {
+    return {
+      unrestricted: true,
+      courses: [],
+      subjects: [],
     };
   }
 

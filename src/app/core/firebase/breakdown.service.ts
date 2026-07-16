@@ -2,9 +2,11 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { of, throwError } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
+import { DOMAIN_EVENTS } from '../events/domain-event.constants';
+import { DomainEventBusService } from '../events/domain-event-bus.service';
 import type { Breakdown } from '../models/breakdown.model';
 import { FirestoreBreakdownMapper, type FirestoreDocumentResponse } from './firestore-breakdown.mapper';
 
@@ -14,6 +16,7 @@ import { FirestoreBreakdownMapper, type FirestoreDocumentResponse } from './fire
 export class BreakdownService {
   private readonly http = inject(HttpClient);
   private readonly authSession = inject(ValidAuthSessionService);
+  private readonly events = inject(DomainEventBusService);
   private readonly projectId = environment.firebase.projectId;
   private readonly collectionName = 'breakdowns';
   private readonly mapper = new FirestoreBreakdownMapper();
@@ -72,6 +75,7 @@ export class BreakdownService {
               headers: this.authHeaders(token),
             }),
           ),
+          tap(() => this.publishChanged(updatedBreakdown)),
         ),
       ),
       map(() => undefined),
@@ -85,6 +89,7 @@ export class BreakdownService {
           headers: this.authHeaders(idToken),
         }),
       ),
+      tap(() => this.events.publish(DOMAIN_EVENTS.breakdownChanged, { id, deleted: true })),
       map(() => undefined),
     );
   }
@@ -124,6 +129,14 @@ export class BreakdownService {
 
   private authHeaders(idToken: string): HttpHeaders {
     return new HttpHeaders({ Authorization: 'Bearer ' + idToken });
+  }
+
+  private publishChanged(breakdown: Breakdown): void {
+    this.events.publish(DOMAIN_EVENTS.breakdownChanged, {
+      id: breakdown.id,
+      status: breakdown.status,
+      location: breakdown.location,
+    });
   }
 
 }

@@ -5,18 +5,10 @@
   opacity: 0;
 }
 
-.photo-picker span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: .76rem;
-  font-weight: 700;
-}
-
 .teacher-fields {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
 .contact-fields {
@@ -28,14 +20,18 @@
 
 .field {
   display: grid;
-  gap: 7px;
+  gap: 6px;
   min-width: 0;
 }
 
 .field > span,
 .selection-heading > span {
+  color: #526078;
+  display: inline-flex;
   font-size: .76rem;
   font-weight: 700;
+  gap: 2px;
+  line-height: 1.2;
 }
 
 .field b { color: #c4000b; }

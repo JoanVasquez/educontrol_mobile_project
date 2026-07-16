@@ -1,4 +1,10 @@
-import { getAcademicSubjectsByCourse, isAcademicCourse, normalizeAcademicCourse } from './academic-course.catalog';
+import {
+  getAcademicSubjectsByCourse,
+  isAcademicCourse,
+  normalizeAcademicCourse,
+  normalizeAcademicSubjects,
+  normalizeCourseAssignments,
+} from './academic-course.catalog';
 
 describe('academic course catalog', () => {
   it('normalizes legacy course labels', () => {
@@ -17,6 +23,7 @@ describe('academic course catalog', () => {
       'Matematica',
       'Ciencias Sociales',
       'Ciencias de la Naturaleza',
+      'Ingles',
       'Educacion Artistica',
       'Educacion Fisica',
       'Formacion Integral Humana y Religiosa',
@@ -25,5 +32,20 @@ describe('academic course catalog', () => {
 
   it('returns an empty list for unsupported courses', () => {
     expect(getAcademicSubjectsByCourse('Septimo')).toEqual([]);
+  });
+
+  it('normalizes and deduplicates subject labels', () => {
+    expect(normalizeAcademicSubjects([' Matemáticas ', 'matematica', 'Ciencias Naturales'])).toEqual([
+      'Matematica',
+      'Ciencias de la Naturaleza',
+    ]);
+  });
+
+  it('normalizes and deduplicates course assignments', () => {
+    expect(normalizeCourseAssignments([
+      { course: '3ro', section: ' A ' },
+      { course: 'Tercero', section: 'a' },
+      { course: '', section: 'B' },
+    ])).toEqual([{ course: 'Tercero', section: 'A' }]);
   });
 });

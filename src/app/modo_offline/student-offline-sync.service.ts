@@ -1,10 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject, EMPTY, catchError, firstValueFrom, from, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, EMPTY, catchError, firstValueFrom, from, map, of, switchMap, tap } from 'rxjs';
 import { NetworkService } from '../detector_red/network.service';
 import { FirebaseAuthApiService } from '../core/auth/firebase-auth-api.service';
 import type { AuthSession } from '../core/auth/auth-session.model';
 import { SessionStorageService } from '../core/auth/session-storage.service';
+import { DOMAIN_EVENTS } from '../core/events/domain-event.constants';
+import { DomainEventBusService } from '../core/events/domain-event-bus.service';
 import { PendingStudentStorageRepository } from './pending-student-storage.repository';
 import type { PendingStudentRegistration, RegisterStudentResult, StudentRegistrationDraft } from './student-registration.model';
 import { StudentRemoteRepository } from './student-remote.repository';
@@ -16,6 +18,7 @@ export class StudentOfflineSyncService {
   private readonly remoteRepository = inject(StudentRemoteRepository);
   private readonly authApi = inject(FirebaseAuthApiService);
   private readonly sessionStorage = inject(SessionStorageService);
+  private readonly events = inject(DomainEventBusService);
   private readonly pendingCountSubject = new BehaviorSubject<number>(this.pendingRepository.count());
 
   private syncing = false;
@@ -35,6 +38,7 @@ export class StudentOfflineSyncService {
     if (!this.networkService.isOnline) {
       const queue = this.pendingRepository.add(student);
       this.pendingCountSubject.next(queue.length);
+      this.publishChanged(student);
 
       return of<RegisterStudentResult>({
         mode: 'offline',
@@ -51,6 +55,7 @@ export class StudentOfflineSyncService {
         }
 
         return this.remoteRepository.create(student, session.idToken).pipe(
+          tap(() => this.publishChanged(student)),
           switchMap(() => from(this.syncPending())),
           map((pendingCount) => ({
             mode: 'online' as const,
@@ -83,6 +88,7 @@ export class StudentOfflineSyncService {
     for (const pendingStudent of this.pendingRepository.getAll()) {
       try {
         await firstValueFrom(this.remoteRepository.create(pendingStudent.payload, session.idToken));
+        this.publishChanged(pendingStudent.payload);
       } catch (error) {
         console.error('No se pudo sincronizar estudiante pendiente:', this.toLoggableError(error));
         failedQueue.push(pendingStudent);
@@ -99,6 +105,7 @@ export class StudentOfflineSyncService {
   private queueForLater(student: StudentRegistrationDraft, reason: 'auth-missing' | 'remote-error'): RegisterStudentResult {
     const queue = this.pendingRepository.add(student);
     this.pendingCountSubject.next(queue.length);
+    this.publishChanged(student);
 
     return {
       mode: 'queued',
@@ -146,5 +153,12 @@ export class StudentOfflineSyncService {
     }
 
     return String(error);
+  }
+
+  private publishChanged(student: StudentRegistrationDraft): void {
+    this.events.publish(DOMAIN_EVENTS.studentChanged, {
+      course: student.curso,
+      fullName: `${student.nombres} ${student.apellidos}`.trim(),
+    });
   }
 }

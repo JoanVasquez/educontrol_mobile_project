@@ -25,6 +25,9 @@ describe('AuthService', () => {
     uid: session.uid,
     email: session.email,
     fullName: 'Usuario IT',
+    codigo: 'ADM-001',
+    distrito: '15-03',
+    institucion: 'EduControl',
     role: 'admin',
     status: 'active',
   };

@@ -1,0 +1,15 @@
+export const APP_ROUTES = {
+  attendance: '/asistencia',
+  breakdowns: '/averias',
+  breakdownStatus: '/averias/estado',
+  localSync: '/sincronizacion-local',
+  home: '/home',
+  location: '/ubicacion',
+  login: '/login',
+  profile: '/perfil',
+  studentAcademic: '/estudiantes',
+  studentRegistration: '/registrar-estudiante',
+  teachers: '/docentes',
+  teacherEditor: '/docentes/modificar',
+  videoGuide: '/video-guia',
+} as const;

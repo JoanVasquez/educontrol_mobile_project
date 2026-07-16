@@ -1,4 +1,6 @@
 import type { ComponentFixture} from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
@@ -16,6 +18,9 @@ describe('HomePage', () => {
         uid: 'firebase-auth-uid',
         email: 'admin@example.com',
         fullName: 'Usuario IT',
+        codigo: 'ADM-001',
+        distrito: '15-03',
+        institucion: 'EduControl',
         role: 'admin',
         status: 'active',
       }),
@@ -23,7 +28,12 @@ describe('HomePage', () => {
 
     await TestBed.configureTestingModule({
       imports: [HomePage],
-      providers: [provideRouter([]), { provide: AuthService, useValue: authService }],
+      providers: [
+        provideRouter([]),
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        { provide: AuthService, useValue: authService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomePage);

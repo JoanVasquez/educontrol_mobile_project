@@ -5,6 +5,8 @@ import { AuthService } from '../auth/auth.service';
 import { getAcademicSubjectsByCourse, normalizeAcademicCourse } from '../academic/academic-course.catalog';
 import { NetworkService } from '../../detector_red/network.service';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
+import { DOMAIN_EVENTS } from '../events/domain-event.constants';
+import { DomainEventBusService } from '../events/domain-event-bus.service';
 import { toLoggableError } from '../utils/loggable-error.util';
 import type { UserProfile } from '../users/user-profile.model';
 import type { PendingStudentCourseUpdate, StudentAcademicRecord, StudentCourseUpdate } from './student-academic.model';
@@ -22,6 +24,7 @@ export class StudentAcademicService {
   private readonly presenter = inject(StudentAcademicPresenter);
   private readonly repository = inject(StudentAcademicRepository);
   private readonly validSession = inject(ValidAuthSessionService);
+  private readonly events = inject(DomainEventBusService);
   private readonly pendingCountSubject = new BehaviorSubject<number>(this.pendingRepository.count());
 
   private syncing = false;
@@ -86,6 +89,7 @@ export class StudentAcademicService {
             this.pendingRepository.removeByStudentId(studentId);
             this.pendingCountSubject.next(this.pendingRepository.count());
             this.cacheRepository.applyCourseUpdate(studentId, update);
+            this.publishChanged(studentId, update);
           }),
           switchMap(() => from(this.syncPending())),
           catchError((error) => {
@@ -118,6 +122,7 @@ export class StudentAcademicService {
             this.repository.updateCourse(pendingUpdate.studentId, pendingUpdate.update, session.idToken),
           );
           this.cacheRepository.applyCourseUpdate(pendingUpdate.studentId, pendingUpdate.update);
+          this.publishChanged(pendingUpdate.studentId, pendingUpdate.update);
         } catch (error) {
           console.error('No se pudo sincronizar cambio de curso pendiente:', toLoggableError(error));
           failedQueue.push(pendingUpdate);
@@ -150,6 +155,7 @@ export class StudentAcademicService {
     const queue = this.pendingRepository.upsert(studentId, update);
     this.pendingCountSubject.next(queue.length);
     this.cacheRepository.applyCourseUpdate(studentId, update);
+    this.publishChanged(studentId, update);
     return update;
   }
 
@@ -159,5 +165,12 @@ export class StudentAcademicService {
 
   private withPendingUpdates(students: StudentAcademicRecord[]): StudentAcademicRecord[] {
     return this.presenter.mergePendingUpdates(students, this.pendingRepository.getAll());
+  }
+
+  private publishChanged(studentId: string, update: StudentCourseUpdate): void {
+    this.events.publish(DOMAIN_EVENTS.studentChanged, {
+      id: studentId,
+      course: update.course,
+    });
   }
 }

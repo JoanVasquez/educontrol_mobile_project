@@ -5,6 +5,8 @@ describe('TeacherListPresenter', () => {
   it('builds unique readable labels for the teacher list', () => {
     const teacher: Teacher = {
       id: 'teacher-id',
+      email: 'ana@example.com',
+      authUid: 'teacher-auth-uid',
       firstName: 'Ana',
       lastName: 'Pérez',
       birthDate: '',

@@ -1,12 +1,16 @@
+import type { OnDestroy } from '@angular/core';
 import { computed, Injectable, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AttendanceDateUtil } from '../core/attendance/attendance-date.util';
 import type { AttendanceStatus, AttendanceStudent } from '../core/attendance/attendance.model';
 import { AttendanceService } from '../core/attendance/attendance.service';
+import { ATTENDANCE_MESSAGES } from '../core/constants/ui-messages.constants';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 
 @Injectable()
-export class AttendancePageFacade {
+export class AttendancePageFacade implements OnDestroy {
   private readonly attendanceService = inject(AttendanceService);
+  private readonly notification = new AutoDismissSignal<string>((message) => this.message.set(message), '');
 
   readonly courses = signal<string[]>([]);
   readonly subjects = signal<string[]>([]);
@@ -26,6 +30,10 @@ export class AttendancePageFacade {
     return this.students().filter((student) => !query || this.normalize(student.fullName).includes(query));
   });
   readonly markedCount = computed(() => this.students().filter((student) => student.status).length);
+
+  ngOnDestroy(): void {
+    this.notification.dispose();
+  }
 
   async initialize(): Promise<void> {
     this.loading.set(true);
@@ -58,7 +66,7 @@ export class AttendancePageFacade {
     if (!this.selectedCourse()) return;
     if (showLoader) this.loading.set(true);
     this.errorMessage.set('');
-    this.message.set('');
+    this.notification.clear();
     const requestedSubject = this.selectedSubject();
 
     try {
@@ -81,7 +89,7 @@ export class AttendancePageFacade {
   async saveAttendance(): Promise<void> {
     if (this.saving() || !this.selectedCourse() || !this.selectedSubject() || !this.students().length) return;
     this.saving.set(true);
-    this.message.set('');
+    this.notification.clear();
 
     try {
       const result = await firstValueFrom(
@@ -93,9 +101,9 @@ export class AttendancePageFacade {
         ),
       );
       this.showingCache.set(result.mode !== 'online');
-      this.message.set('Asistencia guardada correctamente.');
+      this.notification.show(ATTENDANCE_MESSAGES.saveSuccess);
     } catch (error: unknown) {
-      this.message.set(error instanceof Error ? error.message : 'No se pudo guardar la asistencia.');
+      this.notification.show(error instanceof Error ? error.message : ATTENDANCE_MESSAGES.saveError);
     } finally {
       this.saving.set(false);
     }
@@ -105,7 +113,7 @@ export class AttendancePageFacade {
     this.students.update((students) =>
       students.map((student) => (student.id === studentId ? { ...student, status } : student)),
     );
-    this.message.set('');
+    this.notification.clear();
   }
 
   private async reloadWhenSubjectChanges(requestedSubject: string, subjects: string[]): Promise<boolean> {
@@ -120,4 +128,5 @@ export class AttendancePageFacade {
   private normalize(value: string): string {
     return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
   }
+
 }

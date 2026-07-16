@@ -5,6 +5,9 @@ import { IonButton, IonContent, IonDatetime, IonIcon, IonInput, IonModal, IonSel
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 import { ACADEMIC_COURSES, getAcademicSubjectsByCourse } from '../core/academic/academic-course.catalog';
+import { APP_ROUTES } from '../core/constants/app-routes.constants';
+import { STUDENT_MESSAGES } from '../core/constants/ui-messages.constants';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { NetworkStatusComponent } from '../detector_red/network-status.component';
 import { StudentOfflineSyncService } from '../modo_offline/student-offline-sync.service';
 import { StudentFormSectionComponent } from './components/student-form-section/student-form-section.component';
@@ -43,6 +46,7 @@ export class StudentRegistrationPage {
   private readonly destroyRef = inject(DestroyRef);
   private readonly offlineSyncService = inject(StudentOfflineSyncService);
   private readonly draftFactory = inject(StudentRegistrationDraftFactory);
+  private readonly saveNotification = new AutoDismissSignal<string | null>((message) => this.saveMessage.set(message), null);
 
   photoPreviewUrl: string | null = null;
   selectedPhoto: File | null = null;
@@ -74,7 +78,10 @@ export class StudentRegistrationPage {
 
   constructor() {
     registerStudentRegistrationIcons();
-    this.destroyRef.onDestroy(() => this.revokePhotoPreviewUrl());
+    this.destroyRef.onDestroy(() => {
+      this.saveNotification.dispose();
+      this.revokePhotoPreviewUrl();
+    });
   }
 
   onPhotoSelected(file: File): void {
@@ -114,12 +121,12 @@ export class StudentRegistrationPage {
   }
 
   cancel(): void {
-    this.router.navigateByUrl('/home');
+    this.router.navigateByUrl(APP_ROUTES.home);
   }
 
   registerStudent(): void {
     this.form.markAllAsTouched();
-    this.saveMessage.set(null);
+    this.saveNotification.clear();
 
     if (this.form.invalid || this.saving()) {
       return;
@@ -129,13 +136,13 @@ export class StudentRegistrationPage {
 
     this.offlineSyncService.register(this.draftFactory.create(this.form.getRawValue())).subscribe({
       next: () => {
-        this.saveMessage.set('Estudiante registrado correctamente.');
+        this.saveNotification.show(STUDENT_MESSAGES.registerSuccess);
         this.form.reset();
         this.selectedPhoto = null;
         this.revokePhotoPreviewUrl();
       },
       error: () => {
-        this.saveMessage.set('No se pudo registrar el estudiante. Intenta nuevamente.');
+        this.saveNotification.show(STUDENT_MESSAGES.registerError);
       },
       complete: () => this.saving.set(false),
     });

@@ -4,6 +4,8 @@ import { BehaviorSubject, EMPTY, catchError, firstValueFrom, from, map, of, swit
 import { NetworkService } from '../../detector_red/network.service';
 import { FirebaseAuthApiService } from '../auth/firebase-auth-api.service';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
+import { DOMAIN_EVENTS } from '../events/domain-event.constants';
+import { DomainEventBusService } from '../events/domain-event-bus.service';
 import { toLoggableError } from '../utils/loggable-error.util';
 import { PendingTeacherRepository } from './pending-teacher.repository';
 import { TeacherPhotoRepository } from './teacher-photo.repository';
@@ -27,6 +29,7 @@ export class TeacherRegistrationService {
   private readonly photoRepository = inject(TeacherPhotoRepository);
   private readonly authApi = inject(FirebaseAuthApiService);
   private readonly validSession = inject(ValidAuthSessionService);
+  private readonly events = inject(DomainEventBusService);
   private readonly pendingCountSubject = new BehaviorSubject<number>(this.pendingRepository.count());
 
   private syncing = false;
@@ -141,6 +144,7 @@ export class TeacherRegistrationService {
         idToken,
       ),
     );
+    this.publishChanged(command.registrationId);
   }
 
   private queue(
@@ -151,7 +155,12 @@ export class TeacherRegistrationService {
     // Si hay fallos recuperables, conservamos el comando completo para reintentar despues.
     const queue = this.pendingRepository.add(command);
     this.pendingCountSubject.next(queue.length);
+    this.publishChanged(command.registrationId);
 
     return { mode, reason, synced: false, pendingCount: queue.length };
+  }
+
+  private publishChanged(id: string): void {
+    this.events.publish(DOMAIN_EVENTS.teacherChanged, { id });
   }
 }

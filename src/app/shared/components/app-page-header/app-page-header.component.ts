@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { IonButton, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { chevronBack, searchOutline } from 'ionicons/icons';
+import { APP_ROUTES } from '../../../core/constants/app-routes.constants';
 
 @Component({
   selector: 'app-page-header',
@@ -13,7 +14,7 @@ import { chevronBack, searchOutline } from 'ionicons/icons';
 export class AppPageHeaderComponent {
   readonly title = input.required<string>();
   readonly subtitle = input<string>('');
-  readonly backUrl = input<string>('/home');
+  readonly backUrl = input<string>(APP_ROUTES.home);
   readonly showBack = input<boolean>(true);
   readonly align = input<'center' | 'start'>('center');
   readonly color = input<'blue' | 'red'>('blue');

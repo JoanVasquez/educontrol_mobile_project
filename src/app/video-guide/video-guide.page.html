@@ -1,0 +1,26 @@
+<div class="video-guide-shell">
+  <app-page-header [title]="guide.title" [subtitle]="guide.subtitle" backUrl="/home" />
+
+  <ion-content class="video-guide-content">
+    <main class="video-guide" aria-label="Modulo de video">
+      <section class="video-guide__intro">
+        <span class="video-guide__icon">
+          <ion-icon name="play-circle-outline" aria-hidden="true"></ion-icon>
+        </span>
+        <div>
+          <h1>{{ guide.title }}</h1>
+          <p>{{ guide.description }}</p>
+        </div>
+      </section>
+
+      <app-video-player [embedUrl]="guide.video.embedUrl" [title]="guide.title" />
+
+      <a class="video-guide__external-link" [href]="guide.video.watchUrl" target="_blank" rel="noopener noreferrer">
+        <ion-icon name="logo-youtube" aria-hidden="true"></ion-icon>
+        <span>Ver en YouTube</span>
+      </a>
+    </main>
+  </ion-content>
+
+  <app-bottom-navigation activePath="/video-guia" />
+</div>

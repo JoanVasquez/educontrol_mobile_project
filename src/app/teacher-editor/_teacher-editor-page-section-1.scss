@@ -14,8 +14,8 @@
 .teacher-editor-content { --background: #f4f6fa; }
 
 .teacher-editor {
-  max-width: 1180px;
-  margin: auto;
+  max-width: 860px;
+  margin-inline: auto;
   padding: clamp(14px, 2.5vw, 32px);
 }
 
@@ -25,46 +25,69 @@
 }
 
 .form-section {
-  padding: clamp(16px, 2.2vw, 26px);
+  padding: clamp(14px, 2vw, 22px);
   border: 1px solid #e0e4ec;
-  border-radius: 14px;
+  border-radius: 10px;
   background: #fff;
 }
 
 h1 {
-  margin: 0 0 18px;
-  font-size: clamp(.94rem, 1.3vw, 1.08rem);
+  color: #172033;
+  margin: 0 0 14px;
+  font-size: clamp(.9rem, 1.2vw, 1rem);
 }
 
 .teacher-profile {
+  align-items: start;
   display: grid;
-  grid-template-columns: clamp(120px, 15vw, 170px) minmax(0, 1fr);
-  gap: clamp(16px, 2.5vw, 30px);
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 16px;
 }
 
 .photo-picker {
-  min-height: 164px;
+  align-self: start;
   border: 1px solid #d3d9e7;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #eef1f8;
   color: #2f59ad;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  min-height: auto;
+  overflow: hidden;
+  padding: 12px 8px;
+  position: relative;
+  text-align: center;
   cursor: pointer;
 }
 
-.photo-picker > ion-icon {
-  font-size: 4rem;
-  color: #b9bec7;
+.photo-picker__preview {
+  align-items: center;
+  background: #f8fafc;
+  border-radius: 50%;
+  display: grid;
+  height: 54px;
+  justify-items: center;
+  overflow: hidden;
+  width: 54px;
 }
 
-.photo-picker img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
+.photo-picker__preview > ion-icon {
+  color: #b9bec7;
+  font-size: 2rem;
+}
+
+.photo-picker__preview img {
+  height: 100%;
   object-fit: cover;
+  width: 100%;
+}
+
+.photo-picker__action {
+  align-items: center;
+  display: inline-flex;
+  gap: 5px;
+  justify-content: center;
+  line-height: 1.15;
 }
 

@@ -32,6 +32,11 @@ export const routes: Routes = [
     loadComponent: () => import('./local-sync/local-sync.page').then(({ LocalSyncPage }) => LocalSyncPage),
   },
   {
+    path: 'video-guia',
+    canActivate: [authenticatedGuard],
+    loadComponent: () => import('./video-guide/video-guide.page').then(({ VideoGuidePage }) => VideoGuidePage),
+  },
+  {
     path: 'averias/actualizar/:id',
     canActivate: [authenticatedGuard],
     loadComponent: () =>

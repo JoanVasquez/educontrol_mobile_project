@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { ellipsisHorizontal, person, searchOutline } from 'ionicons/icons';
+import { APP_ROUTES } from '../core/constants/app-routes.constants';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 
@@ -48,7 +49,7 @@ export class TeacherListPage {
   }
 
   editTeacher(id: number): void {
-    this.router.navigate(['/docentes/modificar', id]);
+    this.router.navigate([APP_ROUTES.teacherEditor, id]);
   }
 
   private normalize(value: string): string {

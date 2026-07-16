@@ -1,8 +1,15 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { ellipsisHorizontal, person, refreshOutline, searchOutline } from 'ionicons/icons';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { APP_ROUTES } from '../core/constants/app-routes.constants';
+import { TEACHER_MESSAGES } from '../core/constants/ui-messages.constants';
+import { DOMAIN_EVENTS } from '../core/events/domain-event.constants';
+import { DomainEventBusService } from '../core/events/domain-event-bus.service';
 import { TeacherListService } from '../core/teachers/teacher-list.service';
 import type { TeacherListItem } from '../core/teachers/teacher.model';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
@@ -14,9 +21,11 @@ import { AppPageHeaderComponent } from '../shared/components/app-page-header/app
   styleUrls: ['./teacher-directory.page.scss'],
   imports: [AppBottomNavigationComponent, AppPageHeaderComponent, IonContent, IonIcon],
 })
-export class TeacherDirectoryPage {
+export class TeacherDirectoryPage implements OnDestroy {
   private readonly router = inject(Router);
   private readonly teacherListService = inject(TeacherListService);
+  private readonly events = inject(DomainEventBusService);
+  private readonly destroy$ = new Subject<void>();
 
   readonly searchTerm = signal('');
   readonly allTeachers = signal<TeacherListItem[]>([]);
@@ -35,7 +44,13 @@ export class TeacherDirectoryPage {
 
   constructor() {
     addIcons({ ellipsisHorizontal, person, refreshOutline, searchOutline });
+    this.events.on(DOMAIN_EVENTS.teacherChanged).pipe(takeUntil(this.destroy$)).subscribe(() => this.loadTeachers(false));
     this.loadTeachers();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   search(event: Event): void {
@@ -47,11 +62,11 @@ export class TeacherDirectoryPage {
   }
 
   editTeacher(id: string): void {
-    this.router.navigate(['/docentes/modificar', id]);
+    this.router.navigate([APP_ROUTES.teacherEditor, id]);
   }
 
-  private loadTeachers(): void {
-    this.loading.set(true);
+  private loadTeachers(showLoader = true): void {
+    if (showLoader) this.loading.set(true);
     this.errorMessage.set('');
 
     this.teacherListService.load().subscribe({
@@ -62,10 +77,12 @@ export class TeacherDirectoryPage {
       error: (error: unknown) => {
         this.allTeachers.set([]);
         this.showingCache.set(false);
-        this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo cargar el listado de docentes.');
-        this.loading.set(false);
+        this.errorMessage.set(error instanceof Error ? error.message : TEACHER_MESSAGES.listLoadError);
+        if (showLoader) this.loading.set(false);
       },
-      complete: () => this.loading.set(false),
+      complete: () => {
+        if (showLoader) this.loading.set(false);
+      },
     });
   }
 

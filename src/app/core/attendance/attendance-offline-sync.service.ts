@@ -1,8 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
-import { BehaviorSubject, EMPTY, catchError, firstValueFrom, from, map, of, switchMap } from 'rxjs';
+import { BehaviorSubject, EMPTY, catchError, firstValueFrom, from, map, of, switchMap, tap } from 'rxjs';
 import { NetworkService } from '../../detector_red/network.service';
 import { ValidAuthSessionService } from '../auth/valid-auth-session.service';
+import { DOMAIN_EVENTS } from '../events/domain-event.constants';
+import { DomainEventBusService } from '../events/domain-event-bus.service';
 import type { AttendanceSheet, PendingAttendanceSheet, SaveAttendanceResult } from './attendance.model';
 import { AttendanceRepository } from './attendance.repository';
 import { PendingAttendanceRepository } from './pending-attendance.repository';
@@ -13,6 +15,7 @@ export class AttendanceOfflineSyncService {
   private readonly sessionService = inject(ValidAuthSessionService);
   private readonly repository = inject(AttendanceRepository);
   private readonly pendingRepository = inject(PendingAttendanceRepository);
+  private readonly events = inject(DomainEventBusService);
   private readonly pendingCountSubject = new BehaviorSubject<number>(this.pendingRepository.count());
 
   private syncing = false;
@@ -30,15 +33,19 @@ export class AttendanceOfflineSyncService {
   }
 
   save(sheet: AttendanceSheet): Observable<SaveAttendanceResult> {
+    // Offline-first: siempre queda una copia local antes de intentar Firebase.
+    // Si la app se cierra, se pierde internet o Firestore rechaza el request, el pase sigue en cola.
+    const initialQueue = this.pendingRepository.upsert(sheet);
+    this.pendingCountSubject.next(initialQueue.length);
+
     // Sin conexion se guarda localmente y se devuelve una respuesta positiva para la UI.
     if (!this.networkService.isOnline) {
-      const queue = this.pendingRepository.upsert(sheet);
-      this.pendingCountSubject.next(queue.length);
+      this.publishChanged(sheet);
 
       return of({
         mode: 'offline',
         synced: false,
-        pendingCount: queue.length,
+        pendingCount: initialQueue.length,
         sheet,
       });
     }
@@ -57,6 +64,7 @@ export class AttendanceOfflineSyncService {
 
             return from(this.syncPending());
           }),
+          tap(() => this.publishChanged(sheet)),
           map((pendingCount) => ({
             mode: 'online' as const,
             synced: true,
@@ -91,6 +99,7 @@ export class AttendanceOfflineSyncService {
       for (const pendingSheet of this.pendingRepository.getAll()) {
         try {
           await firstValueFrom(this.repository.saveSheet(pendingSheet.sheet, session.idToken));
+          this.publishChanged(pendingSheet.sheet);
         } catch (error) {
           console.error('No se pudo sincronizar asistencia pendiente:', this.toLoggableError(error));
           failedQueue.push(pendingSheet);
@@ -108,6 +117,7 @@ export class AttendanceOfflineSyncService {
   private queueForLater(sheet: AttendanceSheet, reason: 'auth-missing' | 'remote-error'): SaveAttendanceResult {
     const queue = this.pendingRepository.upsert(sheet);
     this.pendingCountSubject.next(queue.length);
+    this.publishChanged(sheet);
 
     return {
       mode: 'queued',
@@ -131,5 +141,14 @@ export class AttendanceOfflineSyncService {
     }
 
     return String(error);
+  }
+
+  private publishChanged(sheet: AttendanceSheet): void {
+    this.events.publish(DOMAIN_EVENTS.attendanceChanged, {
+      id: sheet.id,
+      course: sheet.course,
+      subject: sheet.subject,
+      date: sheet.date,
+    });
   }
 }

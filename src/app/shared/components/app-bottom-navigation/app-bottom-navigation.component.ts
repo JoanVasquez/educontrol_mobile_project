@@ -9,6 +9,7 @@ import {
   ellipsisHorizontal,
   homeOutline,
   locationOutline,
+  logoYoutube,
   radioOutline,
   peopleOutline,
   personCircleOutline,
@@ -16,6 +17,7 @@ import {
   schoolOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../../../core/auth/auth.service';
+import { APP_ROUTES } from '../../../core/constants/app-routes.constants';
 import type { UserRole } from '../../../core/users/user-profile.model';
 
 interface NavigationItem {
@@ -29,19 +31,20 @@ const ADMIN_DIRECTOR_ROLES: UserRole[] = ['admin', 'director'];
 const AUTHENTICATED_ROLES: UserRole[] = ['admin', 'director', 'docente'];
 
 const PRIMARY_ITEMS: NavigationItem[] = [
-  { icon: 'home-outline', label: 'Inicio', path: '/home', roles: ADMIN_DIRECTOR_ROLES },
-  { icon: 'calendar-outline', label: 'Asistencia', path: '/asistencia', roles: AUTHENTICATED_ROLES },
-  { icon: 'build-outline', label: 'Averias', path: '/averias', roles: AUTHENTICATED_ROLES },
-  { icon: 'people-outline', label: 'Docentes', path: '/docentes', roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'home-outline', label: 'Inicio', path: APP_ROUTES.home, roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'calendar-outline', label: 'Asistencia', path: APP_ROUTES.attendance, roles: AUTHENTICATED_ROLES },
+  { icon: 'build-outline', label: 'Averias', path: APP_ROUTES.breakdowns, roles: AUTHENTICATED_ROLES },
+  { icon: 'people-outline', label: 'Docentes', path: APP_ROUTES.teachers, roles: ADMIN_DIRECTOR_ROLES },
 ];
 
 const MORE_ITEMS: NavigationItem[] = [
-  { icon: 'person-circle-outline', label: 'Mi perfil', path: '/perfil' },
-  { icon: 'radio-outline', label: 'Sincronizacion local', path: '/sincronizacion-local' },
-  { icon: 'location-outline', label: 'Ubicación y lugares', path: '/ubicacion' },
-  { icon: 'school-outline', label: 'Estudiantes', path: '/estudiantes', roles: ADMIN_DIRECTOR_ROLES },
-  { icon: 'person-add-outline', label: 'Registrar estudiante', path: '/registrar-estudiante', roles: ADMIN_DIRECTOR_ROLES },
-  { icon: 'build-outline', label: 'Reportar averia', path: '/averias', roles: AUTHENTICATED_ROLES },
+  { icon: 'person-circle-outline', label: 'Mi perfil', path: APP_ROUTES.profile },
+  { icon: 'logo-youtube', label: 'Video guia', path: APP_ROUTES.videoGuide, roles: AUTHENTICATED_ROLES },
+  { icon: 'radio-outline', label: 'Sincronizacion local', path: APP_ROUTES.localSync },
+  { icon: 'location-outline', label: 'Ubicación y lugares', path: APP_ROUTES.location },
+  { icon: 'school-outline', label: 'Estudiantes', path: APP_ROUTES.studentAcademic, roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'person-add-outline', label: 'Registrar estudiante', path: APP_ROUTES.studentRegistration, roles: ADMIN_DIRECTOR_ROLES },
+  { icon: 'build-outline', label: 'Reportar averia', path: APP_ROUTES.breakdowns, roles: AUTHENTICATED_ROLES },
 ];
 
 @Component({
@@ -53,7 +56,7 @@ const MORE_ITEMS: NavigationItem[] = [
 export class AppBottomNavigationComponent {
   private readonly authService = inject(AuthService);
 
-  readonly activePath = input<string>('/home');
+  readonly activePath = input<string>(APP_ROUTES.home);
   readonly color = input<'blue' | 'red'>('blue');
   readonly profile$ = this.authService.profile$;
   readonly moreOpen = signal(false);
@@ -68,6 +71,7 @@ export class AppBottomNavigationComponent {
       ellipsisHorizontal,
       homeOutline,
       locationOutline,
+      logoYoutube,
       radioOutline,
       peopleOutline,
       personCircleOutline,
@@ -120,10 +124,14 @@ export class AppBottomNavigationComponent {
   }
 
   isActive(path: string): boolean {
-    if (path === '/asistencia' || path === '/averias' || path === '/docentes') {
+    if (path === APP_ROUTES.attendance || path === APP_ROUTES.breakdowns || path === APP_ROUTES.teachers) {
       return this.activePath().startsWith(path);
     }
     return this.activePath() === path;
+  }
+
+  isMoreActive(): boolean {
+    return MORE_ITEMS.some((item) => this.isActive(item.path));
   }
 
   private itemsForRole(items: NavigationItem[], role: UserRole): NavigationItem[] {

@@ -1,13 +1,20 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, computed, inject, signal } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonButton, IonContent, IonIcon, IonSelect, IonSelectOption } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { refreshOutline, schoolOutline, searchOutline } from 'ionicons/icons';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ACADEMIC_COURSES, getAcademicSubjectsByCourse } from '../core/academic/academic-course.catalog';
 import { AuthService } from '../core/auth/auth.service';
+import { STUDENT_MESSAGES } from '../core/constants/ui-messages.constants';
+import { DOMAIN_EVENTS } from '../core/events/domain-event.constants';
+import { DomainEventBusService } from '../core/events/domain-event-bus.service';
 import { StudentAcademicService } from '../core/students/student-academic.service';
 import type { StudentAcademicRecord } from '../core/students/student-academic.model';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 
@@ -27,9 +34,13 @@ import { AppPageHeaderComponent } from '../shared/components/app-page-header/app
     IonSelectOption,
   ],
 })
-export class StudentAcademicPage {
+export class StudentAcademicPage implements OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly studentAcademicService = inject(StudentAcademicService);
+  private readonly events = inject(DomainEventBusService);
+  private readonly destroy$ = new Subject<void>();
+  private readonly errorNotification = new AutoDismissSignal<string>((message) => this.errorMessage.set(message), '');
+  private readonly successNotification = new AutoDismissSignal<string>((message) => this.successMessage.set(message), '');
 
   readonly courses = ACADEMIC_COURSES;
   readonly profile$ = this.authService.profile$;
@@ -51,25 +62,37 @@ export class StudentAcademicPage {
 
   constructor() {
     addIcons({ refreshOutline, schoolOutline, searchOutline });
+    this.events.on(DOMAIN_EVENTS.studentChanged).pipe(takeUntil(this.destroy$)).subscribe(() => this.loadStudents(false));
     this.loadStudents();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.errorNotification.dispose();
+    this.successNotification.dispose();
   }
 
   search(event: Event): void {
     this.searchTerm.set((event.target as HTMLInputElement).value);
   }
 
-  loadStudents(): void {
-    this.loading.set(true);
-    this.errorMessage.set('');
-    this.successMessage.set('');
+  loadStudents(showLoader = true): void {
+    if (showLoader) {
+      this.loading.set(true);
+      this.errorNotification.clear();
+      this.successNotification.clear();
+    }
 
     this.studentAcademicService.load().subscribe({
       next: (students) => this.students.set(students),
       error: (error: unknown) => {
         this.students.set([]);
-        this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo cargar el listado de estudiantes.');
+        this.errorMessage.set(error instanceof Error ? error.message : STUDENT_MESSAGES.loadError);
       },
-      complete: () => this.loading.set(false),
+      complete: () => {
+        if (showLoader) this.loading.set(false);
+      },
     });
   }
 
@@ -79,8 +102,8 @@ export class StudentAcademicPage {
     }
 
     this.savingId.set(student.id);
-    this.errorMessage.set('');
-    this.successMessage.set('');
+    this.errorNotification.clear();
+    this.successNotification.clear();
 
     this.studentAcademicService.changeCourse(student.id, course).subscribe({
       next: () => {
@@ -96,10 +119,10 @@ export class StudentAcademicPage {
               : item,
           ),
         );
-        this.successMessage.set('Curso y asignaturas actualizados.');
+        this.successNotification.show(STUDENT_MESSAGES.courseChanged);
       },
       error: (error: unknown) => {
-        this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo actualizar el curso.');
+        this.errorNotification.show(error instanceof Error ? error.message : STUDENT_MESSAGES.courseChangeError);
       },
       complete: () => this.savingId.set(null),
     });

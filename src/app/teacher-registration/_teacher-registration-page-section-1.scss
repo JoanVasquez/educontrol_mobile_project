@@ -38,6 +38,7 @@
 
 .photo-picker {
   align-items: center;
+  align-self: start;
   background: #e5e8f5;
   border: 1px solid #d4d8e7;
   border-radius: 8px;
@@ -45,7 +46,7 @@
   display: grid;
   gap: 6px;
   justify-items: center;
-  min-block-size: 85px;
+  min-block-size: 82px;
   overflow: hidden;
   padding: 8px 4px;
   position: relative;

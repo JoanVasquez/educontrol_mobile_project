@@ -13,13 +13,6 @@
         </div>
       </section>
 
-      @if (isBluetoothAvailable() === false) {
-        <section class="notice notice--warning">
-          <ion-icon name="warning-outline" aria-hidden="true"></ion-icon>
-          <span>El transporte Bluetooth nativo aun no esta disponible en esta plataforma.</span>
-        </section>
-      }
-
       @if (successMessage()) {
         <section class="notice notice--success">
           <ion-icon name="checkmark-circle-outline" aria-hidden="true"></ion-icon>

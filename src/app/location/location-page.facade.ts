@@ -4,6 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import type { GeoPoint, LocationQuality, NearbyPlace, PlaceCategory } from '../core/location/location.model';
 import { LocationService } from '../core/location/location.service';
 import { LocationShareService } from '../core/location/location-share.service';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 
 export interface CategoryOption {
   value: PlaceCategory;
@@ -14,6 +15,7 @@ export interface CategoryOption {
 export class LocationPageFacade {
   private readonly locationService = inject(LocationService);
   private readonly shareService = inject(LocationShareService);
+  private readonly notification = new AutoDismissSignal<string>((message) => this.message.set(message), '');
   private watchSubscription: Subscription | null = null;
 
   readonly point = signal<GeoPoint | null>(null);
@@ -37,13 +39,13 @@ export class LocationPageFacade {
     // Bloquea doble toque mientras el WebView/GPS resuelve la posicion actual.
     if (this.locating()) return;
     this.locating.set(true);
-    this.message.set('');
+    this.notification.clear();
 
     try {
       this.updatePoint(await this.locationService.current());
       this.permission.set('granted');
     } catch (error: unknown) {
-      this.message.set(error instanceof Error ? error.message : 'No se pudo obtener la ubicación.');
+      this.notification.show(error instanceof Error ? error.message : 'No se pudo obtener la ubicación.');
       await this.initializePermission();
     } finally {
       this.locating.set(false);
@@ -53,7 +55,7 @@ export class LocationPageFacade {
   startTracking(): void {
     // El seguimiento queda activo hasta que el usuario lo detenga o el observable falle.
     if (this.tracking()) return;
-    this.message.set('');
+    this.notification.clear();
     this.tracking.set(true);
 
     this.watchSubscription = this.locationService.watch().subscribe({
@@ -63,7 +65,7 @@ export class LocationPageFacade {
       },
       error: (error: unknown) => {
         this.tracking.set(false);
-        this.message.set(error instanceof Error ? error.message : 'Se perdió el seguimiento de ubicación.');
+        this.notification.show(error instanceof Error ? error.message : 'Se perdió el seguimiento de ubicación.');
       },
     });
   }
@@ -72,6 +74,7 @@ export class LocationPageFacade {
     this.watchSubscription?.unsubscribe();
     this.watchSubscription = null;
     this.tracking.set(false);
+    this.notification.dispose();
   }
 
   async searchNearby(): Promise<void> {
@@ -80,7 +83,7 @@ export class LocationPageFacade {
     if (!currentPoint || this.searching()) return;
 
     this.searching.set(true);
-    this.message.set('');
+    this.notification.clear();
 
     try {
       const result = await firstValueFrom(
@@ -93,9 +96,9 @@ export class LocationPageFacade {
       this.places.set(result.places);
       // Permite informar cuando la respuesta viene de cache local y no de OpenStreetMap.
       this.placesFromCache.set(result.source === 'cache');
-      if (!result.places.length) this.message.set('No se encontraron lugares con estos filtros.');
+      if (!result.places.length) this.notification.show('No se encontraron lugares con estos filtros.');
     } catch (error: unknown) {
-      this.message.set(error instanceof Error ? error.message : 'No se pudieron buscar lugares cercanos.');
+      this.notification.show(error instanceof Error ? error.message : 'No se pudieron buscar lugares cercanos.');
     } finally {
       this.searching.set(false);
     }
@@ -104,15 +107,15 @@ export class LocationPageFacade {
   async shareLocation(): Promise<void> {
     const point = this.point();
     if (!point) {
-      this.message.set('Obtén tu ubicación antes de compartirla.');
+      this.notification.show('Obtén tu ubicación antes de compartirla.');
       return;
     }
 
     try {
       const result = await this.shareService.share(point);
-      this.message.set(result === 'shared' ? 'Ubicación compartida.' : 'Ubicación copiada al portapapeles.');
+      this.notification.show(result === 'shared' ? 'Ubicación compartida.' : 'Ubicación copiada al portapapeles.');
     } catch (error: unknown) {
-      if ((error as DOMException)?.name !== 'AbortError') this.message.set('No se pudo compartir la ubicación.');
+      if ((error as DOMException)?.name !== 'AbortError') this.notification.show('No se pudo compartir la ubicación.');
     }
   }
 

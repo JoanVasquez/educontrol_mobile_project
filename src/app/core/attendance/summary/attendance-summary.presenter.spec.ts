@@ -7,6 +7,7 @@ describe('AttendanceSummaryPresenter', () => {
   it('calculates metrics from real roster statuses', () => {
     const roster: AttendanceRoster = {
       courses: ['Tercero'],
+      subjects: ['Matemáticas'],
       source: 'remote',
       students: [
         { id: '1', fullName: 'Uno', course: 'Tercero', photoUrl: '', status: 'present' },

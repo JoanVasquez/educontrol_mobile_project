@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { BehaviorSubject, EMPTY, catchError, firstValueFrom, from, map, of, switchMap } from 'rxjs';
 import { NetworkService } from '../../../detector_red/network.service';
+import { DOMAIN_EVENTS } from '../../events/domain-event.constants';
+import { DomainEventBusService } from '../../events/domain-event-bus.service';
 import { BreakdownService } from '../../firebase/breakdown.service';
 import type { Breakdown } from '../../models/breakdown.model';
 import type { PendingBreakdownRegistration, RegisterBreakdownResult } from './breakdown-offline.model';
@@ -12,6 +14,7 @@ export class BreakdownOfflineSyncService {
   private readonly networkService = inject(NetworkService);
   private readonly pendingRepository = inject(PendingBreakdownRepository);
   private readonly breakdownService = inject(BreakdownService);
+  private readonly events = inject(DomainEventBusService);
   private readonly pendingCountSubject = new BehaviorSubject<number>(this.pendingRepository.count());
 
   private syncing = false;
@@ -36,6 +39,7 @@ export class BreakdownOfflineSyncService {
       // Offline-first: la UI puede continuar aunque Firebase no este disponible.
       const queue = this.pendingRepository.add(documentId, payload);
       this.pendingCountSubject.next(queue.length);
+      this.publishChanged(payload);
 
       return of({
         mode: 'offline',
@@ -48,12 +52,16 @@ export class BreakdownOfflineSyncService {
     return this.breakdownService.createBreakdown(payload, documentId).pipe(
       switchMap((savedBreakdown) =>
         from(this.syncPending()).pipe(
-          map((pendingCount) => ({
-            mode: 'online' as const,
-            synced: true,
-            pendingCount,
-            breakdown: savedBreakdown,
-          })),
+          map((pendingCount) => {
+            this.publishChanged(savedBreakdown);
+
+            return {
+              mode: 'online' as const,
+              synced: true,
+              pendingCount,
+              breakdown: savedBreakdown,
+            };
+          }),
         ),
       ),
       catchError((error) => {
@@ -78,6 +86,7 @@ export class BreakdownOfflineSyncService {
           await firstValueFrom(
             this.breakdownService.createBreakdown(pendingBreakdown.payload, pendingBreakdown.documentId),
           );
+          this.publishChanged(pendingBreakdown.payload);
         } catch (error) {
           console.error('No se pudo sincronizar averia pendiente:', this.toLoggableError(error));
           failedQueue.push(pendingBreakdown);
@@ -99,6 +108,7 @@ export class BreakdownOfflineSyncService {
   ): RegisterBreakdownResult {
     const queue = this.pendingRepository.add(documentId, breakdown);
     this.pendingCountSubject.next(queue.length);
+    this.publishChanged(breakdown);
 
     return {
       mode: 'queued',
@@ -127,5 +137,13 @@ export class BreakdownOfflineSyncService {
     }
 
     return String(error);
+  }
+
+  private publishChanged(breakdown: Breakdown): void {
+    this.events.publish(DOMAIN_EVENTS.breakdownChanged, {
+      id: breakdown.id,
+      status: breakdown.status,
+      location: breakdown.location,
+    });
   }
 }

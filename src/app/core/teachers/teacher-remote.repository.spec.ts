@@ -9,6 +9,8 @@ describe('TeacherRemoteRepository', () => {
   let httpTesting: HttpTestingController;
 
   const teacher: TeacherRegistrationDraft = {
+    email: 'ana@example.com',
+    authUid: 'teacher-auth-uid',
     firstName: 'Ana',
     lastName: 'Pérez',
     birthDate: '1990-01-01',
@@ -40,7 +42,7 @@ describe('TeacherRemoteRepository', () => {
     repository.save('teacher-id', teacher, 'id-token').subscribe();
 
     const request = httpTesting.expectOne(
-      'https://firestore.googleapis.com/v1/projects//databases/(default)/documents/docentes/teacher-id',
+      'https://firestore.googleapis.com/v1/projects/educontrol-mobile/databases/(default)/documents/docentes/teacher-id',
     );
     expect(request.request.method).toBe('PATCH');
     expect(request.request.headers.get('Authorization')).toBe('Bearer id-token');

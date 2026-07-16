@@ -6,6 +6,7 @@ import { firstValueFrom } from 'rxjs';
 import { ACADEMIC_COURSES } from '../core/academic/academic-course.catalog';
 import type { TeacherAssignment, TeacherCourseAssignment } from '../core/teachers/teacher-registration.model';
 import { TeacherRegistrationService } from '../core/teachers/teacher-registration.service';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 import { TeacherRegistrationCommandFactory, type TeacherRegistrationFormValue } from './services/teacher-registration-command.factory';
@@ -25,6 +26,7 @@ export class TeacherRegistrationPage implements OnDestroy {
   private readonly commandFactory = inject(TeacherRegistrationCommandFactory);
   private readonly messagePresenter = inject(TeacherRegistrationMessagePresenter);
   private readonly photoService = inject(TeacherRegistrationPhotoService);
+  private readonly notification = new AutoDismissSignal<string>((message) => this.message.set(message), '');
 
   readonly photoName = this.photoService.photoName;
   readonly photoPreviewUrl = this.photoService.photoPreviewUrl;
@@ -56,15 +58,16 @@ export class TeacherRegistrationPage implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.notification.dispose();
     this.photoService.revokeObjectUrl();
   }
 
   async takePhoto(): Promise<void> {
-    if (!this.saving()) await this.photoService.takePhoto((message) => this.message.set(message));
+    if (!this.saving()) await this.photoService.takePhoto((message) => this.showMessage(message));
   }
 
   async pickPhotoFromGallery(): Promise<void> {
-    if (!this.saving()) await this.photoService.pickPhotoFromGallery((message) => this.message.set(message));
+    if (!this.saving()) await this.photoService.pickPhotoFromGallery((message) => this.showMessage(message));
   }
 
   selectPhoto(event: Event): void {
@@ -75,7 +78,7 @@ export class TeacherRegistrationPage implements OnDestroy {
       return;
     }
 
-    if (this.photoService.setPhoto(file, (message) => this.message.set(message))) this.message.set('');
+    if (this.photoService.setPhoto(file, (message) => this.showMessage(message))) this.notification.clear();
     input.value = '';
   }
 
@@ -85,7 +88,7 @@ export class TeacherRegistrationPage implements OnDestroy {
 
   cancel(): void {
     this.reset();
-    this.message.set('');
+    this.notification.clear();
   }
 
   async submit(): Promise<void> {
@@ -93,12 +96,12 @@ export class TeacherRegistrationPage implements OnDestroy {
     const requiredMessage = TeacherRegistrationFormValidator.requiredMessage(value);
 
     if (requiredMessage) {
-      this.message.set(requiredMessage);
+      this.showMessage(requiredMessage);
       return;
     }
 
     if (!TeacherRegistrationFormValidator.isValidEmail(this.email)) {
-      this.message.set('Ingresa un correo válido para el acceso del docente.');
+      this.showMessage('Ingresa un correo válido para el acceso del docente.');
       return;
     }
 
@@ -107,15 +110,15 @@ export class TeacherRegistrationPage implements OnDestroy {
     }
 
     this.saving.set(true);
-    this.message.set('');
+    this.notification.clear();
 
     try {
       const command = this.commandFactory.create(value, this.assignments, this.courseAssignments, await this.photoService.serializedPhoto());
       const result = await firstValueFrom(this.registrationService.register(command));
       this.reset();
-      this.message.set(this.messagePresenter.resultMessage(result));
+      this.showMessage(this.messagePresenter.resultMessage(result));
     } catch {
-      this.message.set('No se pudo preparar el registro del docente. Intenta nuevamente.');
+      this.showMessage('No se pudo preparar el registro del docente. Intenta nuevamente.');
     } finally {
       this.saving.set(false);
     }
@@ -154,6 +157,10 @@ export class TeacherRegistrationPage implements OnDestroy {
     this.assignments = [{ subject: '', detail: '' }];
     this.courseAssignments = [{ course: '', section: '' }];
     this.photoService.reset();
+  }
+
+  private showMessage(message: string): void {
+    this.notification.show(message);
   }
 
 }

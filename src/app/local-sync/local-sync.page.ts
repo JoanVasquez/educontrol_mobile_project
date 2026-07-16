@@ -1,3 +1,4 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { IonButton, IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -6,6 +7,7 @@ import { BluetoothService } from '../core/bluetooth/bluetooth.service';
 import type { BluetoothDeviceSummary } from '../core/bluetooth/bluetooth.model';
 import { LocalSyncService } from '../core/local-sync/local-sync.service';
 import type { LocalSyncSummary } from '../core/local-sync/local-sync.model';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 
@@ -15,9 +17,10 @@ import { AppPageHeaderComponent } from '../shared/components/app-page-header/app
   styleUrls: ['./local-sync.page.scss'],
   imports: [IonButton, IonContent, IonIcon, IonSpinner, AppBottomNavigationComponent, AppPageHeaderComponent],
 })
-export class LocalSyncPage {
+export class LocalSyncPage implements OnDestroy {
   private readonly bluetooth = inject(BluetoothService);
   private readonly localSync = inject(LocalSyncService);
+  private readonly successNotification = new AutoDismissSignal<string>((message) => this.successMessage.set(message), '');
 
   readonly devices = signal<BluetoothDeviceSummary[]>([]);
   readonly summary = signal<LocalSyncSummary>(this.localSync.getSummary());
@@ -39,9 +42,13 @@ export class LocalSyncPage {
     void this.checkBluetoothAvailability();
   }
 
+  ngOnDestroy(): void {
+    this.successNotification.dispose();
+  }
+
   async scanDevices(): Promise<void> {
     this.isScanning.set(true);
-    this.successMessage.set('');
+    this.successNotification.clear();
     this.statusMessage.set('Buscando dispositivos cercanos...');
 
     try {
@@ -58,7 +65,7 @@ export class LocalSyncPage {
 
   selectDevice(deviceId: string): void {
     this.selectedDeviceId.set(deviceId);
-    this.successMessage.set('');
+    this.successNotification.clear();
   }
 
   async sendPending(): Promise<void> {
@@ -69,13 +76,13 @@ export class LocalSyncPage {
     }
 
     this.isSending.set(true);
-    this.successMessage.set('');
+    this.successNotification.clear();
     this.statusMessage.set('Enviando registros pendientes...');
 
     try {
       const result = await this.localSync.sendPending(deviceId);
       this.statusMessage.set(result.message);
-      this.successMessage.set(result.success ? 'Sincronizacion local enviada.' : '');
+      if (result.success) this.successNotification.show('Sincronizacion local enviada.');
     } catch (error) {
       this.statusMessage.set(this.messageFromError(error));
     } finally {

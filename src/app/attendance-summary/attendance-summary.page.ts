@@ -1,8 +1,10 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { IonContent, IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { calendarOutline, checkmark, close, peopleOutline, person, timeOutline } from 'ionicons/icons';
-import { firstValueFrom } from 'rxjs';
+import { Subject, firstValueFrom } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AttendanceDateUtil } from '../core/attendance/attendance-date.util';
 import type { AttendanceStatus } from '../core/attendance/attendance.model';
 import type {
@@ -10,6 +12,8 @@ import type {
   AttendanceSummaryStudent,
 } from '../core/attendance/summary/attendance-summary.model';
 import { AttendanceSummaryService } from '../core/attendance/summary/attendance-summary.service';
+import { DOMAIN_EVENTS } from '../core/events/domain-event.constants';
+import { DomainEventBusService } from '../core/events/domain-event-bus.service';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 
@@ -27,8 +31,10 @@ const EMPTY_METRICS: AttendanceMetrics = {
   styleUrls: ['./attendance-summary.page.scss', './attendance-summary.firebase-extra.scss'],
   imports: [AppBottomNavigationComponent, AppPageHeaderComponent, IonContent, IonIcon],
 })
-export class AttendanceSummaryPage {
+export class AttendanceSummaryPage implements OnDestroy {
   private readonly summaryService = inject(AttendanceSummaryService);
+  private readonly events = inject(DomainEventBusService);
+  private readonly destroy$ = new Subject<void>();
 
   readonly courses = signal<string[]>([]);
   readonly selectedCourse = signal('');
@@ -41,7 +47,16 @@ export class AttendanceSummaryPage {
 
   constructor() {
     addIcons({ calendarOutline, checkmark, close, peopleOutline, person, timeOutline });
+    this.events.on(DOMAIN_EVENTS.attendanceChanged).pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.selectedCourse()) void this.loadSummary(false);
+      else void this.initialize(false);
+    });
     void this.initialize();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async setCourse(event: Event): Promise<void> {
@@ -71,8 +86,8 @@ export class AttendanceSummaryPage {
     else await this.initialize();
   }
 
-  private async initialize(): Promise<void> {
-    this.loading.set(true);
+  private async initialize(showLoader = true): Promise<void> {
+    if (showLoader) this.loading.set(true);
     this.errorMessage.set('');
 
     try {
@@ -89,7 +104,7 @@ export class AttendanceSummaryPage {
     } catch (error: unknown) {
       this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo consultar la asistencia.');
     } finally {
-      this.loading.set(false);
+      if (showLoader) this.loading.set(false);
     }
   }
 

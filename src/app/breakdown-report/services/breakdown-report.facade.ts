@@ -5,6 +5,7 @@ import { catchError, finalize, map, switchMap, tap } from 'rxjs/operators';
 import { CameraService } from '../../core/camera/camera.service';
 import { BreakdownOfflineSyncService } from '../../core/breakdowns/offline/breakdown-offline-sync.service';
 import type { RegisterBreakdownResult } from '../../core/breakdowns/offline/breakdown-offline.model';
+import { BREAKDOWN_MESSAGES } from '../../core/constants/ui-messages.constants';
 import { BreakdownService } from '../../core/firebase/breakdown.service';
 import type { Breakdown, BreakdownCategory, BreakdownPhotoEvidence, Priority } from '../../core/models/breakdown.model';
 import { BreakdownPhotoSerializer } from '../../core/utils/breakdown-photo.serializer';
@@ -95,7 +96,7 @@ export class BreakdownReportFacade {
       }),
       map((result) => result.breakdown),
       catchError((error: Error) => {
-        this.setError(error.message || 'No se pudo registrar la averia');
+        this.setError(error.message || BREAKDOWN_MESSAGES.registerError);
         return of(null);
       }),
       finalize(() => this.setLoading(false)),
@@ -124,7 +125,7 @@ export class BreakdownReportFacade {
   }
 
   private successMessage(_result: RegisterBreakdownResult): string {
-    return 'Averia registrada correctamente.';
+    return BREAKDOWN_MESSAGES.registerSuccess;
   }
 
   private validateAndSetPhoto(photo: File): boolean {

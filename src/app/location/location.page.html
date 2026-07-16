@@ -95,7 +95,7 @@
               <span class="place-item__icon"><ion-icon name="location-outline" /></span>
               <div>
                 <strong>{{ place.name }}</strong>
-                <span>{{ categoryLabel(place.category) }} · {{ distanceLabel(place.distanceMeters) }}</span>
+                <span>{{ place.typeLabel || categoryLabel(place.category) }} · {{ distanceLabel(place.distanceMeters) }}</span>
                 <small>{{ place.address }}</small>
               </div>
               <button type="button" (click)="openPlace(place)" aria-label="Abrir lugar en OpenStreetMap">

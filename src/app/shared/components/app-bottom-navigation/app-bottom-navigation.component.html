@@ -98,7 +98,7 @@
 
       <button
         class="bottom-nav__item bottom-nav__item--button"
-        [class.bottom-nav__item--active]="moreOpen() || activePath() === '/registrar-estudiante' || activePath() === '/perfil'"
+        [class.bottom-nav__item--active]="moreOpen() || isMoreActive()"
         type="button"
         (click)="toggleMore()"
         aria-label="Mas opciones"

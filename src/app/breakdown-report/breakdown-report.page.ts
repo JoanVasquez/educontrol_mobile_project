@@ -5,7 +5,11 @@ import { Router } from '@angular/router';
 import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { APP_ROUTES } from '../core/constants/app-routes.constants';
+import { BREAKDOWN_MESSAGES } from '../core/constants/ui-messages.constants';
+import { UI_TIMING } from '../core/constants/ui-timing.constants';
 import type { Priority } from '../core/models/breakdown.model';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 import { BreakdownReportFacade } from './services/breakdown-report.facade';
@@ -30,6 +34,8 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly facade = inject(BreakdownReportFacade);
   private readonly destroy$ = new Subject<void>();
+  private readonly errorNotification = new AutoDismissSignal<string>((message) => this.errorMessage.set(message), '');
+  private readonly successNotification = new AutoDismissSignal<string>((message) => this.successMessage.set(message), '');
 
   readonly categories = BREAKDOWN_CATEGORIES;
   readonly priority = signal<Priority>('low');
@@ -49,13 +55,13 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.facade.error$.pipe(takeUntil(this.destroy$)).subscribe((error) => {
       if (error) {
-        this.errorMessage.set(error);
+        this.errorNotification.show(error);
       }
     });
 
     this.facade.success$.pipe(takeUntil(this.destroy$)).subscribe((success) => {
       if (success) {
-        this.successMessage.set(success);
+        this.successNotification.show(success);
       }
     });
 
@@ -65,6 +71,8 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.errorNotification.dispose();
+    this.successNotification.dispose();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -75,7 +83,7 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   }
 
   viewStatus(): void {
-    this.router.navigateByUrl('/averias/estado');
+    this.router.navigateByUrl(APP_ROUTES.breakdownStatus);
   }
 
   takePhoto(): void {
@@ -105,7 +113,7 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
 
   submit(): void {
     if (!this.category || !this.description.trim() || !this.location.trim()) {
-      this.errorMessage.set('Completa la categoría, descripción y ubicación.');
+      this.errorNotification.show(BREAKDOWN_MESSAGES.requiredFields);
       return;
     }
 
@@ -121,8 +129,8 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
         if (breakdown && breakdown.id) {
           this.resetForm();
           setTimeout(() => {
-            this.router.navigateByUrl('/averias/estado');
-          }, 1500);
+            this.router.navigateByUrl(APP_ROUTES.breakdownStatus);
+          }, UI_TIMING.navigateAfterSaveMs);
         }
       });
   }
@@ -137,7 +145,7 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   }
 
   clearMessages(): void {
-    this.errorMessage.set('');
-    this.successMessage.set('');
+    this.errorNotification.clear();
+    this.successNotification.clear();
   }
 }

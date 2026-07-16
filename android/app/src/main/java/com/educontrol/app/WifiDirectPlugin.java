@@ -10,6 +10,7 @@ import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.util.Base64;
 
 import androidx.core.content.ContextCompat;
@@ -36,6 +37,7 @@ import java.util.List;
     permissions = {
         @Permission(strings = {
             Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.NEARBY_WIFI_DEVICES,
             Manifest.permission.ACCESS_WIFI_STATE,
             Manifest.permission.CHANGE_WIFI_STATE,
             Manifest.permission.INTERNET
@@ -145,7 +147,7 @@ public class WifiDirectPlugin extends Plugin {
             @Override
             public void onFailure(int reason) {
                 if (pendingPeerCall != null) {
-                    pendingPeerCall.reject("Discovery failed: " + reason);
+                    pendingPeerCall.reject("No se pudo iniciar Wi-Fi Direct. Verifica que Wi-Fi, ubicacion y dispositivos cercanos esten activos. Codigo: " + reason);
                     pendingPeerCall = null;
                 }
             }
@@ -256,7 +258,11 @@ public class WifiDirectPlugin extends Plugin {
         if (context == null) {
             return false;
         }
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean hasLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        boolean hasNearbyWifi = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+            || ContextCompat.checkSelfPermission(context, Manifest.permission.NEARBY_WIFI_DEVICES) == PackageManager.PERMISSION_GRANTED;
+
+        return hasLocation && hasNearbyWifi;
     }
 
     private JSArray devicesToJsonArray(List<WifiP2pDevice> devices) {

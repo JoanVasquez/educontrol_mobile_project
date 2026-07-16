@@ -11,7 +11,7 @@ export class AttendanceSummaryService {
   private readonly presenter = new AttendanceSummaryPresenter();
 
   load(course: string, date: string): Observable<AttendanceSummaryResult> {
-    return this.attendanceService.load(course, date).pipe(map((roster) => this.presenter.present(roster)));
+    return this.attendanceService.loadDailySummary(course, date).pipe(map((roster) => this.presenter.present(roster)));
   }
 
   percentage(value: number, total: number): string {

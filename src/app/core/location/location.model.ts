@@ -16,6 +16,7 @@ export interface NearbyPlace {
   id: string;
   name: string;
   category: Exclude<PlaceCategory, 'all'> | 'other';
+  typeLabel: string;
   latitude: number;
   longitude: number;
   distanceMeters: number;

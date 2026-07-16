@@ -1,3 +1,4 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -9,6 +10,7 @@ import { ACADEMIC_COURSES } from '../core/academic/academic-course.catalog';
 import type { EditableTeacher } from '../core/teachers/editor/teacher-editor.model';
 import { TeacherEditorService } from '../core/teachers/editor/teacher-editor.service';
 import type { TeacherAssignment, TeacherCourseAssignment } from '../core/teachers/teacher-registration.model';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 import { TeacherEditorPhotoService } from './services/teacher-editor-photo.service';
@@ -21,11 +23,12 @@ import { createEditableTeacher, isTeacherEditorValid, normalizeEditableTeacher }
   imports: [AppBottomNavigationComponent, AppPageHeaderComponent, FormsModule, IonContent, IonIcon],
   providers: [TeacherEditorPhotoService],
 })
-export class TeacherEditorPage {
+export class TeacherEditorPage implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly editorService = inject(TeacherEditorService);
   private readonly photoService = inject(TeacherEditorPhotoService);
+  private readonly notification = new AutoDismissSignal<string>((message) => this.message.set(message), '');
 
   teacher: EditableTeacher | null = null;
   readonly loading = signal(true);
@@ -44,6 +47,10 @@ export class TeacherEditorPage {
   constructor() {
     addIcons({ cameraOutline, person });
     void this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.notification.dispose();
   }
 
   async load(): Promise<void> {
@@ -70,7 +77,7 @@ export class TeacherEditorPage {
   }
 
   selectPhoto(event: Event): void {
-    this.photoService.select(event, (message) => this.message.set(message));
+    this.photoService.select(event, (message) => this.notification.show(message));
   }
 
   addAssignment(): void {
@@ -107,12 +114,12 @@ export class TeacherEditorPage {
     }
 
     if (!isTeacherEditorValid(this.teacher)) {
-      this.message.set('Completa todos los campos obligatorios.');
+      this.notification.show('Completa todos los campos obligatorios.');
       return;
     }
 
     this.saving.set(true);
-    this.message.set('');
+    this.notification.clear();
 
     try {
       const photo = await this.photoService.serializedPhoto();
@@ -122,9 +129,9 @@ export class TeacherEditorPage {
       this.teacher = updatedTeacher;
       this.photoService.clearSelectedPhoto();
       this.showingCache.set(false);
-      this.message.set('Docente actualizado correctamente.');
+      this.notification.show('Docente actualizado correctamente.');
     } catch {
-      this.message.set('No se pudo actualizar el docente. Verifica tu conexión, sesión y permisos.');
+      this.notification.show('No se pudo actualizar el docente. Verifica tu conexión, sesión y permisos.');
     } finally {
       this.saving.set(false);
     }
@@ -141,13 +148,13 @@ export class TeacherEditorPage {
     }
 
     this.deleting.set(true);
-    this.message.set('');
+    this.notification.clear();
 
     try {
       await firstValueFrom(this.editorService.delete(this.teacher));
       await this.router.navigateByUrl('/docentes/listado');
     } catch {
-      this.message.set('No se pudo eliminar el docente. Verifica tu conexión, sesión y permisos.');
+      this.notification.show('No se pudo eliminar el docente. Verifica tu conexión, sesión y permisos.');
       this.deleting.set(false);
     }
   }

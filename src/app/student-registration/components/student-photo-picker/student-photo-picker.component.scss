@@ -10,8 +10,8 @@
   color: #3158ad;
   cursor: pointer;
   display: grid;
+  block-size: clamp(76px, 18vw, 96px);
   inline-size: 100%;
-  aspect-ratio: 0.86 / 1;
   min-block-size: 70px;
   overflow: hidden;
   place-items: center;

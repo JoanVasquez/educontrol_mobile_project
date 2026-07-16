@@ -53,17 +53,29 @@ button:disabled { opacity: .55; }
   .teacher-editor { padding: 14px; }
   .form-container { gap: 0; }
   .form-section {
-    padding: 12px 2px 20px;
+    padding: 14px 0 20px;
     border: 0;
     border-bottom: 1px solid #e5e7eb;
     border-radius: 0;
   }
   .teacher-profile {
-    grid-template-columns: 104px minmax(0, 1fr);
+    grid-template-columns: 1fr;
     gap: 12px;
   }
-  .photo-picker { min-height: 132px; }
-  .photo-picker img { width: 68px; height: 68px; }
+  .photo-picker {
+    align-items: center;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: auto minmax(0, 1fr);
+    justify-items: start;
+    min-height: 0;
+    padding: 10px 12px;
+  }
+  .photo-picker__preview {
+    height: 46px;
+    width: 46px;
+  }
+  .photo-picker__action { text-align: left; }
   .teacher-fields,
   .contact-fields { grid-template-columns: 1fr; gap: 10px; }
   .actions { width: 100%; margin-top: 18px; }

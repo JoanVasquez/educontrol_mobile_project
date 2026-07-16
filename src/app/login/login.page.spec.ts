@@ -39,6 +39,9 @@ describe('LoginPage', () => {
       uid: 'firebase-auth-uid',
       email: 'admin@example.com',
       fullName: 'Usuario IT',
+      codigo: 'ADM-001',
+      distrito: '15-03',
+      institucion: 'EduControl',
       role: 'admin',
       status: 'active',
     }));
@@ -55,6 +58,9 @@ describe('LoginPage', () => {
       uid: 'teacher-auth-uid',
       email: 'docente@example.com',
       fullName: 'Docente Prueba',
+      codigo: 'DOC-001',
+      distrito: '15-03',
+      institucion: 'EduControl',
       role: 'docente',
       status: 'active',
     }));

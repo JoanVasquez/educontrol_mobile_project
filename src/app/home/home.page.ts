@@ -15,6 +15,7 @@ import {
   todayOutline,
 } from 'ionicons/icons';
 import { AuthService } from '../core/auth/auth.service';
+import { APP_ROUTES } from '../core/constants/app-routes.constants';
 import { DashboardService } from '../core/dashboard/dashboard.service';
 import type { DashboardMetric, DashboardWeeklyPoint } from '../core/dashboard/dashboard.model';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
@@ -92,11 +93,11 @@ export class HomePage {
   }
 
   openBreakdownStatus(): void {
-    this.router.navigateByUrl('/averias/estado');
+    this.router.navigateByUrl(APP_ROUTES.breakdownStatus);
   }
 
   signOut(): void {
     this.authService.signOut();
-    this.router.navigateByUrl('/login', { replaceUrl: true });
+    this.router.navigateByUrl(APP_ROUTES.login, { replaceUrl: true });
   }
 }

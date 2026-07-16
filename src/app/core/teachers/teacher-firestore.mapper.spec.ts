@@ -3,6 +3,8 @@ import type { TeacherRegistrationDraft } from './teacher-registration.model';
 
 describe('TeacherFirestoreMapper', () => {
   const teacher: TeacherRegistrationDraft = {
+    email: 'ana@example.com',
+    authUid: 'teacher-auth-uid',
     firstName: 'Ana',
     lastName: 'Pérez',
     birthDate: '1990-01-01',

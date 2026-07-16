@@ -2,6 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
 import { catchError, firstValueFrom, from, map, of, switchMap, throwError } from 'rxjs';
 import { ValidAuthSessionService } from '../../auth/valid-auth-session.service';
+import { DOMAIN_EVENTS } from '../../events/domain-event.constants';
+import { DomainEventBusService } from '../../events/domain-event-bus.service';
 import { TeacherCacheRepository } from '../teacher-cache.repository';
 import { TeacherPhotoRepository } from '../teacher-photo.repository';
 import type { SerializedTeacherPhoto } from '../teacher-registration.model';
@@ -17,6 +19,7 @@ export class TeacherEditorService {
   private readonly photoRepository = inject(TeacherPhotoRepository);
   private readonly cacheRepository = inject(TeacherEditorCacheRepository);
   private readonly listCacheRepository = inject(TeacherCacheRepository);
+  private readonly events = inject(DomainEventBusService);
   private readonly mapper = new TeacherEditorMapper();
 
   load(teacherId: string): Observable<TeacherEditorResult> {
@@ -84,6 +87,7 @@ export class TeacherEditorService {
       createdAt: new Date(updatedTeacher.createdAt),
       updatedAt: new Date(updatedTeacher.updatedAt),
     });
+    this.events.publish(DOMAIN_EVENTS.teacherChanged, { id: updatedTeacher.id });
     return updatedTeacher;
   }
 
@@ -94,6 +98,7 @@ export class TeacherEditorService {
     }
     this.cacheRepository.remove(teacher.id);
     this.listCacheRepository.remove(teacher.id);
+    this.events.publish(DOMAIN_EVENTS.teacherChanged, { id: teacher.id, deleted: true });
   }
 
   private cachedOrError(teacherId: string, message: string): Observable<TeacherEditorResult> {

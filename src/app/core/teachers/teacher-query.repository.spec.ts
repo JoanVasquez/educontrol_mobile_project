@@ -25,7 +25,7 @@ describe('TeacherQueryRepository', () => {
     });
 
     const request = httpTesting.expectOne(
-      'https://firestore.googleapis.com/v1/projects//databases/(default)/documents/docentes?pageSize=100',
+      'https://firestore.googleapis.com/v1/projects/educontrol-mobile/databases/(default)/documents/docentes?pageSize=100',
     );
     expect(request.request.method).toBe('GET');
     expect(request.request.headers.get('Authorization')).toBe('Bearer id-token');

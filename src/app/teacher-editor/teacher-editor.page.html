@@ -1,5 +1,5 @@
 <div class="teacher-editor-shell">
-  <app-page-header title="Modificar registrar docente" backUrl="/docentes/listado" />
+  <app-page-header title="Modificar docente" backUrl="/docentes/listado" />
   <ion-content class="teacher-editor-content" [fullscreen]="false">
     <main class="teacher-editor">
       @if (loading()) {
@@ -21,13 +21,15 @@
             <h1>Información del docente</h1>
             <div class="teacher-profile">
               <label class="photo-picker">
-                @if (photoPreviewUrl()) {
-                  <img [src]="photoPreviewUrl()" [alt]="'Foto de ' + currentTeacher.firstName" />
-                } @else {
-                  <ion-icon name="person" aria-hidden="true" />
-                }
+                <span class="photo-picker__preview">
+                  @if (photoPreviewUrl()) {
+                    <img [src]="photoPreviewUrl()" [alt]="'Foto de ' + currentTeacher.firstName" />
+                  } @else {
+                    <ion-icon name="person" aria-hidden="true" />
+                  }
+                </span>
                 <input type="file" accept="image/*" (change)="selectPhoto($event)" />
-                <span><ion-icon name="camera-outline" aria-hidden="true" /> Actualizar foto</span>
+                <span class="photo-picker__action"><ion-icon name="camera-outline" aria-hidden="true" /> Actualizar foto</span>
               </label>
               <div class="teacher-fields">
                 <label class="field">

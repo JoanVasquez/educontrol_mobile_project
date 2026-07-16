@@ -1,3 +1,4 @@
+import type { OnDestroy } from '@angular/core';
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -5,6 +6,8 @@ import { IonContent, IonIcon, IonSpinner } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { buildOutline, locationOutline, searchOutline } from 'ionicons/icons';
 import { firstValueFrom } from 'rxjs';
+import { APP_ROUTES } from '../core/constants/app-routes.constants';
+import { BREAKDOWN_MESSAGES } from '../core/constants/ui-messages.constants';
 import type {
   BreakdownUpdateForm,
   BreakdownUpdateSummary,
@@ -16,6 +19,7 @@ import {
 } from '../core/breakdowns/update/breakdown-update.options';
 import { BreakdownUpdateService } from '../core/breakdowns/update/breakdown-update.service';
 import type { BreakdownCategory, BreakdownStatus, Priority } from '../core/models/breakdown.model';
+import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
 
@@ -25,10 +29,12 @@ import { AppPageHeaderComponent } from '../shared/components/app-page-header/app
   styleUrls: ['./breakdown-update.page.scss'],
   imports: [AppBottomNavigationComponent, AppPageHeaderComponent, FormsModule, IonContent, IonIcon, IonSpinner],
 })
-export class BreakdownUpdatePage {
+export class BreakdownUpdatePage implements OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly updateService = inject(BreakdownUpdateService);
+  private readonly messageNotification = new AutoDismissSignal<string>((message) => this.message.set(message), '');
+  private readonly errorNotification = new AutoDismissSignal<string>((message) => this.errorMessage.set(message), '');
 
   readonly reportId = this.route.snapshot.paramMap.get('id') ?? '';
   readonly message = signal('');
@@ -53,8 +59,13 @@ export class BreakdownUpdatePage {
     void this.load();
   }
 
+  ngOnDestroy(): void {
+    this.messageNotification.dispose();
+    this.errorNotification.dispose();
+  }
+
   search(): void {
-    this.router.navigateByUrl('/averias/estado');
+    this.router.navigateByUrl(APP_ROUTES.breakdownStatus);
   }
 
   async reload(): Promise<void> {
@@ -67,15 +78,15 @@ export class BreakdownUpdatePage {
     }
 
     this.saving.set(true);
-    this.message.set('');
-    this.errorMessage.set('');
+    this.messageNotification.clear();
+    this.errorNotification.clear();
 
     try {
       const result = await firstValueFrom(this.updateService.save(this.reportId, this.currentForm()));
       this.applyViewModel(result);
-      this.message.set('Cambios guardados correctamente.');
+      this.messageNotification.show(BREAKDOWN_MESSAGES.saveSuccess);
     } catch (error: unknown) {
-      this.errorMessage.set(error instanceof Error ? error.message : 'No se pudieron guardar los cambios.');
+      this.errorNotification.show(error instanceof Error ? error.message : BREAKDOWN_MESSAGES.saveError);
     } finally {
       this.saving.set(false);
     }
@@ -83,11 +94,11 @@ export class BreakdownUpdatePage {
 
   private async load(): Promise<void> {
     this.loading.set(true);
-    this.message.set('');
-    this.errorMessage.set('');
+    this.messageNotification.clear();
+    this.errorNotification.clear();
 
     if (!this.reportId) {
-      this.errorMessage.set('No se encontró el identificador de la avería.');
+      this.errorMessage.set(BREAKDOWN_MESSAGES.missingId);
       this.loading.set(false);
       return;
     }
@@ -96,7 +107,7 @@ export class BreakdownUpdatePage {
       const result = await firstValueFrom(this.updateService.load(this.reportId));
       this.applyViewModel(result);
     } catch (error: unknown) {
-      this.errorMessage.set(error instanceof Error ? error.message : 'No se pudo consultar la avería.');
+      this.errorMessage.set(error instanceof Error ? error.message : BREAKDOWN_MESSAGES.loadError);
     } finally {
       this.loading.set(false);
     }
