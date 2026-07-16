@@ -46,9 +46,11 @@
             <ion-icon name="share-social-outline" /> Compartir
           </button>
           <button class="secondary" type="button" [disabled]="!point()" (click)="openCurrentLocation()">
-            <ion-icon name="compass-outline" /> Abrir mapa
+            <ion-icon name="compass-outline" /> Ver mapa
           </button>
         </div>
+
+        <app-location-map [point]="mapPoint()" [title]="mapTitle()" />
       </section>
 
       <section class="places-card">
@@ -98,7 +100,7 @@
                 <span>{{ place.typeLabel || categoryLabel(place.category) }} · {{ distanceLabel(place.distanceMeters) }}</span>
                 <small>{{ place.address }}</small>
               </div>
-              <button type="button" (click)="openPlace(place)" aria-label="Abrir lugar en OpenStreetMap">
+              <button type="button" (click)="openPlace(place)" aria-label="Ver lugar en el mapa">
                 <ion-icon name="compass-outline" />
               </button>
             </article>

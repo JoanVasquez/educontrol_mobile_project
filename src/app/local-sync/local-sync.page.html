@@ -36,7 +36,7 @@
       </section>
 
       <section class="actions" aria-label="Acciones Bluetooth">
-        <ion-button type="button" expand="block" (click)="scanDevices()" [disabled]="isScanning() || isSending()">
+        <ion-button type="button" expand="block" (click)="scanDevices()" [disabled]="isScanning() || isConnecting() || isSending()">
           @if (isScanning()) {
             <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
           } @else {
@@ -45,7 +45,21 @@
           Buscar dispositivos
         </ion-button>
 
-        <ion-button type="button" expand="block" color="danger" (click)="sendPending()" [disabled]="isSending() || !selectedDeviceId() || !summary().totalCount">
+        <ion-button type="button" expand="block" fill="outline" (click)="pickDevice()" [disabled]="isScanning() || isConnecting() || isSending()">
+          <ion-icon name="bluetooth-outline" aria-hidden="true"></ion-icon>
+          Seleccionar BLE
+        </ion-button>
+
+        <ion-button type="button" expand="block" fill="outline" (click)="testConnection()" [disabled]="isScanning() || isConnecting() || isSending() || !selectedDeviceId()">
+          @if (isConnecting()) {
+            <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
+          } @else {
+            <ion-icon name="link-outline" aria-hidden="true"></ion-icon>
+          }
+          Probar conexion
+        </ion-button>
+
+        <ion-button type="button" expand="block" color="danger" (click)="sendPending()" [disabled]="isScanning() || isConnecting() || isSending() || !selectedDeviceId() || !summary().totalCount">
           @if (isSending()) {
             <ion-spinner name="crescent" aria-hidden="true"></ion-spinner>
           } @else {
@@ -59,7 +73,7 @@
         @for (device of devices(); track device.id) {
           <button type="button" class="device-card" [class.device-card--selected]="selectedDeviceId() === device.id" (click)="selectDevice(device.id)">
             <span>
-              <strong>{{ device.name || 'Dispositivo cercano' }}</strong>
+              <strong>{{ device.name || 'Dispositivo BLE sin nombre' }}</strong>
               <small>{{ device.id }}</small>
             </span>
             @if (device.signalStrength !== undefined) {

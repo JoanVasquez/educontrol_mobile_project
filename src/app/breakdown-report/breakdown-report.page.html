@@ -44,7 +44,7 @@
       </label>
 
       <fieldset class="photo-section">
-        <legend>Evidencia (foto)</legend>
+        <legend>Evidencia (foto y video)</legend>
         <div class="photo-info">
           <ion-icon name="camera-outline" aria-hidden="true" />
           <strong>{{ photoName() || 'Ninguna foto seleccionada' }}</strong>
@@ -85,6 +85,38 @@
             aria-label="Seleccionar archivo de imagen"
           />
         </label>
+
+        <div class="photo-info">
+          <ion-icon name="videocam-outline" aria-hidden="true" />
+          <strong>{{ videoName() || 'Ningun video seleccionado' }}</strong>
+        </div>
+
+        <div class="photo-buttons">
+          <label class="photo-button photo-button--video">
+            <ion-icon name="videocam-outline" aria-hidden="true" />
+            Grabar video
+            <input
+              type="file"
+              accept="video/*"
+              capture="environment"
+              (change)="selectVideo($event)"
+              [disabled]="isLoading()"
+              aria-label="Grabar video de la averia"
+            />
+          </label>
+
+          <label class="photo-button photo-button--video">
+            <ion-icon name="film-outline" aria-hidden="true" />
+            Galeria
+            <input
+              type="file"
+              accept="video/*"
+              (change)="selectVideo($event)"
+              [disabled]="isLoading()"
+              aria-label="Seleccionar video de galeria"
+            />
+          </label>
+        </div>
       </fieldset>
 
       @if (errorMessage()) {

@@ -55,6 +55,16 @@ export function isValidImageFile(file: File | undefined): boolean {
 }
 
 /**
+ * Validates file is a supported video
+ */
+export function isValidVideoFile(file: File | undefined): boolean {
+  if (!file) return false;
+
+  const validMimeTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
+  return validMimeTypes.includes(file.type);
+}
+
+/**
  * Validates file size (in MB)
  */
 export function isValidFileSize(file: File | undefined, maxSizeMB: number = 5): boolean {

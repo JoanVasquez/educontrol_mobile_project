@@ -1,23 +1,45 @@
 import { Injectable } from '@angular/core';
-import { buildYouTubeVideoDescriptor, type YouTubeVideoDescriptor } from '../../core/media/youtube-video.util';
+
+export type VideoGuideMediaType = 'video' | 'audio';
+
+export interface VideoGuideMedia {
+  readonly id: string;
+  readonly title: string;
+  readonly description: string;
+  readonly sourceUrl: string;
+  readonly type: VideoGuideMediaType;
+  readonly durationLabel: string;
+}
 
 export interface VideoGuide {
   readonly title: string;
   readonly subtitle: string;
   readonly description: string;
-  readonly video: YouTubeVideoDescriptor;
+  readonly mediaItems: readonly VideoGuideMedia[];
 }
 
-const VIDEO_GUIDE_SOURCE_URL = 'https://www.youtube.com/watch?v=cf940AVFnIg';
+const DEMO_VIDEO_SOURCE = 'assets/video-guide/video_demostrativo_educontrolrd.mp4';
+
+const VIDEO_GUIDE_ITEMS: readonly VideoGuideMedia[] = [
+  {
+    id: 'uso-general',
+    title: 'Video guia de uso de EduControl RD',
+    description: 'Video demostrativo del uso general de la aplicacion.',
+    sourceUrl: DEMO_VIDEO_SOURCE,
+    type: 'video',
+    durationLabel: 'Video demostrativo local',
+  },
+];
 
 @Injectable({ providedIn: 'root' })
 export class VideoGuideCatalog {
   getMainGuide(): VideoGuide {
     return {
-      title: 'Video guia',
-      subtitle: 'Material audiovisual',
-      description: 'Reproduce el video de apoyo directamente desde YouTube.',
-      video: buildYouTubeVideoDescriptor(VIDEO_GUIDE_SOURCE_URL),
+      title: 'Video guia de uso de EduControl RD',
+      subtitle: 'Unidad 7 - Multimedia',
+      description:
+        'Reproduce contenido explicativo con controles personalizados de play, pausa, stop y progreso.',
+      mediaItems: VIDEO_GUIDE_ITEMS,
     };
   }
 }

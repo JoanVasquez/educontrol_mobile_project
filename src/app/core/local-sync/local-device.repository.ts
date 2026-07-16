@@ -1,15 +1,17 @@
-import { Injectable } from '@angular/core';
-
-const LOCAL_DEVICE_ID_KEY = 'educontrol.local-sync.device-id';
+import { Injectable, inject } from '@angular/core';
+import { APP_STORAGE_KEYS } from '../storage/app-storage.keys';
+import { IonicKeyValueStorage } from '../storage/ionic-key-value.storage';
 
 @Injectable({ providedIn: 'root' })
 export class LocalDeviceRepository {
+  private readonly storage = inject(IonicKeyValueStorage);
+
   getDeviceId(): string {
-    const storedDeviceId = localStorage.getItem(LOCAL_DEVICE_ID_KEY);
+    const storedDeviceId = this.storage.getString(APP_STORAGE_KEYS.localSyncDeviceId);
     if (storedDeviceId) return storedDeviceId;
 
     const deviceId = this.createDeviceId();
-    localStorage.setItem(LOCAL_DEVICE_ID_KEY, deviceId);
+    this.storage.setString(APP_STORAGE_KEYS.localSyncDeviceId, deviceId);
     return deviceId;
   }
 

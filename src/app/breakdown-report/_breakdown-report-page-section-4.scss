@@ -17,19 +17,26 @@
   cursor: not-allowed;
 }
 
-.photo-button--file {
+.photo-button--file,
+.photo-button--video {
   grid-column: 1 / -1;
   position: relative;
 }
 
-.photo-button--file input[type='file'] {
+.photo-button--video {
+  grid-column: auto;
+}
+
+.photo-button--file input[type='file'],
+.photo-button--video input[type='file'] {
   cursor: pointer;
   inset: 0;
   opacity: 0;
   position: absolute;
 }
 
-.photo-button--file:not(:has(input:disabled)):hover {
+.photo-button--file:not(:has(input:disabled)):hover,
+.photo-button--video:not(:has(input:disabled)):hover {
   background: #f9f9f9;
   border-color: var(--report-red);
   color: var(--report-red);

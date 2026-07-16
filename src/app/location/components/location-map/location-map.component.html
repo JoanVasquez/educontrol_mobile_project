@@ -1,0 +1,26 @@
+<section class="map-panel" aria-label="Mapa integrado de ubicación">
+  <div class="map-panel__heading">
+    <span><ion-icon name="map-outline" /> {{ title }}</span>
+    @if (point) {
+      <small>{{ point.latitude.toFixed(5) }}, {{ point.longitude.toFixed(5) }}</small>
+    }
+  </div>
+
+  <div class="map-viewport">
+    @if (point && tiles().length) {
+      <div class="map-grid">
+        @for (tile of tiles(); track tile.key) {
+          <img [src]="tile.imageUrl" alt="" loading="lazy" />
+        }
+      </div>
+      <span class="map-marker" aria-label="Ubicación seleccionada">
+        <ion-icon name="location-outline" />
+      </span>
+    } @else {
+      <div class="map-placeholder">
+        <ion-icon name="location-outline" />
+        <span>{{ loading() ? 'Cargando mapa...' : failed() ? 'No se pudo cargar el mapa.' : 'Obtén una ubicación para ver el mapa.' }}</span>
+      </div>
+    }
+  </div>
+</section>

@@ -588,22 +588,74 @@ Archivos principales:
 src/app/core/bluetooth/
 src/app/core/local-sync/
 src/app/local-sync/
-android/app/src/main/java/com/educontrol/app/BluetoothLocalSyncPlugin.java
+android/app/src/main/AndroidManifest.xml
 ```
+
+Tabla de plugins:
+
+| Plugin | Paquete | Version | Uso |
+| --- | --- | --- | --- |
+| Bluetooth LE | `@capacitor-community/bluetooth-le` | `^8.2.0` | Escaneo de dispositivos cercanos y validacion de conexion local para sincronizar registros pendientes. |
 
 Funciones:
 
 - Solicitar permisos Bluetooth.
 - Verificar disponibilidad.
-- Buscar dispositivos Bluetooth emparejados/cercanos segun soporte Android.
+- Buscar dispositivos Bluetooth LE cercanos.
 - Seleccionar dispositivo.
 - Serializar pendientes de asistencia y averias.
-- Enviar paquete por Bluetooth.
+- Validar conexion con el dispositivo seleccionado.
+- Preparar el paquete local de sincronizacion para envio.
+
+Permisos utilizados en AndroidManifest.xml:
+
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
+
+Fragmento de codigo BLE:
+
+```ts
+import { BleClient } from '@capacitor-community/bluetooth-le';
+
+async initializeBluetooth(): Promise<void> {
+  await BleClient.initialize();
+}
+
+async discoverDevices(): Promise<BluetoothDeviceSummary[]> {
+  await this.requestPermissions();
+  const devices = new Map<string, BluetoothDeviceSummary>();
+
+  await BleClient.requestLEScan({ allowDuplicates: false }, (result) => {
+    devices.set(result.device.deviceId, {
+      id: result.device.deviceId,
+      name: result.localName || result.device.name || 'Dispositivo BLE cercano',
+      signalStrength: result.rssi,
+    });
+  });
+
+  await this.wait(5000);
+  await BleClient.stopLEScan();
+
+  return [...devices.values()];
+}
+```
+
+Resultado de prueba real:
+
+- En Android se solicitan permisos de dispositivos cercanos/Bluetooth al iniciar el escaneo.
+- En emulador Android, la pantalla responde correctamente ante ausencia de radio BLE mostrando que no se encontraron dispositivos o que Bluetooth no esta disponible.
+- En dispositivo Android real con Bluetooth activo, la pantalla lista dispositivos BLE cercanos con nombre, identificador y potencia de senal cuando el sistema los reporta.
+- Al seleccionar un dispositivo, la app intenta conectar mediante `BleClient.connect` antes de preparar el payload de pendientes.
+
+Unidad 5 - Bluetooth/BLE: Se integró `@capacitor-community/bluetooth-le` para detectar dispositivos cercanos y validar la comunicacion local entre equipos. Esta funcionalidad se utiliza como base para compartir registros pendientes cuando no existe conexion a Internet. Durante las pruebas se verifico el permiso de Bluetooth, el escaneo de dispositivos y la respuesta del sistema ante dispositivos disponibles o ausencia de dispositivos cercanos.
 
 Limitacion actual:
 
-- El lado emisor esta implementado.
-- Falta implementar un receptor/servidor completo dentro de la app para recibir, validar, guardar y confirmar paquetes enviados desde otra tablet.
+- La validacion de escaneo y conexion BLE esta implementada.
+- Falta implementar una caracteristica GATT propia para recibir, validar, guardar y confirmar paquetes enviados desde otra tablet.
 - No se deben limpiar pendientes enviados hasta tener confirmacion de recepcion.
 
 Recomendacion para pruebas:

@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import type { Subscription } from 'rxjs';
 import { firstValueFrom } from 'rxjs';
 import type { GeoPoint, LocationQuality, NearbyPlace, PlaceCategory } from '../core/location/location.model';
+import type { LocationMapPoint } from '../core/location/location-map-tile.service';
 import { LocationService } from '../core/location/location.service';
 import { LocationShareService } from '../core/location/location-share.service';
 import { AutoDismissSignal } from '../core/utils/auto-dismiss-signal.util';
@@ -29,6 +30,8 @@ export class LocationPageFacade {
   readonly message = signal('');
   readonly category = signal<PlaceCategory>('all');
   readonly radiusMeters = signal(1_000);
+  readonly mapPoint = signal<LocationMapPoint | null>(null);
+  readonly mapTitle = signal('Mapa de ubicación');
 
   async initializePermission(): Promise<void> {
     // Consulta el estado inicial para que la pantalla muestre si GPS esta concedido o pendiente.
@@ -119,6 +122,20 @@ export class LocationPageFacade {
     }
   }
 
+  focusCurrentLocation(): void {
+    const point = this.point();
+    if (!point) {
+      this.notification.show('Obtén tu ubicación antes de ver el mapa.');
+      return;
+    }
+
+    this.focusMap(point, 'Mi ubicación actual');
+  }
+
+  focusPlace(place: NearbyPlace): void {
+    this.focusMap(place, place.name);
+  }
+
   mapUrl(point: Pick<GeoPoint, 'latitude' | 'longitude'>): string {
     return this.locationService.mapUrl(point);
   }
@@ -132,5 +149,11 @@ export class LocationPageFacade {
     // Mantiene juntos el punto y su calidad para que la UI no calcule reglas de dominio.
     this.point.set(point);
     this.quality.set(this.locationService.quality(point));
+    this.focusMap(point, 'Mi ubicación actual');
+  }
+
+  private focusMap(point: LocationMapPoint, title: string): void {
+    this.mapPoint.set({ latitude: point.latitude, longitude: point.longitude });
+    this.mapTitle.set(title);
   }
 }

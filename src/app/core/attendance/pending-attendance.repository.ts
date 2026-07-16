@@ -1,23 +1,14 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { AttendanceSheet, PendingAttendanceSheet } from './attendance.model';
-
-const PENDING_ATTENDANCE_KEY = 'educontrol.pending.attendance-sheets';
+import { APP_STORAGE_KEYS } from '../storage/app-storage.keys';
+import { IonicKeyValueStorage } from '../storage/ionic-key-value.storage';
 
 @Injectable({ providedIn: 'root' })
 export class PendingAttendanceRepository {
+  private readonly storage = inject(IonicKeyValueStorage);
+
   getAll(): PendingAttendanceSheet[] {
-    const rawQueue = localStorage.getItem(PENDING_ATTENDANCE_KEY);
-
-    if (!rawQueue) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(rawQueue) as PendingAttendanceSheet[];
-    } catch {
-      this.replaceAll([]);
-      return [];
-    }
+    return this.storage.getJson<PendingAttendanceSheet[]>(APP_STORAGE_KEYS.pendingAttendanceSheets, []);
   }
 
   upsert(sheet: AttendanceSheet): PendingAttendanceSheet[] {
@@ -40,7 +31,7 @@ export class PendingAttendanceRepository {
   }
 
   replaceAll(queue: PendingAttendanceSheet[]): void {
-    localStorage.setItem(PENDING_ATTENDANCE_KEY, JSON.stringify(queue));
+    this.storage.setJson(APP_STORAGE_KEYS.pendingAttendanceSheets, queue);
   }
 
   removeBySheetId(sheetId: string): PendingAttendanceSheet[] {

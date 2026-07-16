@@ -19,7 +19,7 @@
 .video-guide {
   display: grid;
   gap: 16px;
-  inline-size: min(100%, 520px);
+  inline-size: min(100%, 620px);
   margin-inline: auto;
   padding: 16px 18px 28px;
 }
@@ -63,23 +63,73 @@
   margin: 4px 0 0;
 }
 
-.video-guide__external-link {
+.video-guide__section-title {
   align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.video-guide__section-title ion-icon {
+  color: #2563eb;
+  font-size: 20px;
+}
+
+.video-guide__section-title h2 {
+  margin: 0;
+}
+
+.video-guide__section-title h2 {
+  color: var(--video-guide-text);
+}
+
+.video-guide__section-title h2 {
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.video-guide__playlist {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  color: #b91c1c;
-  display: inline-grid;
-  font-size: 14px;
-  font-weight: 700;
-  gap: 8px;
-  grid-template-columns: auto auto;
-  justify-content: center;
-  min-block-size: 46px;
-  padding: 0 16px;
-  text-decoration: none;
+  display: grid;
+  gap: 12px;
+  padding: 14px;
 }
 
-.video-guide__external-link ion-icon {
-  font-size: 20px;
+.video-guide__playlist-item {
+  --background: #f8fafc;
+  --border-radius: 8px;
+  --color: var(--video-guide-text);
+  --padding-bottom: 10px;
+  --padding-end: 12px;
+  --padding-start: 12px;
+  --padding-top: 10px;
+  justify-content: start;
+  margin: 0;
+  min-block-size: 58px;
+  text-align: start;
+}
+
+.video-guide__playlist-item--active {
+  --background: #eff6ff;
+  --color: #1d4ed8;
+}
+
+.video-guide__playlist-item span {
+  display: grid;
+  gap: 4px;
+  inline-size: 100%;
+  justify-items: start;
+}
+
+.video-guide__playlist-item strong {
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.video-guide__playlist-item small {
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.2;
 }

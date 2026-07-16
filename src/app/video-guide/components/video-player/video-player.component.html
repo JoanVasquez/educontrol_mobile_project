@@ -1,10 +1,56 @@
 <div class="video-player">
-  <iframe
-    [src]="safeEmbedUrl()"
-    [title]="title()"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowfullscreen
-    loading="lazy"
-    referrerpolicy="strict-origin-when-cross-origin"
-  ></iframe>
+  <video
+    #player
+    [attr.aria-label]="media().title"
+    [src]="media().sourceUrl"
+    preload="metadata"
+    playsinline
+    (loadstart)="onLoadStart()"
+    (loadedmetadata)="onLoadedMetadata()"
+    (timeupdate)="onTimeUpdate()"
+    (ended)="onEnded()"
+    (play)="onPlay()"
+    (pause)="onPause()"
+  ></video>
+
+  <div class="video-player__body">
+    <div class="video-player__meta">
+      <div>
+        <h2>{{ media().title }}</h2>
+        <p>{{ media().description }}</p>
+      </div>
+      <span>{{ playbackState() }}</span>
+    </div>
+
+    <div class="video-player__timeline">
+      <span>{{ currentTimeLabel }}</span>
+      <ion-range
+        aria-label="Progreso del video"
+        [min]="0"
+        [max]="duration()"
+        [value]="currentTime()"
+        [disabled]="duration() === 0"
+        (ionChange)="onRangeChange($event)"
+      />
+      <span>{{ durationLabel }}</span>
+    </div>
+
+    <div class="video-player__controls" aria-label="Controles de reproduccion">
+      <ion-button type="button" size="small" shape="round" (click)="play()" [disabled]="isPlaying()">
+        <ion-icon name="play" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+      <ion-button type="button" size="small" shape="round" fill="outline" (click)="pause()" [disabled]="!isPlaying()">
+        <ion-icon name="pause" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+      <ion-button type="button" size="small" shape="round" fill="outline" (click)="stop()">
+        <ion-icon name="square" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+      <ion-button type="button" size="small" shape="round" fill="clear" (click)="restart()">
+        <ion-icon name="refresh" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+      <ion-button type="button" size="small" shape="round" fill="clear" (click)="enterFullscreen()">
+        <ion-icon name="expand" slot="icon-only" aria-hidden="true"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
 </div>

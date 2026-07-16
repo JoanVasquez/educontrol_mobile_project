@@ -2,7 +2,7 @@
   <app-page-header [title]="guide.title" [subtitle]="guide.subtitle" backUrl="/home" />
 
   <ion-content class="video-guide-content">
-    <main class="video-guide" aria-label="Modulo de video">
+    <main class="video-guide" aria-label="Modulo multimedia">
       <section class="video-guide__intro">
         <span class="video-guide__icon">
           <ion-icon name="play-circle-outline" aria-hidden="true"></ion-icon>
@@ -13,12 +13,30 @@
         </div>
       </section>
 
-      <app-video-player [embedUrl]="guide.video.embedUrl" [title]="guide.title" />
+      <section class="video-guide__playlist" aria-labelledby="video-guide-playlist-title">
+        <div class="video-guide__section-title">
+          <ion-icon name="film-outline" aria-hidden="true"></ion-icon>
+          <h2 id="video-guide-playlist-title">Lista de videos</h2>
+        </div>
 
-      <a class="video-guide__external-link" [href]="guide.video.watchUrl" target="_blank" rel="noopener noreferrer">
-        <ion-icon name="logo-youtube" aria-hidden="true"></ion-icon>
-        <span>Ver en YouTube</span>
-      </a>
+        @for (media of guide.mediaItems; track media.id) {
+          <ion-button
+            type="button"
+            expand="block"
+            fill="clear"
+            class="video-guide__playlist-item"
+            [class.video-guide__playlist-item--active]="media.id === selectedMediaId()"
+            (click)="selectMedia(media)"
+          >
+            <span>
+              <strong>{{ media.title }}</strong>
+              <small>{{ media.durationLabel }}</small>
+            </span>
+          </ion-button>
+        }
+      </section>
+
+      <app-video-player [media]="selectedMedia()" />
     </main>
   </ion-content>
 

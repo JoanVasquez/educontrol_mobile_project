@@ -40,6 +40,7 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
   readonly categories = BREAKDOWN_CATEGORIES;
   readonly priority = signal<Priority>('low');
   readonly photoName = signal('');
+  readonly videoName = signal('');
   readonly errorMessage = signal('');
   readonly successMessage = signal('');
   readonly isLoading = signal(false);
@@ -111,6 +112,17 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     }
   }
 
+  selectVideo(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (file && this.facade.setVideo(file)) {
+      this.videoName.set(file.name);
+    }
+
+    input.value = '';
+  }
+
   submit(): void {
     if (!this.category || !this.description.trim() || !this.location.trim()) {
       this.errorNotification.show(BREAKDOWN_MESSAGES.requiredFields);
@@ -141,7 +153,8 @@ export class BreakdownReportPage implements OnInit, OnDestroy {
     this.location = '';
     this.priority.set('low');
     this.photoName.set('');
-    this.facade.clearPhoto();
+    this.videoName.set('');
+    this.facade.clearEvidence();
   }
 
   clearMessages(): void {

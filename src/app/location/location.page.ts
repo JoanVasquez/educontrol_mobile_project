@@ -14,13 +14,14 @@ import {
 import type { NearbyPlace, PlaceCategory } from '../core/location/location.model';
 import { AppBottomNavigationComponent } from '../shared/components/app-bottom-navigation/app-bottom-navigation.component';
 import { AppPageHeaderComponent } from '../shared/components/app-page-header/app-page-header.component';
+import { LocationMapComponent } from './components/location-map/location-map.component';
 import { LocationPageFacade, type CategoryOption } from './location-page.facade';
 
 @Component({
   selector: 'app-location',
   templateUrl: './location.page.html',
   styleUrls: ['./location.page.scss'],
-  imports: [AppBottomNavigationComponent, AppPageHeaderComponent, DatePipe, IonContent, IonIcon],
+  imports: [AppBottomNavigationComponent, AppPageHeaderComponent, DatePipe, IonContent, IonIcon, LocationMapComponent],
   providers: [LocationPageFacade],
 })
 export class LocationPage implements OnDestroy {
@@ -37,6 +38,8 @@ export class LocationPage implements OnDestroy {
   readonly message = this.facade.message;
   readonly category = this.facade.category;
   readonly radiusMeters = this.facade.radiusMeters;
+  readonly mapPoint = this.facade.mapPoint;
+  readonly mapTitle = this.facade.mapTitle;
 
   readonly categories: CategoryOption[] = [
     { value: 'all', label: 'Todos' },
@@ -92,12 +95,11 @@ export class LocationPage implements OnDestroy {
   }
 
   openCurrentLocation(): void {
-    const point = this.point();
-    if (point) window.open(this.facade.mapUrl(point), '_blank', 'noopener,noreferrer');
+    this.facade.focusCurrentLocation();
   }
 
   openPlace(place: NearbyPlace): void {
-    window.open(this.facade.mapUrl(place), '_blank', 'noopener,noreferrer');
+    this.facade.focusPlace(place);
   }
 
   qualityLabel(): string {

@@ -1,6 +1,7 @@
 /**
  * Domain Model for Breakdown/Averia.
- * The photo is stored as a compressed Data URL in Firestore to avoid Firebase Storage.
+ * Evidence media is stored as compact Data URLs in Firestore for the academic prototype.
+ * Large production videos should be moved to Firebase Storage.
  */
 export interface Breakdown {
   id?: string;
@@ -12,6 +13,9 @@ export interface Breakdown {
   photoDataUrl: string | null;
   photoName: string | null;
   photoContentType: string | null;
+  videoDataUrl: string | null;
+  videoName: string | null;
+  videoContentType: string | null;
   status: BreakdownStatus;
   notes: string | null;
   createdAt: string;
@@ -27,6 +31,9 @@ export interface BreakdownDTO {
   photoDataUrl?: string | null;
   photoName?: string | null;
   photoContentType?: string | null;
+  videoDataUrl?: string | null;
+  videoName?: string | null;
+  videoContentType?: string | null;
   status: string;
   notes?: string | null;
   createdAt: string;
@@ -34,6 +41,12 @@ export interface BreakdownDTO {
 }
 
 export interface BreakdownPhotoEvidence {
+  dataUrl: string;
+  name: string;
+  contentType: string;
+}
+
+export interface BreakdownVideoEvidence {
   dataUrl: string;
   name: string;
   contentType: string;
@@ -67,6 +80,9 @@ export function createBreakdown(
     photoDataUrl,
     photoName: null,
     photoContentType: null,
+    videoDataUrl: null,
+    videoName: null,
+    videoContentType: null,
     status: 'pending',
     notes: null,
     createdAt: new Date().toISOString(),

@@ -7,19 +7,22 @@ import { BreakdownOfflineSyncService } from '../../core/breakdowns/offline/break
 import type { RegisterBreakdownResult } from '../../core/breakdowns/offline/breakdown-offline.model';
 import { BREAKDOWN_MESSAGES } from '../../core/constants/ui-messages.constants';
 import { BreakdownService } from '../../core/firebase/breakdown.service';
-import type { Breakdown, BreakdownCategory, BreakdownPhotoEvidence, Priority } from '../../core/models/breakdown.model';
+import type { Breakdown, BreakdownCategory, BreakdownPhotoEvidence, BreakdownVideoEvidence, Priority } from '../../core/models/breakdown.model';
 import { BreakdownPhotoSerializer } from '../../core/utils/breakdown-photo.serializer';
+import { BreakdownVideoSerializer } from '../../core/utils/breakdown-video.serializer';
 import { mapFormToBreakdown } from '../../core/utils/mappers.util';
-import { isValidFileSize, isValidImageFile, validateBreakdownForm } from '../../core/utils/validators.util';
+import { isValidFileSize, isValidImageFile, isValidVideoFile, validateBreakdownForm } from '../../core/utils/validators.util';
 
 @Injectable()
 export class BreakdownReportFacade {
   private readonly selectedPhoto$ = new BehaviorSubject<File | null>(null);
+  private readonly selectedVideo$ = new BehaviorSubject<File | null>(null);
   private readonly isLoading$ = new BehaviorSubject<boolean>(false);
   private readonly errorMessage$ = new BehaviorSubject<string>('');
   private readonly successMessage$ = new BehaviorSubject<string>('');
 
   readonly photo$ = this.selectedPhoto$.asObservable();
+  readonly video$ = this.selectedVideo$.asObservable();
   readonly isLoading = this.isLoading$.asObservable();
   readonly error$ = this.errorMessage$.asObservable();
   readonly success$ = this.successMessage$.asObservable();
@@ -28,6 +31,7 @@ export class BreakdownReportFacade {
   private readonly breakdownSyncService = inject(BreakdownOfflineSyncService);
   private readonly cameraService = inject(CameraService);
   private readonly photoSerializer = inject(BreakdownPhotoSerializer);
+  private readonly videoSerializer = inject(BreakdownVideoSerializer);
 
   takePhoto(): Observable<File | null> {
     this.setLoading(true);
@@ -62,6 +66,11 @@ export class BreakdownReportFacade {
     return this.validateAndSetPhoto(photo);
   }
 
+  setVideo(video: File): boolean {
+    this.clearMessages();
+    return this.validateAndSetVideo(video);
+  }
+
   submitBreakdownReport(
     category: BreakdownCategory,
     description: string,
@@ -86,13 +95,19 @@ export class BreakdownReportFacade {
       location,
     });
     const selectedPhoto = this.selectedPhoto$.value;
+    const selectedVideo = this.selectedVideo$.value;
     const evidenceRequest: Observable<BreakdownPhotoEvidence | null> = selectedPhoto ? from(this.photoSerializer.serialize(selectedPhoto)) : of(null);
 
     return evidenceRequest.pipe(
-      switchMap((evidence) => this.breakdownSyncService.register(this.withEvidence(breakdown, evidence), breakdownId)),
+      switchMap((photoEvidence) => this.videoEvidenceRequest(selectedVideo).pipe(
+        switchMap((videoEvidence) => this.breakdownSyncService.register(
+          this.withEvidence(breakdown, photoEvidence, videoEvidence),
+          breakdownId,
+        )),
+      )),
       tap((result) => {
         this.setSuccess(this.successMessage(result));
-        this.clearPhoto();
+        this.clearEvidence();
       }),
       map((result) => result.breakdown),
       catchError((error: Error) => {
@@ -107,21 +122,61 @@ export class BreakdownReportFacade {
     this.selectedPhoto$.next(null);
   }
 
+  clearVideo(): void {
+    this.selectedVideo$.next(null);
+  }
+
+  clearEvidence(): void {
+    this.clearPhoto();
+    this.clearVideo();
+  }
+
   getPhoto(): File | null {
     return this.selectedPhoto$.value;
   }
 
-  private withEvidence(breakdown: Breakdown, evidence: BreakdownPhotoEvidence | null): Breakdown {
-    if (!evidence) {
-      return breakdown;
-    }
+  getVideo(): File | null {
+    return this.selectedVideo$.value;
+  }
 
+  private videoEvidenceRequest(video: File | null): Observable<BreakdownVideoEvidence | null> {
+    return video ? from(this.videoSerializer.serialize(video)) : of(null);
+  }
+
+  private withEvidence(
+    breakdown: Breakdown,
+    photoEvidence: BreakdownPhotoEvidence | null,
+    videoEvidence: BreakdownVideoEvidence | null,
+  ): Breakdown {
     return {
       ...breakdown,
-      photoDataUrl: evidence.dataUrl,
-      photoName: evidence.name,
-      photoContentType: evidence.contentType,
+      ...(photoEvidence ? {
+        photoDataUrl: photoEvidence.dataUrl,
+        photoName: photoEvidence.name,
+        photoContentType: photoEvidence.contentType,
+      } : {}),
+      ...(videoEvidence ? {
+        videoDataUrl: videoEvidence.dataUrl,
+        videoName: videoEvidence.name,
+        videoContentType: videoEvidence.contentType,
+      } : {}),
     };
+  }
+
+  private validateAndSetVideo(video: File): boolean {
+    if (!isValidVideoFile(video)) {
+      this.setError('El archivo debe ser un video MP4, WebM o MOV');
+      return false;
+    }
+
+    if (!isValidFileSize(video, 1)) {
+      this.setError('El video debe ser menor a 1MB para adjuntarlo al reporte');
+      return false;
+    }
+
+    this.selectedVideo$.next(video);
+    this.clearMessages();
+    return true;
   }
 
   private successMessage(_result: RegisterBreakdownResult): string {

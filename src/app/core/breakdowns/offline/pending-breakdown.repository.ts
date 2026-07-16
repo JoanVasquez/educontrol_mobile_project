@@ -1,24 +1,15 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import type { Breakdown } from '../../models/breakdown.model';
+import { APP_STORAGE_KEYS } from '../../storage/app-storage.keys';
+import { IonicKeyValueStorage } from '../../storage/ionic-key-value.storage';
 import type { PendingBreakdownRegistration } from './breakdown-offline.model';
-
-const PENDING_BREAKDOWNS_KEY = 'educontrol.pending.breakdown-registrations';
 
 @Injectable({ providedIn: 'root' })
 export class PendingBreakdownRepository {
+  private readonly storage = inject(IonicKeyValueStorage);
+
   getAll(): PendingBreakdownRegistration[] {
-    const rawQueue = localStorage.getItem(PENDING_BREAKDOWNS_KEY);
-
-    if (!rawQueue) {
-      return [];
-    }
-
-    try {
-      return JSON.parse(rawQueue) as PendingBreakdownRegistration[];
-    } catch {
-      this.replaceAll([]);
-      return [];
-    }
+    return this.storage.getJson<PendingBreakdownRegistration[]>(APP_STORAGE_KEYS.pendingBreakdownRegistrations, []);
   }
 
   add(documentId: string, payload: Breakdown): PendingBreakdownRegistration[] {
@@ -37,7 +28,7 @@ export class PendingBreakdownRepository {
   }
 
   replaceAll(queue: PendingBreakdownRegistration[]): void {
-    localStorage.setItem(PENDING_BREAKDOWNS_KEY, JSON.stringify(queue));
+    this.storage.setJson(APP_STORAGE_KEYS.pendingBreakdownRegistrations, queue);
   }
 
   count(): number {
